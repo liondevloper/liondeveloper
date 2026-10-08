@@ -5,7 +5,14 @@ import { pool, ENQUIRY_STATUSES } from './db.js';
 
 const COOKIE_NAME = 'lion_admin';
 const SESSION_DAYS = 7;
-const secret = () => process.env.SESSION_SECRET || 'lion-developer-dev-secret';
+// No fallback value on purpose: this repo is public, so a hardcoded secret would let anyone forge an admin session.
+const secret = () => process.env.SESSION_SECRET || '';
+const NO_SECRET = 'Admin access is disabled until SESSION_SECRET is set on the server.';
+
+function requireSecret(_req, res, next) {
+  if (!secret()) return res.status(503).json({ error: NO_SECRET });
+  next();
+}
 
 const text = (value, max) => {
   if (typeof value !== 'string') return '';
@@ -33,6 +40,7 @@ function recordFailure(ip) {
 }
 
 function requireAuth(req, res, next) {
+  if (!secret()) return res.status(503).json({ error: NO_SECRET });
   const token = req.cookies?.[COOKIE_NAME];
   if (!token) return res.status(401).json({ error: 'Not signed in' });
   try {
@@ -98,7 +106,7 @@ api.get('/content', async (_req, res) => {
 
 /* ------------------------------------------------------------------ auth */
 
-api.post('/auth/login', async (req, res) => {
+api.post('/auth/login', requireSecret, async (req, res) => {
   const ip = req.ip || 'unknown';
   if (tooManyAttempts(ip)) {
     return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' });

@@ -63,7 +63,7 @@ export const defaultContent: SiteContent = {
   },
   hero: {
     badge: 'Available for New Projects',
-    headline: 'We build websites that *grow* your business.',
+    headline: 'I build websites that *grow* your business.',
     text: 'Modern websites, web applications and digital solutions designed to help businesses build a stronger online presence and turn visitors into customers.',
   },
   stats: [
@@ -98,14 +98,6 @@ export const defaultContent: SiteContent = {
       accent: 'blue',
       features: ['Hotel showcase', 'Rooms', 'Gallery', 'Enquiry system'],
       tech: ['React', 'UI/UX', 'Forms'],
-    },
-    {
-      title: 'Your Next Digital Experience',
-      category: 'Available for your brand',
-      description: 'Your business could be the next case study. Let’s create something clear, credible and built to convert.',
-      accent: 'dark',
-      features: ['Custom direction', 'Premium design', 'Business focused'],
-      tech: ['Strategy', 'Design', 'Development'],
     },
   ],
   pricing: [
