@@ -63,7 +63,7 @@ export const defaultContent: SiteContent = {
   },
   hero: {
     badge: 'Available for New Projects',
-    headline: 'We build websites that *grow* your business.',
+    headline: 'I build websites that *grow* your business.',
     text: 'Modern websites, web applications and digital solutions designed to help businesses build a stronger online presence and turn visitors into customers.',
   },
   stats: [

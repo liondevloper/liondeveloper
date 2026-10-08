@@ -5,7 +5,12 @@ import { initDatabase } from './db.js';
 
 const port = Number(process.env.PORT) || 5173;
 
-await initDatabase();
+// The site must render even when the database is unreachable; only the API degrades.
+try {
+  await initDatabase();
+} catch (error) {
+  console.error('[db] init failed, serving the site without the API:', error.message);
+}
 
 const app = createApp();
 const httpServer = createHttpServer(app);
