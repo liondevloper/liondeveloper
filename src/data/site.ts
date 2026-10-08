@@ -23,7 +23,7 @@ export type Testimonial = { quote: string; author: string; role: string; rating:
 export type Faq = { question: string; answer: string };
 
 export type SiteContent = {
-  contact: { email: string; whatsapp: string; instagram: string; instagramUrl: string };
+  contact: { email: string; whatsapp: string; whatsappMessage: string; instagram: string; instagramUrl: string };
   hero: { badge: string; headline: string; text: string };
   stats: Stat[];
   services: Service[];
@@ -57,6 +57,7 @@ export const defaultContent: SiteContent = {
   contact: {
     email: 'liondevloper@gmail.com',
     whatsapp: '',
+    whatsappMessage: 'Hi Lion Developer, I want a website for my business.',
     instagram: '@lion_devloper',
     instagramUrl: 'https://www.instagram.com/lion_devloper/',
   },
@@ -197,8 +198,10 @@ export function useSiteContent(): SiteContent {
   return content;
 }
 
-export function whatsappLink(number: string) {
+// Indian numbers are usually typed without the country code, so 10 digits get a 91 prefix.
+export function whatsappLink(number: string, message?: string) {
   const digits = number.replace(/\D/g, '');
   if (digits.length < 10) return null;
-  return `https://wa.me/${digits.length === 10 ? `91${digits}` : digits}`;
+  const to = digits.length === 10 ? `91${digits}` : digits;
+  return `https://wa.me/${to}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
 }
