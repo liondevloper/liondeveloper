@@ -6,7 +6,7 @@ import {
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
 import { useSiteContent, whatsappLink } from '@/data/site';
-import lionLogo from '@/assets/images/file_00000000a3408208b2c7cd281b1387a3.png';
+import lionLogo from '@/assets/images/lion-logo.png';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
@@ -54,8 +54,9 @@ async function emailEnquiry(data: EnquiryFields, email: string) {
 function App() {
   const content = useSiteContent();
   const { contact, hero, stats, services, projects, pricing, technologies, testimonials, faqs } = content;
-  const whatsappHref = whatsappLink(contact.whatsapp) ?? '#contact';
+  const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sentEnquiry, setSentEnquiry] = useState<EnquiryFields | null>(null);
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [submitted, setSubmitted] = useState(false);
@@ -79,14 +80,30 @@ function App() {
       return;
     }
     form.reset();
+    setSentEnquiry(data);
     setSubmitted(true);
   };
+
+  // After a request is sent, the visitor can carry the same details straight into WhatsApp.
+  const followUpHref = sentEnquiry
+    ? whatsappLink(
+        contact.whatsapp,
+        [
+          `Hi Lion Developer, I just sent a project request from your website.`,
+          `Name: ${sentEnquiry.name}`,
+          sentEnquiry.website_type ? `Website type: ${sentEnquiry.website_type}` : '',
+          sentEnquiry.budget ? `Budget: ${sentEnquiry.budget}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      )
+    : null;
 
   return (
     <div className="site-shell">
       <nav className="navbar">
         <a className="brand" href="#home" onClick={closeMenu}>
-          <span className="brand-mark"><img src={lionLogo} alt="Lion Developer lion logo" /></span>
+          <span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span>
           <span><strong>LION</strong><small>DEVELOPER</small></span>
         </a>
         <button className="menu-toggle" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
@@ -133,10 +150,10 @@ function App() {
 
         <section className="faq-section section-pad section-dark"><div className="section-heading"><div><span className="section-kicker">Need to know</span><h2>Frequently<br /><em>asked.</em></h2></div><p>Still curious? Here are answers to a few of the questions clients ask most often.</p></div><div className="faq-list">{faqs.map((faq, index) => <div className={`faq-item ${openFaq === index ? 'open' : ''}`} key={index}><button onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{String(index + 1).padStart(2, '0')}</span><b>{faq.question}</b>{openFaq === index ? <ChevronUp size={19} /> : <ChevronDown size={19} />}</button>{openFaq === index && <p>{faq.answer}</p>}</div>)}</div></section>
 
-        <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={whatsappHref} target={whatsappHref === '#contact' ? undefined : '_blank'} rel="noreferrer"><MessageCircle size={19} />{contact.whatsapp || 'WhatsApp me'}</a></div></div><div className="form-card">{submitted ? <div className="success-message"><div><Check size={30} /></div><h3>Request received.</h3><p>Thanks for reaching out. Your project details are ready for review.</p><button className="button button-outline" onClick={() => setSubmitted(false)}>Send another request</button></div> : <form onSubmit={handleSubmit}><div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder="+91 00000 00000" /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Website type<select name="website_type" defaultValue=""><option value="" disabled>Select a website type</option><option>Business website</option><option>Landing page</option><option>E-commerce website</option><option>Custom web application</option></select></label><label>Budget<select name="budget" defaultValue=""><option value="" disabled>Choose your budget</option><option>₹5,000 – ₹10,000</option><option>₹10,000 – ₹20,000</option><option>₹20,000 – ₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label><label>Project details<textarea required name="details" placeholder="Tell me a little about what you want to build..." rows={4} /></label><button className="button button-gold form-submit" type="submit" disabled={sending}>{sending ? 'Sending...' : <>Send project request <Send size={17} /></>}</button>{sendError && <p className="form-error">Couldn’t send that. Try again, or email {contact.email} directly.</p>}</form>}</div></div></section>
+        <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={whatsappHref} target={whatsappHref === '#contact' ? undefined : '_blank'} rel="noreferrer"><MessageCircle size={19} />{contact.whatsapp || 'WhatsApp me'}</a></div></div><div className="form-card">{submitted ? <div className="success-message"><div><Check size={30} /></div><h3>Request received.</h3><p>Thanks for reaching out. Your project details are ready for review.</p>{followUpHref && <a className="button button-gold success-whatsapp" href={followUpHref} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Continue on WhatsApp</a>}<button className="button button-outline" onClick={() => setSubmitted(false)}>Send another request</button></div> : <form onSubmit={handleSubmit}><div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder="+91 00000 00000" /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Website type<select name="website_type" defaultValue=""><option value="" disabled>Select a website type</option><option>Business website</option><option>Landing page</option><option>E-commerce website</option><option>Custom web application</option></select></label><label>Budget<select name="budget" defaultValue=""><option value="" disabled>Choose your budget</option><option>₹5,000 – ₹10,000</option><option>₹10,000 – ₹20,000</option><option>₹20,000 – ₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label><label>Project details<textarea required name="details" placeholder="Tell me a little about what you want to build..." rows={4} /></label><button className="button button-gold form-submit" type="submit" disabled={sending}>{sending ? 'Sending...' : <>Send project request <Send size={17} /></>}</button>{sendError && <p className="form-error">Couldn’t send that. Try again, or email {contact.email} directly.</p>}</form>}</div></div></section>
       </main>
 
-      <footer className="footer"><div className="footer-top"><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer lion logo" /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p><a className="button button-outline" href="#contact">Have a project in mind? Let’s talk <ArrowUpRight size={16} /></a></div><div className="footer-bottom"><span>© 2026 Lion Developer. All rights reserved.</span><div><a href="#home">Home</a><a href="#services">Services</a><a href="#projects">Projects</a><a href="#pricing">Pricing</a>{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}</div></div></footer>
+      <footer className="footer"><div className="footer-top"><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p><a className="button button-outline" href="#contact">Have a project in mind? Let’s talk <ArrowUpRight size={16} /></a></div><div className="footer-bottom"><span>© 2026 Lion Developer. All rights reserved.</span><div><a href="#home">Home</a><a href="#services">Services</a><a href="#projects">Projects</a><a href="#pricing">Pricing</a>{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}</div></div></footer>
 
       <a className="floating-whatsapp" href={whatsappHref} target={whatsappHref === '#contact' ? undefined : '_blank'} rel="noreferrer" aria-label="Contact Lion Developer on WhatsApp"><MessageCircle size={22} /><span>Let’s talk</span></a>
 
