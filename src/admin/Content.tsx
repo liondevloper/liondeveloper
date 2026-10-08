@@ -326,7 +326,7 @@ export default function Content() {
 
       {tab === 'testimonials' && (
         <>
-          <p className="admin-muted">With no testimonials saved, the site shows a placeholder card.</p>
+          <p className="admin-muted">With no testimonials saved, the site hides this section.</p>
           <Repeater<Testimonial>
             items={content.testimonials}
             onChange={(testimonials) => patch({ testimonials })}
