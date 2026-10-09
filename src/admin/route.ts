@@ -1,2 +1,2 @@
 // The admin panel lives on a private, unguessable path instead of /admin.
-export const ADMIN_PATH = '/devloperayan';
+export const ADMIN_PATH = '/developerayan';
