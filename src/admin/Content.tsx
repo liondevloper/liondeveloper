@@ -206,7 +206,7 @@ export default function Content() {
           <Text label="Email" value={content.contact.email} onChange={(email) => patch({ contact: { ...content.contact, email } })} placeholder="you@example.com" />
           <Text label="WhatsApp number" value={content.contact.whatsapp} onChange={(whatsapp) => patch({ contact: { ...content.contact, whatsapp } })} placeholder="+91 00000 00000" />
           <Area label="WhatsApp first message" value={content.contact.whatsappMessage} onChange={(whatsappMessage) => patch({ contact: { ...content.contact, whatsappMessage } })} rows={2} />
-          <Text label="Instagram handle" value={content.contact.instagram} onChange={(instagram) => patch({ contact: { ...content.contact, instagram } })} placeholder="@lion_devloper" />
+          <Text label="Instagram handle" value={content.contact.instagram} onChange={(instagram) => patch({ contact: { ...content.contact, instagram } })} placeholder="@lion_developer" />
           <Text label="Instagram link" value={content.contact.instagramUrl} onChange={(instagramUrl) => patch({ contact: { ...content.contact, instagramUrl } })} />
           <p className="admin-muted">The WhatsApp buttons turn live as soon as a number is saved, with the message above already typed for the visitor.</p>
         </div>
@@ -326,7 +326,7 @@ export default function Content() {
 
       {tab === 'testimonials' && (
         <>
-          <p className="admin-muted">With no testimonials saved, the site shows a placeholder card.</p>
+          <p className="admin-muted">With no testimonials saved, the site hides this section.</p>
           <Repeater<Testimonial>
             items={content.testimonials}
             onChange={(testimonials) => patch({ testimonials })}
