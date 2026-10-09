@@ -31,11 +31,12 @@ type TabId = (typeof TABS)[number]['id'];
 
 /* --------------------------------------------------------------- fields */
 
-function Text({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string }) {
+function Text({ label, value, onChange, placeholder, hint }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; hint?: string }) {
   return (
     <label>
       {label}
       <input value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      {hint && <small className="admin-hint">{hint}</small>}
     </label>
   );
 }
@@ -121,7 +122,7 @@ function clean(content: SiteContent): SiteContent {
   return {
     ...content,
     technologies: trimList(content.technologies),
-    projects: content.projects.map((project) => ({ ...project, features: trimList(project.features), tech: trimList(project.tech) })),
+    projects: content.projects.map((project) => ({ ...project, url: (project.url ?? '').trim(), features: trimList(project.features), tech: trimList(project.tech) })),
     pricing: content.pricing.map((plan) => ({ ...plan, features: trimList(plan.features) })),
   };
 }
@@ -206,7 +207,7 @@ export default function Content() {
           <Text label="Email" value={content.contact.email} onChange={(email) => patch({ contact: { ...content.contact, email } })} placeholder="you@example.com" />
           <Text label="WhatsApp number" value={content.contact.whatsapp} onChange={(whatsapp) => patch({ contact: { ...content.contact, whatsapp } })} placeholder="+91 00000 00000" />
           <Area label="WhatsApp first message" value={content.contact.whatsappMessage} onChange={(whatsappMessage) => patch({ contact: { ...content.contact, whatsappMessage } })} rows={2} />
-          <Text label="Instagram handle" value={content.contact.instagram} onChange={(instagram) => patch({ contact: { ...content.contact, instagram } })} placeholder="@lion_devloper" />
+          <Text label="Instagram handle" value={content.contact.instagram} onChange={(instagram) => patch({ contact: { ...content.contact, instagram } })} placeholder="@lion___developer" />
           <Text label="Instagram link" value={content.contact.instagramUrl} onChange={(instagramUrl) => patch({ contact: { ...content.contact, instagramUrl } })} />
           <p className="admin-muted">The WhatsApp buttons turn live as soon as a number is saved, with the message above already typed for the visitor.</p>
         </div>
@@ -265,7 +266,7 @@ export default function Content() {
         <Repeater<Project>
           items={content.projects}
           onChange={(projects) => patch({ projects })}
-          blank={() => ({ title: '', category: '', description: '', accent: 'gold', features: [], tech: [] })}
+          blank={() => ({ title: '', category: '', description: '', accent: 'gold', features: [], tech: [], url: '' })}
           addLabel="Add project"
           title={(project) => project.title}
         >
@@ -275,6 +276,13 @@ export default function Content() {
                 <Text label="Project name" value={project.title} onChange={(title) => update({ ...project, title })} />
                 <Text label="Industry" value={project.category} onChange={(category) => update({ ...project, category })} placeholder="Hotel / Hospitality" />
               </div>
+              <Text
+                label="Website URL"
+                value={project.url ?? ''}
+                onChange={(url) => update({ ...project, url })}
+                placeholder="https://clientsite.com"
+                hint="Card shows this homepage automatically. Blank keeps the drawn preview."
+              />
               <Area label="Description" value={project.description} onChange={(description) => update({ ...project, description })} />
               <div className="admin-row">
                 <Select label="Card colour" value={project.accent} options={PROJECT_ACCENTS} onChange={(accent) => update({ ...project, accent: accent as Project['accent'] })} />
@@ -326,7 +334,7 @@ export default function Content() {
 
       {tab === 'testimonials' && (
         <>
-          <p className="admin-muted">With no testimonials saved, the site shows a placeholder card.</p>
+          <p className="admin-muted">With no testimonials saved, the site hides this section.</p>
           <Repeater<Testimonial>
             items={content.testimonials}
             onChange={(testimonials) => patch({ testimonials })}
