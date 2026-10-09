@@ -1,16 +1,72 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   ArrowUpRight, CalendarCheck2, Check, ChevronDown, ChevronUp, Code2, Globe, Instagram,
   LayoutDashboard, Menu, MousePointerClick, PanelsTopLeft, PlugZap, Send, ShoppingBag,
   Sparkles, Star, X, Wrench, MessageCircle, Mail, Smartphone, Zap, ShieldCheck, Target,
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
-import { useSiteContent, whatsappLink } from '@/data/site';
+import { useSiteContent, whatsappLink, type Project } from '@/data/site';
 import lionLogo from '@/assets/images/lion-logo.png';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
 type EnquiryFields = Record<string, FormDataEntryValue>;
+
+// Decorative headline inside each project card's mock browser, paired to the project at that position.
+const MOCK_HEADLINES: [string, string][] = [['Your beauty,', 'redefined.'], ['Stay somewhere', 'beautiful.']];
+const mockHeadline = (index: number) => MOCK_HEADLINES[index] ?? ['Built to', 'convert.'];
+
+// mShots (WordPress) renders the homepage of any public URL. The first request starts the capture and
+// returns a blank frame, so a couple of retries are what actually land the finished screenshot.
+const shotUrl = (url: string, attempt: number) =>
+  `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1200&h=945&retry=${attempt}`;
+
+// Loads the screenshot off-screen and only swaps it in once it has decoded, so the card never flashes empty.
+function useSiteShot(url: string | undefined) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    const target = (url ?? '').trim();
+    setSrc(null);
+    if (!/^https?:\/\//i.test(target)) return;
+
+    let active = true;
+    const load = (attempt: number) => {
+      const image = new Image();
+      image.onload = () => active && setSrc(image.src);
+      image.src = shotUrl(target, attempt);
+    };
+
+    load(0);
+    const timers = [window.setTimeout(() => load(1), 4000), window.setTimeout(() => load(2), 11000)];
+    return () => {
+      active = false;
+      timers.forEach(window.clearTimeout);
+    };
+  }, [url]);
+
+  return src;
+}
+
+// The drawn mock sits underneath as the placeholder, so a missing or unreachable URL still looks finished.
+function ProjectPreview({ project, index }: { project: Project; index: number }) {
+  const shot = useSiteShot(project.url);
+
+  return (
+    <div className="project-preview">
+      <div className="project-ui">
+        <div className="project-ui-top"><span /><span /><span /></div>
+        <div className="project-ui-body">
+          <small>{project.category}</small>
+          <b>{mockHeadline(index)[0]}<br /><em>{mockHeadline(index)[1]}</em></b>
+          <div className="project-ui-button" />
+        </div>
+      </div>
+      {shot && <img className="project-shot" src={shot} alt={`${project.title} homepage`} />}
+      <div className="project-index">{String(index + 1).padStart(2, '0')}</div>
+    </div>
+  );
+}
 
 // A word wrapped in *stars* in the admin panel renders as the gold accent.
 function accented(text: string) {
@@ -134,9 +190,11 @@ function App() {
 
         <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker">What I do</span><h2>What I can build<br /><em>for you.</em></h2></div><p>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion.</p></div><div className="service-grid">{services.map((service, index) => { const Icon = iconMap[service.icon as keyof typeof iconMap] ?? Globe; return <article className="service-card" key={index}><div className="service-top"><span className="service-number">{String(index + 1).padStart(2, '0')}</span><Icon size={23} /></div><h3>{service.title}</h3><p>{service.description}</p><ArrowUpRight className="card-arrow" size={19} /></article> })}</div></section>
 
-        <section className="feature-section section-pad"><div className="feature-visual"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>project-preview / home</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / developer</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div></div><div className="feature-copy"><span className="section-kicker">The difference</span><h2>More than just<br /><em>a website.</em></h2><p>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item) => <span key={item}><CircleCheck size={17} />{item}</span>)}</div></div></section>
+        <section className="feature-section section-pad"><div className="feature-visual"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>liondeveloper.in/projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / developer</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div></div><div className="feature-copy"><span className="section-kicker">The difference</span><h2>More than just<br /><em>a website.</em></h2><p>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item) => <span key={item}><CircleCheck size={17} />{item}</span>)}</div></div></section>
 
-        <section className="section-pad section-dark" id="projects"><div className="section-heading"><div><span className="section-kicker">Selected work</span><h2>Projects with<br /><em>purpose.</em></h2></div><p>A selection of websites and digital experiences built for different businesses. Your next project belongs here.</p></div><div className="project-grid">{projects.map((project, index) => <article className={`project-card accent-${project.accent}`} key={index} onClick={() => setSelectedProject(index)}><div className="project-preview"><div className="project-ui"><div className="project-ui-top"><span /><span /><span /></div><div className="project-ui-body"><small>{project.category}</small><b>{index === 0 ? 'Your beauty,' : index === 1 ? 'Stay somewhere' : 'Your next big'}<br /><em>{index === 0 ? 'redefined.' : index === 1 ? 'beautiful.' : 'idea starts here.'}</em></b><div className="project-ui-button" /></div></div><div className="project-index">{String(index + 1).padStart(2, '0')}</div></div><div className="project-info"><div><span>{project.category}</span><h3>{project.title}</h3></div><ArrowUpRight size={20} /><p>{project.description}</p><div className="tech-row">{(project.tech ?? []).map((tech, techIndex) => <small key={techIndex}>{tech}</small>)}</div></div></article>)}</div></section>
+        <section className="section-pad section-dark" id="projects"><div className="section-heading"><div><span className="section-kicker">Selected work</span><h2>Projects with<br /><em>purpose.</em></h2></div><p>A selection of websites and digital experiences built for different businesses. Your next project belongs here.</p></div><div className="project-grid">{projects.map((project, index) => <article className={`project-card accent-${project.accent}`} key={index} onClick={() => setSelectedProject(index)}><ProjectPreview project={project} index={index} /><div className="project-info"><div><span>{project.category}</span><h3>{project.title}</h3></div><ArrowUpRight size={20} /><p>{project.description}</p><div className="tech-row">{(project.tech ?? []).map((tech, techIndex) => <small key={techIndex}>{tech}</small>)}</div></div></article>)}
+          {/* The open slot is a link to the contact form, not a project card — clicking it should not open a case study that does not exist. */}
+          <a className="project-card project-cta accent-dark" href="#contact"><div className="project-preview"><div className="project-ui"><div className="project-ui-top"><span /><span /><span /></div><div className="project-ui-body"><small>Available for your brand</small><b>Your next big<br /><em>idea starts here.</em></b><div className="project-ui-button" /></div></div><div className="project-index">{String(projects.length + 1).padStart(2, '0')}</div></div><div className="project-info"><div><span>Next project</span><h3>Start your project</h3></div><ArrowUpRight size={20} /><p>Tell me what you want to build and I’ll send back a plan.</p></div></a></div></section>
 
         <section className="pricing-section section-pad" id="pricing"><div className="center-heading"><span className="section-kicker">Clear starting points</span><h2>Simple website<br /><em>pricing.</em></h2><p>Professional websites starting from ₹8,000. Every project is tailored to your actual requirements.</p></div><div className="pricing-grid">{pricing.map((plan, planIndex) => <article className={`price-card ${plan.popular ? 'popular' : ''}`} key={planIndex}>{plan.popular && <span className="popular-tag">Most popular</span>}<span className="price-name">{plan.name}</span><h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{plan.price}</> : plan.price}</h3><p>{plan.description}</p><div className="price-divider" />{plan.features.map((feature, index) => <span className="price-feature" key={index}><Check size={15} />{feature}</span>)}<a className={`button ${plan.popular ? 'button-gold' : 'button-outline'} price-button`} href="#contact">{plan.cta} <ArrowUpRight size={16} /></a></article>)}</div><p className="pricing-note">Final pricing depends on pages, features, integrations and project requirements.</p></section>
 
@@ -146,7 +204,8 @@ function App() {
 
         <section className="tech-section section-pad"><div className="center-heading"><span className="section-kicker">The toolkit</span><h2>Technologies I<br /><em>work with.</em></h2></div><div className="tech-cloud">{technologies.map((tech, index) => <span key={index} className={index % 4 === 0 ? 'tech-highlight' : ''}><Code2 size={14} />{tech}</span>)}</div></section>
 
-        <section className="testimonial-section section-pad"><div className="center-heading"><span className="section-kicker">Client feedback</span><h2>Good work speaks<br /><em>for itself.</em></h2>{testimonials.length === 0 && <p>Real words from real clients will live here. Until then, this is a space reserved for your experience.</p>}</div>{testimonials.length === 0 ? <div className="testimonial-card"><div className="stars">{[1,2,3,4,5].map((star) => <Star key={star} size={17} fill="currentColor" />)}</div><p>“Client testimonial placeholder — your experience could be the next story shared here.”</p><span>Client testimonial placeholder</span></div> : <div className={`testimonial-grid ${testimonials.length === 1 ? 'is-single' : ''}`}>{testimonials.map((testimonial, index) => <div className="testimonial-card" key={index}><div className="stars">{Array.from({ length: Math.min(Math.max(testimonial.rating || 5, 1), 5) }, (_, star) => <Star key={star} size={17} fill="currentColor" />)}</div><p>“{testimonial.quote}”</p><span>{[testimonial.author, testimonial.role].filter(Boolean).join(', ')}</span></div>)}</div>}</section>
+        {/* No real testimonials saved yet means no section at all — a filler review card would read as fake. */}
+        {testimonials.length > 0 && <section className="testimonial-section section-pad"><div className="center-heading"><span className="section-kicker">Client feedback</span><h2>Good work speaks<br /><em>for itself.</em></h2></div><div className={`testimonial-grid ${testimonials.length === 1 ? 'is-single' : ''}`}>{testimonials.map((testimonial, index) => <div className="testimonial-card" key={index}><div className="stars">{Array.from({ length: Math.min(Math.max(testimonial.rating || 5, 1), 5) }, (_, star) => <Star key={star} size={17} fill="currentColor" />)}</div><p>“{testimonial.quote}”</p><span>{[testimonial.author, testimonial.role].filter(Boolean).join(', ')}</span></div>)}</div></section>}
 
         <section className="faq-section section-pad section-dark"><div className="section-heading"><div><span className="section-kicker">Need to know</span><h2>Frequently<br /><em>asked.</em></h2></div><p>Still curious? Here are answers to a few of the questions clients ask most often.</p></div><div className="faq-list">{faqs.map((faq, index) => <div className={`faq-item ${openFaq === index ? 'open' : ''}`} key={index}><button onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{String(index + 1).padStart(2, '0')}</span><b>{faq.question}</b>{openFaq === index ? <ChevronUp size={19} /> : <ChevronDown size={19} />}</button>{openFaq === index && <p>{faq.answer}</p>}</div>)}</div></section>
 
@@ -157,7 +216,7 @@ function App() {
 
       <a className="floating-whatsapp" href={whatsappHref} target={whatsappHref === '#contact' ? undefined : '_blank'} rel="noreferrer" aria-label="Contact Lion Developer on WhatsApp"><MessageCircle size={22} /><span>Let’s talk</span></a>
 
-      {activeProject && <div className="modal-backdrop" onClick={() => setSelectedProject(null)}><div className="project-modal" onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelectedProject(null)}><X size={20} /></button><span className="section-kicker">Project overview</span><h2>{activeProject.title}</h2><p>{activeProject.description}</p><div className="modal-meta"><span><small>Industry</small>{activeProject.category}</span><span><small>Technology</small>{(activeProject.tech ?? []).join(', ')}</span></div><h3>What’s included</h3><div className="modal-features">{(activeProject.features ?? []).map((feature, index) => <span key={index}><Check size={15} />{feature}</span>)}</div><a href="#contact" className="button button-gold" onClick={() => setSelectedProject(null)}>Want a similar website? <ArrowUpRight size={16} /></a></div></div>}
+      {activeProject && <div className="modal-backdrop" onClick={() => setSelectedProject(null)}><div className="project-modal" onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelectedProject(null)}><X size={20} /></button><span className="section-kicker">Project overview</span><h2>{activeProject.title}</h2><p>{activeProject.description}</p><div className="modal-meta"><span><small>Industry</small>{activeProject.category}</span><span><small>Technology</small>{(activeProject.tech ?? []).join(', ')}</span></div><h3>What’s included</h3><div className="modal-features">{(activeProject.features ?? []).map((feature, index) => <span key={index}><Check size={15} />{feature}</span>)}</div><div className="modal-actions">{activeProject.url && <a className="button button-outline" href={activeProject.url} target="_blank" rel="noreferrer">Visit website <ArrowUpRight size={16} /></a>}<a href="#contact" className="button button-gold" onClick={() => setSelectedProject(null)}>Want a similar website? <ArrowUpRight size={16} /></a></div></div></div>}
     </div>
   );
 }
