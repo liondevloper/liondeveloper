@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "test:pay": "node --env-file-if-exists=.env server/pay/selftest.js",
     "start": "node --env-file-if-exists=.env server/index.js"
   },
   "dependencies": {
