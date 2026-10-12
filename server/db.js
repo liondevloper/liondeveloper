@@ -54,6 +54,9 @@ export async function initDatabase() {
 
   await pool.query('CREATE INDEX IF NOT EXISTS enquiries_created_at_idx ON enquiries (created_at DESC);');
 
+  const { initPayDatabase } = await import('./pay/schema.js');
+  await initPayDatabase();
+
   await seedAdmin();
 }
 
