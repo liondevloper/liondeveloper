@@ -66,7 +66,7 @@ export const siteConfig = {
 
 export const defaultContent: SiteContent = {
   contact: {
-    email: 'liondevloper@gmail.com',
+    email: 'liondeveloper76@gmail.com',
     whatsapp: '9737822142',
     whatsappMessage: 'Hi Lion Developer, I want a website for my business.',
     instagram: '@lion___developer',
@@ -226,9 +226,20 @@ export function useSiteContent(): SiteContent {
 }
 
 // Indian numbers are usually typed without the country code, so 10 digits get a 91 prefix.
-export function whatsappLink(number: string, message?: string) {
+const fullNumber = (number: string) => {
   const digits = number.replace(/\D/g, '');
   if (digits.length < 10) return null;
-  const to = digits.length === 10 ? `91${digits}` : digits;
+  return digits.length === 10 ? `91${digits}` : digits;
+};
+
+export function whatsappLink(number: string, message?: string) {
+  const to = fullNumber(number);
+  if (!to) return null;
   return `https://wa.me/${to}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
+}
+
+// Opens the phone's dialer with the number filled in.
+export function phoneLink(number: string) {
+  const to = fullNumber(number);
+  return to ? `tel:+${to}` : null;
 }
