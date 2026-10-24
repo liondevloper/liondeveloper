@@ -6,6 +6,7 @@ import {
   mergeContent,
   PROJECT_ACCENTS,
   SERVICE_ICONS,
+  type CarePlan,
   type Faq,
   type Plan,
   type Project,
@@ -24,6 +25,7 @@ const TABS = [
   { id: 'projects', label: 'Projects' },
   { id: 'templates', label: 'Templates' },
   { id: 'pricing', label: 'Pricing' },
+  { id: 'care', label: 'Care plan' },
   { id: 'testimonials', label: 'Testimonials' },
   { id: 'faqs', label: 'FAQ' },
   { id: 'technologies', label: 'Tech stack' },
@@ -167,9 +169,11 @@ function clean(content: SiteContent): SiteContent {
   return {
     ...content,
     technologies: trimList(content.technologies),
+    budgets: trimList(content.budgets),
     projects: content.projects.map((project) => ({ ...project, url: (project.url ?? '').trim(), features: trimList(project.features), tech: trimList(project.tech) })),
     templates: content.templates.map((template) => ({ ...template, url: template.url.trim(), tags: trimList(template.tags) })),
     pricing: content.pricing.map((plan) => ({ ...plan, features: trimList(plan.features) })),
+    care: { ...content.care, included: trimList(content.care.included), excluded: trimList(content.care.excluded) },
   };
 }
 
@@ -200,6 +204,7 @@ export default function Content() {
     setContent({ ...content, ...changes });
     setMessage('');
   };
+  const patchCare = (changes: Partial<CarePlan>) => patch({ care: { ...content.care, ...changes } });
 
   const save = async () => {
     setBusy(true);
@@ -221,6 +226,8 @@ export default function Content() {
   const resetSection = () => {
     if (tab === 'contact') patch({ contact: defaultContent.contact });
     else if (tab === 'hero') patch({ hero: defaultContent.hero });
+    else if (tab === 'care') patch({ care: defaultContent.care });
+    else if (tab === 'pricing') patch({ pricing: defaultContent.pricing, budgets: defaultContent.budgets });
     else patch({ [tab]: defaultContent[tab] } as Partial<SiteContent>);
   };
 
@@ -366,41 +373,69 @@ export default function Content() {
       )}
 
       {tab === 'pricing' && (
-        <Repeater<Plan>
-          items={content.pricing}
-          onChange={(pricing) => patch({ pricing })}
-          blank={() => ({ name: '', price: '', description: '', popular: false, features: [], cta: 'Get Started' })}
-          addLabel="Add package"
-          title={(plan) => plan.name}
-        >
-          {(plan, update) => (
-            <>
-              <div className="admin-row">
-                <Text label="Package name" value={plan.name} onChange={(name) => update({ ...plan, name })} />
-                <Text label="Price" value={plan.price} onChange={(price) => update({ ...plan, price })} placeholder="₹8,000" />
-              </div>
-              <Area label="Description" value={plan.description} onChange={(description) => update({ ...plan, description })} rows={2} />
-              <Lines label="Features" value={plan.features} onChange={(features) => update({ ...plan, features })} />
-              <div className="admin-row">
-                <Text label="Button text" value={plan.cta} onChange={(cta) => update({ ...plan, cta })} />
-                <label className="admin-check">
-                  <input
-                    type="checkbox"
-                    checked={plan.popular}
-                    onChange={(event) =>
-                      patch({
-                        pricing: content.pricing.map((current) =>
-                          current === plan ? { ...plan, popular: event.target.checked } : { ...current, popular: false },
-                        ),
-                      })
-                    }
-                  />
-                  Mark as most popular
-                </label>
-              </div>
-            </>
-          )}
-        </Repeater>
+        <>
+          <p className="admin-muted">Type prices like ₹8,000. The site adds "Starting from" above any price with a number, so no need to add a + sign.</p>
+          <Repeater<Plan>
+            items={content.pricing}
+            onChange={(pricing) => patch({ pricing })}
+            blank={() => ({ name: '', price: '', description: '', popular: false, features: [], cta: 'Get Started' })}
+            addLabel="Add package"
+            title={(plan) => plan.name}
+          >
+            {(plan, update) => (
+              <>
+                <div className="admin-row">
+                  <Text label="Package name" value={plan.name} onChange={(name) => update({ ...plan, name })} />
+                  <Text label="Price" value={plan.price} onChange={(price) => update({ ...plan, price })} placeholder="₹8,000" />
+                </div>
+                <Area label="Description" value={plan.description} onChange={(description) => update({ ...plan, description })} rows={2} />
+                <Lines label="Features" value={plan.features} onChange={(features) => update({ ...plan, features })} hint="One per line. Keep it to 8 or fewer so the card stays tidy on phones." />
+                <div className="admin-row">
+                  <Text label="Button text" value={plan.cta} onChange={(cta) => update({ ...plan, cta })} />
+                  <label className="admin-check">
+                    <input
+                      type="checkbox"
+                      checked={plan.popular}
+                      onChange={(event) =>
+                        patch({
+                          pricing: content.pricing.map((current) =>
+                            current === plan ? { ...plan, popular: event.target.checked } : { ...current, popular: false },
+                          ),
+                        })
+                      }
+                    />
+                    Mark as most popular
+                  </label>
+                </div>
+              </>
+            )}
+          </Repeater>
+          <div className="admin-fields">
+            <Lines label="Budget options in the contact form" value={content.budgets} onChange={(budgets) => patch({ budgets })} hint="One per line. Start from your cheapest package price." />
+          </div>
+        </>
+      )}
+
+      {tab === 'care' && (
+        <div className="admin-fields">
+          <label className="admin-check">
+            <input type="checkbox" checked={content.care.enabled} onChange={(event) => patchCare({ enabled: event.target.checked })} />
+            Show the care plan on the website
+          </label>
+          <div className="admin-row">
+            <Text label="Plan name" value={content.care.name} onChange={(name) => patchCare({ name })} placeholder="Website Care Plan" />
+            <Text label="Button text" value={content.care.cta} onChange={(cta) => patchCare({ cta })} placeholder="Add Care Plan" />
+          </div>
+          <div className="admin-row">
+            <Text label="Price" value={content.care.price} onChange={(price) => patchCare({ price })} placeholder="₹799" />
+            <Text label="Per" value={content.care.period} onChange={(period) => patchCare({ period })} placeholder="/month" />
+          </div>
+          <Text label="Yearly option" value={content.care.yearly} onChange={(yearly) => patchCare({ yearly })} placeholder="or ₹7,999/year (2 months free)" hint="Leave blank to hide." />
+          <Area label="Short description" value={content.care.description} onChange={(description) => patchCare({ description })} rows={2} />
+          <Text label="Offer badge" value={content.care.offer} onChange={(offer) => patchCare({ offer })} placeholder="First month free with every website" hint="Leave blank to hide." />
+          <Lines label="Included" value={content.care.included} onChange={(included) => patchCare({ included })} />
+          <Lines label="Not included" value={content.care.excluded} onChange={(excluded) => patchCare({ excluded })} hint="One per line. Leave empty to hide this list." />
+        </div>
       )}
 
       {tab === 'testimonials' && (
