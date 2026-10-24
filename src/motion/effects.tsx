@@ -83,9 +83,20 @@ export function useMotionEffects() {
   usePointerEffects();
 }
 
-// Branded intro: the lion fades in, a gold line fills, then the curtain lifts and the hero plays.
+// Countdown timing. Keep COUNT_STEP in sync with the .56s ld-count / ld-ring durations in motion.css.
+const COUNT_FROM = 3;
+const COUNT_STEP = 560;
+const REVEAL_AT = COUNT_FROM * COUNT_STEP;
+const LEAVE_AT = REVEAL_AT + 650;
+const DONE_AT = LEAVE_AT + 850;
+
+type PreloaderPhase = 'count' | 'reveal' | 'leave' | 'done';
+
+// Branded intro: a frosted glass card counts 3-2-1 while a gold ring fills, the lion lands,
+// then the curtain lifts and the hero plays.
 export function Preloader({ logo }: { logo: string }) {
-  const [phase, setPhase] = useState<'show' | 'leave' | 'done'>(MOTION_ENABLED ? 'show' : 'done');
+  const [phase, setPhase] = useState<PreloaderPhase>(MOTION_ENABLED ? 'count' : 'done');
+  const [count, setCount] = useState(COUNT_FROM);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -93,24 +104,43 @@ export function Preloader({ logo }: { logo: string }) {
       root.classList.add('is-loaded');
       return;
     }
-    const leave = window.setTimeout(() => {
-      setPhase('leave');
-      root.classList.add('is-loaded');
-    }, 1300);
-    const done = window.setTimeout(() => setPhase('done'), 2150);
-    return () => {
-      window.clearTimeout(leave);
-      window.clearTimeout(done);
-    };
+    const ticks = Array.from({ length: COUNT_FROM - 1 }, (_, step) =>
+      window.setTimeout(() => setCount(COUNT_FROM - 1 - step), COUNT_STEP * (step + 1)),
+    );
+    const timers = [
+      ...ticks,
+      window.setTimeout(() => setPhase('reveal'), REVEAL_AT),
+      window.setTimeout(() => {
+        setPhase('leave');
+        root.classList.add('is-loaded');
+      }, LEAVE_AT),
+      window.setTimeout(() => setPhase('done'), DONE_AT),
+    ];
+    return () => timers.forEach(window.clearTimeout);
   }, []);
 
   if (phase === 'done') return null;
+  const counting = phase === 'count';
   return (
-    <div className={`preloader ${phase === 'leave' ? 'is-leaving' : ''}`} aria-hidden="true">
+    <div className={`preloader is-${phase}`} aria-hidden="true">
+      <div className="preloader-orb orb-a" />
+      <div className="preloader-orb orb-b" />
       <div className="preloader-inner">
-        <img src={logo} alt="" width={454} height={480} />
-        <span className="preloader-word">LION DEVELOPER</span>
-        <div className="preloader-bar"><i /></div>
+        <div className="preloader-glass">
+          <svg className="preloader-ring" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="56" />
+            {/* Re-keyed every number so the ring refills from empty on each beat. */}
+            <circle key={counting ? count : 'full'} className="ring-fill" cx="60" cy="60" r="56" pathLength={1} />
+          </svg>
+          {counting ? (
+            <span className="preloader-count" key={count}>{count}</span>
+          ) : (
+            <img className="preloader-logo" src={logo} alt="" width={454} height={480} />
+          )}
+        </div>
+        <span className="preloader-word" key={counting ? 'count' : 'brand'}>
+          {counting ? 'GET READY' : 'LION DEVELOPER'}
+        </span>
       </div>
     </div>
   );
