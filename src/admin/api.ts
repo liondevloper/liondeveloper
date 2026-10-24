@@ -66,7 +66,13 @@ function compressImage(file: File): Promise<string> {
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(image.width * scale);
       canvas.height = Math.round(image.height * scale);
-      canvas.getContext('2d')?.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const context = canvas.getContext('2d');
+      if (context) {
+        // JPEG has no transparency; without a fill, see-through PNG areas would turn solid black.
+        context.fillStyle = '#121210';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      }
       URL.revokeObjectURL(source);
       resolve(canvas.toDataURL('image/jpeg', 0.82));
     };
