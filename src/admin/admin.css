@@ -98,6 +98,16 @@
 .admin-check input { width: 15px; height: 15px; accent-color: var(--gold); }
 .admin-content-foot { border-top: 1px solid var(--line); padding-top: 20px; }
 
+/* image upload */
+.admin-upload { display: grid; gap: 9px; }
+.admin-upload-label { color: var(--muted); font: 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .09em; }
+.admin-upload-row { display: flex; gap: 16px; align-items: flex-start; }
+.admin-upload-preview { width: 150px; aspect-ratio: 16 / 10; flex-shrink: 0; display: grid; place-items: center; border: 1px dashed rgba(255,255,255,.2); color: var(--muted); overflow: hidden; background: #121211; }
+.admin-upload-preview img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.admin-upload-actions { display: grid; gap: 8px; justify-items: start; }
+.admin-shell .admin-upload-button { display: inline-flex !important; cursor: pointer; font: 700 12px 'Manrope', sans-serif !important; text-transform: none !important; letter-spacing: .02em !important; color: var(--ink) !important; }
+.admin-upload-actions .admin-delete { margin-top: 0; }
+
 /* detail drawer */
 .admin-drawer-backdrop { position: fixed; inset: 0; background: rgba(8,8,7,.72); display: flex; justify-content: flex-end; z-index: 40; }
 .admin-drawer { width: min(480px, 100%); background: #171715; border-left: 1px solid var(--line); padding: 34px 30px 50px; overflow-y: auto; display: grid; gap: 14px; align-content: start; position: relative; }
@@ -117,4 +127,5 @@
   .admin-drawer { padding: 30px 20px 44px; }
   .admin-row { grid-template-columns: 1fr; }
   .admin-fields { padding: 18px; }
+  .admin-upload-row { flex-direction: column; }
 }
