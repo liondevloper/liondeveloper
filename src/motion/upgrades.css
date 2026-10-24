@@ -5,12 +5,16 @@
 .preloader-slow .preloader-logo { animation-duration: 1s; }
 .preloader-slow { transition-duration: 1s; }
 
-/* ---------- Pinned header that changes colour on scroll ---------- */
+/* ---------- Hero: no "Available for new projects" badge (hidden even if saved in the admin panel) ---------- */
+.site-shell .hero .eyebrow { display: none; }
+.site-shell .hero h1 { margin-top: 0; }
+
+/* ---------- Pinned header that changes colour on scroll (no line underneath) ---------- */
 .site-shell { padding-top: 116px; }
 .site-shell section[id] { scroll-margin-top: 80px; }
-.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 40; background: transparent; border-bottom: 1px solid transparent; transition: background-color .45s ease, border-color .45s ease, box-shadow .45s ease, backdrop-filter .45s ease; }
+.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 40; background: transparent; border-bottom: 0; transition: background-color .45s ease, box-shadow .45s ease, backdrop-filter .45s ease; }
 .site-header .navbar { transition: height .45s cubic-bezier(.2, .8, .2, 1); }
-.site-header.is-scrolled { background: linear-gradient(90deg, rgba(28,24,14,.92), rgba(16,16,15,.9) 45%, rgba(20,22,30,.92)); border-bottom-color: rgba(234,185,75,.35); box-shadow: 0 12px 34px rgba(0,0,0,.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+.site-header.is-scrolled { background: linear-gradient(90deg, rgba(28,24,14,.92), rgba(16,16,15,.9) 45%, rgba(20,22,30,.92)); border-bottom: 0; box-shadow: 0 14px 30px -12px rgba(0,0,0,.45); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
 .site-header.is-scrolled .navbar { height: 82px; }
 .site-header.is-scrolled .brand-mark { width: 52px; height: 55px; transition: width .45s ease, height .45s ease; }
 .site-header.is-scrolled .nav-links { color: #d8d6cc; }
@@ -36,6 +40,12 @@
 .wa-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #25d366; pointer-events: none; animation: wa-ring 2.4s ease-out infinite; }
 @keyframes wa-ring { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.65); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .wa-ring { display: none; } }
+
+/* ---------- No numbers on the "What I do" and "How it works" cards or their side lists ---------- */
+.site-shell .process-card-count,
+.site-shell .process-card-number,
+.site-shell .process-list button span { display: none; }
+.site-shell .process-card-top { justify-content: flex-start; }
 
 /* ---------- What I do: 3D up/down card stack ---------- */
 .service-deck .deck-stage { perspective: 1200px; touch-action: none; }
