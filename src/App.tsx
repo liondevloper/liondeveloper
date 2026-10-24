@@ -1,14 +1,15 @@
 import { useState, type FormEvent } from 'react';
 import {
   ArrowUpRight, CalendarCheck2, Check, ChevronDown, ChevronUp, ClipboardList, Code2, Globe, Instagram,
-  LayoutDashboard, Menu, MessagesSquare, MousePointerClick, Palette, PanelsTopLeft, PlugZap, Rocket, Send, ShoppingBag,
-  Sparkles, Star, X, Wrench, MessageCircle, Mail, Smartphone, Zap, ShieldCheck, Target,
+  LayoutDashboard, MessagesSquare, MousePointerClick, Palette, PanelsTopLeft, PlugZap, Rocket, Send, ShoppingBag,
+  Sparkles, Star, Wrench, MessageCircle, Mail, Smartphone, Zap, ShieldCheck, Target,
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
-import { useSiteContent, whatsappLink, type Plan, type Project } from '@/data/site';
+import { useSiteContent, whatsappLink, type Plan } from '@/data/site';
 import lionLogo from '@/assets/images/lion-logo.png';
-import { CountUp, Cursor, Marquee, Preloader, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
-import { Deck, TemplateShowcase, useSiteShot, useTiltEffect } from '@/motion/showcase';
+import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
+import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
+import { DotPreloader, DotsMenuButton, ServiceDeck, useScrolled } from '@/motion/upgrades';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
@@ -16,7 +17,7 @@ type EnquiryFields = Record<string, FormDataEntryValue>;
 
 const BAND_WORDS = ['Business Websites', 'Landing Pages', 'E-Commerce', 'Web Apps', 'Admin Panels', 'Booking Systems', 'UI/UX Design'];
 const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Developer'];
-const NAV_ITEMS = ['Home', 'Services', 'Projects', 'Templates', 'Pricing', 'About', 'Contact'];
+const NAV_ITEMS = ['Home', 'Services', 'Templates', 'Pricing', 'About', 'Contact'];
 
 const PROCESS_STEPS = [
   { number: '01', title: 'Discuss', text: 'Understand your business, goals and requirements.', icon: MessagesSquare },
@@ -25,30 +26,6 @@ const PROCESS_STEPS = [
   { number: '04', title: 'Develop', text: 'Build, integrate and test the website on every screen.', icon: Code2 },
   { number: '05', title: 'Launch', text: 'Deploy the website and make it live for your customers.', icon: Rocket },
 ];
-
-// Decorative headline inside each project card's mock browser, paired to the project at that position.
-const MOCK_HEADLINES: [string, string][] = [['Your beauty,', 'redefined.'], ['Stay somewhere', 'beautiful.']];
-const mockHeadline = (index: number) => MOCK_HEADLINES[index] ?? ['Built to', 'convert.'];
-
-// The drawn mock sits underneath as the placeholder, so a missing or unreachable URL still looks finished.
-function ProjectPreview({ project, index }: { project: Project; index: number }) {
-  const shot = useSiteShot(project.url);
-
-  return (
-    <div className="project-preview">
-      <div className="project-ui">
-        <div className="project-ui-top"><span /><span /><span /></div>
-        <div className="project-ui-body">
-          <small>{project.category}</small>
-          <b>{mockHeadline(index)[0]}<br /><em>{mockHeadline(index)[1]}</em></b>
-          <div className="project-ui-button" />
-        </div>
-      </div>
-      {shot && <img className="project-shot" src={shot} alt={`${project.title} homepage`} />}
-      <div className="project-index">{String(index + 1).padStart(2, '0')}</div>
-    </div>
-  );
-}
 
 function PriceCard({ plan }: { plan: Plan }) {
   return (
@@ -132,19 +109,18 @@ async function emailEnquiry(data: EnquiryFields, email: string) {
 
 function App() {
   const content = useSiteContent();
-  const { contact, hero, stats, services, projects, templates, pricing, technologies, testimonials, faqs } = content;
+  const { contact, hero, stats, services, templates, pricing, technologies, testimonials, faqs } = content;
   const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
   const [menuOpen, setMenuOpen] = useState(false);
   const [sentEnquiry, setSentEnquiry] = useState<EnquiryFields | null>(null);
-  const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState(false);
   useMotionEffects();
   useTiltEffect();
+  const scrolled = useScrolled();
 
-  const activeProject = selectedProject === null ? null : projects[selectedProject] ?? null;
   const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
 
   const closeMenu = () => setMenuOpen(false);
@@ -183,21 +159,23 @@ function App() {
 
   return (
     <div className="site-shell">
-      <Preloader logo={lionLogo} />
+      <DotPreloader logo={lionLogo} />
       <ScrollProgress />
       <Cursor />
 
+      <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
       <nav className="navbar">
         <a className="brand" href="#home" onClick={closeMenu}>
           <span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span>
           <span><strong>LION</strong><small>DEVELOPER</small></span>
         </a>
-        <button className="menu-toggle" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
+        <DotsMenuButton open={menuOpen} onToggle={() => setMenuOpen(!menuOpen)} />
         <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
           {NAV_ITEMS.filter((item) => item !== 'Templates' || templates.length > 0).map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu}>{item}</a>)}
           <a className="button button-small button-gold" href="#contact" onClick={closeMenu}>Get a Website <ArrowUpRight size={16} /></a>
         </div>
       </nav>
+      </header>
 
       <main>
         <section className="hero section-pad" id="home">
@@ -206,7 +184,7 @@ function App() {
             {hero.badge && <div className="eyebrow"><span className="status-dot" /> {hero.badge}</div>}
             <h1>{headlineWords(hero.headline)}</h1>
             <p className="hero-text">{hero.text}</p>
-            <div className="hero-actions"><a className="button button-gold" href="#contact">Get a Website <ArrowUpRight size={18} /></a><a className="button button-outline" href="#projects">View Projects <ArrowUpRight size={18} /></a></div>
+            <div className="hero-actions"><a className="button button-gold" href="#contact">Get a Website <ArrowUpRight size={18} /></a><a className="button button-outline" href="#services">View Services <ArrowUpRight size={18} /></a></div>
             <div className="hero-services"><span>Web Development</span><i /> <span>UI/UX</span><i /> <span>Web Apps</span><i /> <span>Digital Solutions</span></div>
           </div>
           <div className="hero-visual">
@@ -222,13 +200,9 @@ function App() {
 
         <Marquee items={BAND_WORDS} variant="band" />
 
-        <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker" data-reveal>What I do</span><h2 data-reveal="clip">What I can build<br /><em>for you.</em></h2></div><p data-reveal style={stagger(2)}>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion.</p></div><div className="service-grid">{services.map((service, index) => { const Icon = iconMap[service.icon as keyof typeof iconMap] ?? Globe; return <article className="service-card" key={index} data-reveal data-tilt="8" style={stagger(index % 4)}><div className="service-top"><span className="service-number">{String(index + 1).padStart(2, '0')}</span><Icon size={23} /></div><h3>{service.title}</h3><p>{service.description}</p><ArrowUpRight className="card-arrow" size={19} /></article> })}</div></section>
+        <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker" data-reveal>What I do</span><h2 data-reveal="clip">What I can build<br /><em>for you.</em></h2></div><p data-reveal style={stagger(2)}>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion. Swipe up or down to explore.</p></div><div data-reveal><ServiceDeck services={services} resolveIcon={(name) => iconMap[name as keyof typeof iconMap] ?? Globe} /></div></section>
 
         <section className="feature-section section-pad"><div className="feature-visual" data-reveal="left"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>liondeveloper.in/projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / developer</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div></div><div className="feature-copy"><span className="section-kicker" data-reveal>The difference</span><h2 data-reveal="clip">More than just<br /><em>a website.</em></h2><p data-reveal style={stagger(2)}>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item, index) => <span key={item} data-reveal style={stagger(index)}><CircleCheck size={17} />{item}</span>)}</div></div></section>
-
-        <section className="section-pad section-dark" id="projects"><div className="section-heading"><div><span className="section-kicker" data-reveal>Selected work</span><h2 data-reveal="clip">Projects with<br /><em>purpose.</em></h2></div><p data-reveal style={stagger(2)}>A selection of websites and digital experiences built for different businesses. Your next project belongs here.</p></div><div className="project-grid">{projects.map((project, index) => <article className={`project-card accent-${project.accent}`} key={index} data-reveal="scale" data-tilt="7" style={stagger(index % 3)} onClick={() => setSelectedProject(index)}><ProjectPreview project={project} index={index} /><div className="project-info"><div><span>{project.category}</span><h3>{project.title}</h3></div><ArrowUpRight size={20} /><p>{project.description}</p><div className="tech-row">{(project.tech ?? []).map((tech, techIndex) => <small key={techIndex}>{tech}</small>)}</div></div></article>)}
-          {/* The open slot is a link to the contact form, not a project card — clicking it should not open a case study that does not exist. */}
-          <a className="project-card project-cta accent-dark" href="#contact" data-reveal="scale" data-tilt="7" style={stagger(projects.length % 3)}><div className="project-preview"><div className="project-ui"><div className="project-ui-top"><span /><span /><span /></div><div className="project-ui-body"><small>Available for your brand</small><b>Your next big<br /><em>idea starts here.</em></b><div className="project-ui-button" /></div></div><div className="project-index">{String(projects.length + 1).padStart(2, '0')}</div></div><div className="project-info"><div><span>Next project</span><h3>Start your project</h3></div><ArrowUpRight size={20} /><p>Tell me what you want to build and I’ll send back a plan.</p></div></a></div></section>
 
         {templates.length > 0 && (
           <section className="templates-section section-pad" id="templates">
@@ -311,11 +285,10 @@ function App() {
         <Marquee items={OUTRO_WORDS} />
       </main>
 
-      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p><a className="button button-outline" href="#contact">Have a project in mind? Let’s talk <ArrowUpRight size={16} /></a></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Lion Developer. All rights reserved.</span><div><a href="#home">Home</a><a href="#services">Services</a><a href="#projects">Projects</a><a href="#pricing">Pricing</a>{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}</div></div></footer>
+      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p><a className="button button-outline" href="#contact">Have a project in mind? Let’s talk <ArrowUpRight size={16} /></a></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Lion Developer. All rights reserved.</span><div><a href="#home">Home</a><a href="#services">Services</a><a href="#pricing">Pricing</a>{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}</div></div></footer>
 
       <a className="floating-whatsapp" href={whatsappHref} target={whatsappHref === '#contact' ? undefined : '_blank'} rel="noreferrer" aria-label="Contact Lion Developer on WhatsApp"><MessageCircle size={22} /><span>Let’s talk</span></a>
 
-      {activeProject && <div className="modal-backdrop" onClick={() => setSelectedProject(null)}><div className="project-modal" onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelectedProject(null)}><X size={20} /></button><span className="section-kicker">Project overview</span><h2>{activeProject.title}</h2><p>{activeProject.description}</p><div className="modal-meta"><span><small>Industry</small>{activeProject.category}</span><span><small>Technology</small>{(activeProject.tech ?? []).join(', ')}</span></div><h3>What’s included</h3><div className="modal-features">{(activeProject.features ?? []).map((feature, index) => <span key={index} style={stagger(index)}><Check size={15} />{feature}</span>)}</div><div className="modal-actions">{activeProject.url && <a className="button button-outline" href={activeProject.url} target="_blank" rel="noreferrer">Visit website <ArrowUpRight size={16} /></a>}<a href="#contact" className="button button-gold" onClick={() => setSelectedProject(null)}>Want a similar website? <ArrowUpRight size={16} /></a></div></div></div>}
     </div>
   );
 }
