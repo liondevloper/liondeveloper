@@ -284,7 +284,8 @@ function App() {
         <Marquee items={OUTRO_WORDS} />
       </main>
 
-      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p><a className="button button-outline" href="#contact">Have a project in mind? Let’s talk <ArrowUpRight size={16} /></a></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Lion Developer. All rights reserved.</span><div><a href="#home">Home</a><a href="#services">Services</a><a href="#pricing">Pricing</a>{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}</div></div></footer>
+      {/* Footer bottom shows only the centred copyright line; the quick links were removed on request. */}
+      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p><a className="button button-outline" href="#contact">Have a project in mind? Let’s talk <ArrowUpRight size={16} /></a></div><div className="footer-bottom" style={{ justifyContent: 'center', textAlign: 'center' }}><span>© {new Date().getFullYear()} Lion Developer. All rights reserved.</span></div></footer>
 
       <FloatingWhatsApp href={whatsappHref} />
 
