@@ -1,13 +1,14 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import {
-  ArrowUpRight, CalendarCheck2, Check, ChevronDown, ChevronUp, Code2, Globe, Instagram,
-  LayoutDashboard, Menu, MousePointerClick, PanelsTopLeft, PlugZap, Send, ShoppingBag,
+  ArrowUpRight, CalendarCheck2, Check, ChevronDown, ChevronUp, ClipboardList, Code2, Globe, Instagram,
+  LayoutDashboard, Menu, MessagesSquare, MousePointerClick, Palette, PanelsTopLeft, PlugZap, Rocket, Send, ShoppingBag,
   Sparkles, Star, X, Wrench, MessageCircle, Mail, Smartphone, Zap, ShieldCheck, Target,
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
-import { useSiteContent, whatsappLink, type Project } from '@/data/site';
+import { useSiteContent, whatsappLink, type Plan, type Project } from '@/data/site';
 import lionLogo from '@/assets/images/lion-logo.png';
 import { CountUp, Cursor, Marquee, Preloader, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
+import { Deck, TemplateShowcase, useSiteShot, useTiltEffect } from '@/motion/showcase';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
@@ -15,42 +16,19 @@ type EnquiryFields = Record<string, FormDataEntryValue>;
 
 const BAND_WORDS = ['Business Websites', 'Landing Pages', 'E-Commerce', 'Web Apps', 'Admin Panels', 'Booking Systems', 'UI/UX Design'];
 const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Developer'];
+const NAV_ITEMS = ['Home', 'Services', 'Projects', 'Templates', 'Pricing', 'About', 'Contact'];
+
+const PROCESS_STEPS = [
+  { number: '01', title: 'Discuss', text: 'Understand your business, goals and requirements.', icon: MessagesSquare },
+  { number: '02', title: 'Plan', text: 'Plan the structure, features and user experience.', icon: ClipboardList },
+  { number: '03', title: 'Design', text: 'Create a modern visual experience for your brand.', icon: Palette },
+  { number: '04', title: 'Develop', text: 'Build, integrate and test the website on every screen.', icon: Code2 },
+  { number: '05', title: 'Launch', text: 'Deploy the website and make it live for your customers.', icon: Rocket },
+];
 
 // Decorative headline inside each project card's mock browser, paired to the project at that position.
 const MOCK_HEADLINES: [string, string][] = [['Your beauty,', 'redefined.'], ['Stay somewhere', 'beautiful.']];
 const mockHeadline = (index: number) => MOCK_HEADLINES[index] ?? ['Built to', 'convert.'];
-
-// mShots (WordPress) renders the homepage of any public URL. The first request starts the capture and
-// returns a blank frame, so a couple of retries are what actually land the finished screenshot.
-const shotUrl = (url: string, attempt: number) =>
-  `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1200&h=945&retry=${attempt}`;
-
-// Loads the screenshot off-screen and only swaps it in once it has decoded, so the card never flashes empty.
-function useSiteShot(url: string | undefined) {
-  const [src, setSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    const target = (url ?? '').trim();
-    setSrc(null);
-    if (!/^https?:\/\//i.test(target)) return;
-
-    let active = true;
-    const load = (attempt: number) => {
-      const image = new Image();
-      image.onload = () => active && setSrc(image.src);
-      image.src = shotUrl(target, attempt);
-    };
-
-    load(0);
-    const timers = [window.setTimeout(() => load(1), 4000), window.setTimeout(() => load(2), 11000)];
-    return () => {
-      active = false;
-      timers.forEach(window.clearTimeout);
-    };
-  }, [url]);
-
-  return src;
-}
 
 // The drawn mock sits underneath as the placeholder, so a missing or unreachable URL still looks finished.
 function ProjectPreview({ project, index }: { project: Project; index: number }) {
@@ -69,6 +47,35 @@ function ProjectPreview({ project, index }: { project: Project; index: number })
       {shot && <img className="project-shot" src={shot} alt={`${project.title} homepage`} />}
       <div className="project-index">{String(index + 1).padStart(2, '0')}</div>
     </div>
+  );
+}
+
+function PriceCard({ plan }: { plan: Plan }) {
+  return (
+    <article className={`price-card ${plan.popular ? 'popular' : ''}`}>
+      {plan.popular && <span className="popular-tag">Most popular</span>}
+      <span className="price-name">{plan.name}</span>
+      <h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{plan.price}</> : plan.price}</h3>
+      <p>{plan.description}</p>
+      <div className="price-divider" />
+      {plan.features.map((feature, index) => <span className="price-feature" key={index}><Check size={15} />{feature}</span>)}
+      <a className={`button ${plan.popular ? 'button-gold' : 'button-outline'} price-button`} href="#contact">{plan.cta} <ArrowUpRight size={16} /></a>
+    </article>
+  );
+}
+
+function ProcessCard({ step, total }: { step: (typeof PROCESS_STEPS)[number]; total: number }) {
+  const Icon = step.icon;
+  return (
+    <article className="process-card">
+      <div className="process-card-top">
+        <span className="process-card-icon"><Icon size={24} /></span>
+        <span className="process-card-count">{step.number} / {String(total).padStart(2, '0')}</span>
+      </div>
+      <span className="process-card-number" aria-hidden="true">{step.number}</span>
+      <h3>{step.title}</h3>
+      <p>{step.text}</p>
+    </article>
   );
 }
 
@@ -125,7 +132,7 @@ async function emailEnquiry(data: EnquiryFields, email: string) {
 
 function App() {
   const content = useSiteContent();
-  const { contact, hero, stats, services, projects, pricing, technologies, testimonials, faqs } = content;
+  const { contact, hero, stats, services, projects, templates, pricing, technologies, testimonials, faqs } = content;
   const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
   const [menuOpen, setMenuOpen] = useState(false);
   const [sentEnquiry, setSentEnquiry] = useState<EnquiryFields | null>(null);
@@ -135,8 +142,10 @@ function App() {
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState(false);
   useMotionEffects();
+  useTiltEffect();
 
   const activeProject = selectedProject === null ? null : projects[selectedProject] ?? null;
+  const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
 
   const closeMenu = () => setMenuOpen(false);
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -185,7 +194,7 @@ function App() {
         </a>
         <button className="menu-toggle" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
-          {['Home', 'Services', 'Projects', 'Pricing', 'About', 'Contact'].map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu}>{item}</a>)}
+          {NAV_ITEMS.filter((item) => item !== 'Templates' || templates.length > 0).map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu}>{item}</a>)}
           <a className="button button-small button-gold" href="#contact" onClick={closeMenu}>Get a Website <ArrowUpRight size={16} /></a>
         </div>
       </nav>
@@ -213,24 +222,87 @@ function App() {
 
         <Marquee items={BAND_WORDS} variant="band" />
 
-        <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker" data-reveal>What I do</span><h2 data-reveal="clip">What I can build<br /><em>for you.</em></h2></div><p data-reveal style={stagger(2)}>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion.</p></div><div className="service-grid">{services.map((service, index) => { const Icon = iconMap[service.icon as keyof typeof iconMap] ?? Globe; return <article className="service-card" key={index} data-reveal style={stagger(index % 4)}><div className="service-top"><span className="service-number">{String(index + 1).padStart(2, '0')}</span><Icon size={23} /></div><h3>{service.title}</h3><p>{service.description}</p><ArrowUpRight className="card-arrow" size={19} /></article> })}</div></section>
+        <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker" data-reveal>What I do</span><h2 data-reveal="clip">What I can build<br /><em>for you.</em></h2></div><p data-reveal style={stagger(2)}>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion.</p></div><div className="service-grid">{services.map((service, index) => { const Icon = iconMap[service.icon as keyof typeof iconMap] ?? Globe; return <article className="service-card" key={index} data-reveal data-tilt="8" style={stagger(index % 4)}><div className="service-top"><span className="service-number">{String(index + 1).padStart(2, '0')}</span><Icon size={23} /></div><h3>{service.title}</h3><p>{service.description}</p><ArrowUpRight className="card-arrow" size={19} /></article> })}</div></section>
 
         <section className="feature-section section-pad"><div className="feature-visual" data-reveal="left"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>liondeveloper.in/projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / developer</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div></div><div className="feature-copy"><span className="section-kicker" data-reveal>The difference</span><h2 data-reveal="clip">More than just<br /><em>a website.</em></h2><p data-reveal style={stagger(2)}>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item, index) => <span key={item} data-reveal style={stagger(index)}><CircleCheck size={17} />{item}</span>)}</div></div></section>
 
-        <section className="section-pad section-dark" id="projects"><div className="section-heading"><div><span className="section-kicker" data-reveal>Selected work</span><h2 data-reveal="clip">Projects with<br /><em>purpose.</em></h2></div><p data-reveal style={stagger(2)}>A selection of websites and digital experiences built for different businesses. Your next project belongs here.</p></div><div className="project-grid">{projects.map((project, index) => <article className={`project-card accent-${project.accent}`} key={index} data-reveal="scale" style={stagger(index % 3)} onClick={() => setSelectedProject(index)}><ProjectPreview project={project} index={index} /><div className="project-info"><div><span>{project.category}</span><h3>{project.title}</h3></div><ArrowUpRight size={20} /><p>{project.description}</p><div className="tech-row">{(project.tech ?? []).map((tech, techIndex) => <small key={techIndex}>{tech}</small>)}</div></div></article>)}
+        <section className="section-pad section-dark" id="projects"><div className="section-heading"><div><span className="section-kicker" data-reveal>Selected work</span><h2 data-reveal="clip">Projects with<br /><em>purpose.</em></h2></div><p data-reveal style={stagger(2)}>A selection of websites and digital experiences built for different businesses. Your next project belongs here.</p></div><div className="project-grid">{projects.map((project, index) => <article className={`project-card accent-${project.accent}`} key={index} data-reveal="scale" data-tilt="7" style={stagger(index % 3)} onClick={() => setSelectedProject(index)}><ProjectPreview project={project} index={index} /><div className="project-info"><div><span>{project.category}</span><h3>{project.title}</h3></div><ArrowUpRight size={20} /><p>{project.description}</p><div className="tech-row">{(project.tech ?? []).map((tech, techIndex) => <small key={techIndex}>{tech}</small>)}</div></div></article>)}
           {/* The open slot is a link to the contact form, not a project card — clicking it should not open a case study that does not exist. */}
-          <a className="project-card project-cta accent-dark" href="#contact" data-reveal="scale" style={stagger(projects.length % 3)}><div className="project-preview"><div className="project-ui"><div className="project-ui-top"><span /><span /><span /></div><div className="project-ui-body"><small>Available for your brand</small><b>Your next big<br /><em>idea starts here.</em></b><div className="project-ui-button" /></div></div><div className="project-index">{String(projects.length + 1).padStart(2, '0')}</div></div><div className="project-info"><div><span>Next project</span><h3>Start your project</h3></div><ArrowUpRight size={20} /><p>Tell me what you want to build and I’ll send back a plan.</p></div></a></div></section>
+          <a className="project-card project-cta accent-dark" href="#contact" data-reveal="scale" data-tilt="7" style={stagger(projects.length % 3)}><div className="project-preview"><div className="project-ui"><div className="project-ui-top"><span /><span /><span /></div><div className="project-ui-body"><small>Available for your brand</small><b>Your next big<br /><em>idea starts here.</em></b><div className="project-ui-button" /></div></div><div className="project-index">{String(projects.length + 1).padStart(2, '0')}</div></div><div className="project-info"><div><span>Next project</span><h3>Start your project</h3></div><ArrowUpRight size={20} /><p>Tell me what you want to build and I’ll send back a plan.</p></div></a></div></section>
 
-        <section className="pricing-section section-pad" id="pricing"><div className="center-heading"><span className="section-kicker" data-reveal>Clear starting points</span><h2 data-reveal="clip">Simple website<br /><em>pricing.</em></h2><p data-reveal style={stagger(2)}>Professional websites starting from ₹8,000. Every project is tailored to your actual requirements.</p></div><div className="pricing-grid">{pricing.map((plan, planIndex) => <article className={`price-card ${plan.popular ? 'popular' : ''}`} key={planIndex} data-reveal style={stagger(planIndex)}>{plan.popular && <span className="popular-tag">Most popular</span>}<span className="price-name">{plan.name}</span><h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{plan.price}</> : plan.price}</h3><p>{plan.description}</p><div className="price-divider" />{plan.features.map((feature, index) => <span className="price-feature" key={index}><Check size={15} />{feature}</span>)}<a className={`button ${plan.popular ? 'button-gold' : 'button-outline'} price-button`} href="#contact">{plan.cta} <ArrowUpRight size={16} /></a></article>)}</div><p className="pricing-note" data-reveal>Final pricing depends on pages, features, integrations and project requirements.</p></section>
+        {templates.length > 0 && (
+          <section className="templates-section section-pad" id="templates">
+            <div className="templates-aurora" aria-hidden="true"><i /><i /><i /></div>
+            <div className="section-heading">
+              <div>
+                <span className="section-kicker" data-reveal>Live templates</span>
+                <h2 data-reveal="clip">See them<br /><em>in action.</em></h2>
+              </div>
+              <p data-reveal style={stagger(2)}>Real websites, running live. Open any one to explore it right here, on desktop or mobile view.</p>
+            </div>
+            <TemplateShowcase templates={templates} />
+          </section>
+        )}
 
-        <section className="process-section section-pad"><div className="section-heading"><div><span className="section-kicker" data-reveal>A clear path forward</span><h2 data-reveal="clip">How it<br /><em>works.</em></h2></div><p data-reveal style={stagger(2)}>From first conversation to launch day, the process stays transparent, focused and built around your goals.</p></div><div className="process-grid" data-reveal="line">{[['01', 'Discuss', 'Understand your business and requirements.'], ['02', 'Plan', 'Plan the structure, features and user experience.'], ['03', 'Design', 'Create a modern visual experience.'], ['04', 'Develop', 'Build, integrate and test the website.'], ['05', 'Launch', 'Deploy the website and make it live.']].map(([number, title, text], index) => <div className="process-step" key={number} data-reveal style={stagger(index)}><span>{number}</span><div><h3>{title}</h3><p>{text}</p></div></div>)}</div></section>
+        <section className="pricing-section section-pad" id="pricing">
+          <div className="center-heading">
+            <span className="section-kicker" data-reveal>Clear starting points</span>
+            <h2 data-reveal="clip">Simple website<br /><em>pricing.</em></h2>
+            <p data-reveal style={stagger(2)}>Professional websites starting from ₹8,000. Swipe through the packages to find the right fit.</p>
+          </div>
+          <div data-reveal="scale">
+            <Deck<Plan>
+              key={pricing.length}
+              items={pricing}
+              axis="x"
+              label="Pricing packages"
+              initial={popularPlan}
+              interval={5000}
+              className="pricing-deck"
+              renderCard={(plan) => <PriceCard plan={plan} />}
+            />
+          </div>
+          <p className="pricing-note" data-reveal>Final pricing depends on pages, features, integrations and project requirements.</p>
+        </section>
 
-        <section className="why-section section-pad section-dark" id="about"><div className="about-grid"><div className="about-copy"><span className="section-kicker" data-reveal>Why Lion Developer</span><h2 data-reveal="clip">Digital experiences<br />that <em>matter.</em></h2><p data-reveal style={stagger(2)}>Lion Developer is focused on creating modern, responsive and business-oriented websites and web applications. I help businesses, brands and professionals turn their ideas into fast, functional and professional digital experiences.</p><a className="button button-gold" href="#contact" data-reveal style={stagger(3)}>Let’s work together <ArrowUpRight size={18} /></a></div><div className="why-cards">{[['Modern Design', 'Professional interfaces designed for modern businesses.', Sparkles], ['Responsive', 'Perfect experience on mobile, tablet and desktop.', Smartphone], ['Fast Performance', 'Optimized websites that load quickly.', Gauge], ['Business Focused', 'Websites designed around business goals and conversion.', Target], ['Custom Development', 'Custom functionality based on actual requirements.', Code2], ['Support', 'Technical assistance after launch.', MessageCircle]].map(([title, text, Icon], index) => <div className="why-card" key={title as string} data-reveal style={stagger(index)}><Icon size={20} /><h3>{title as string}</h3><p>{text as string}</p></div>)}</div></div></section>
+        <section className="process-section section-pad">
+          <div className="section-heading">
+            <div>
+              <span className="section-kicker" data-reveal>A clear path forward</span>
+              <h2 data-reveal="clip">How it<br /><em>works.</em></h2>
+            </div>
+            <p data-reveal style={stagger(2)}>From first conversation to launch day, the process stays transparent, focused and built around your goals.</p>
+          </div>
+          <div data-reveal>
+            <Deck
+              items={PROCESS_STEPS}
+              axis="y"
+              label="How it works"
+              interval={3200}
+              className="process-deck"
+              renderCard={(step) => <ProcessCard step={step} total={PROCESS_STEPS.length} />}
+              aside={(current, go) => (
+                <ol className="process-list">
+                  {PROCESS_STEPS.map((step, index) => (
+                    <li key={step.number}>
+                      <button type="button" className={index === current ? 'is-active' : index < current ? 'is-done' : ''} onClick={() => go(index)}>
+                        <span>{step.number}</span>
+                        <b>{step.title}</b>
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            />
+          </div>
+        </section>
+
+        <section className="why-section section-pad section-dark" id="about"><div className="about-grid"><div className="about-copy"><span className="section-kicker" data-reveal>Why Lion Developer</span><h2 data-reveal="clip">Digital experiences<br />that <em>matter.</em></h2><p data-reveal style={stagger(2)}>Lion Developer is focused on creating modern, responsive and business-oriented websites and web applications. I help businesses, brands and professionals turn their ideas into fast, functional and professional digital experiences.</p><a className="button button-gold" href="#contact" data-reveal style={stagger(3)}>Let’s work together <ArrowUpRight size={18} /></a></div><div className="why-cards">{[['Modern Design', 'Professional interfaces designed for modern businesses.', Sparkles], ['Responsive', 'Perfect experience on mobile, tablet and desktop.', Smartphone], ['Fast Performance', 'Optimized websites that load quickly.', Gauge], ['Business Focused', 'Websites designed around business goals and conversion.', Target], ['Custom Development', 'Custom functionality based on actual requirements.', Code2], ['Support', 'Technical assistance after launch.', MessageCircle]].map(([title, text, Icon], index) => <div className="why-card" key={title as string} data-reveal data-tilt="10" style={stagger(index)}><Icon size={20} /><h3>{title as string}</h3><p>{text as string}</p></div>)}</div></div></section>
 
         <section className="tech-section section-pad"><div className="center-heading"><span className="section-kicker" data-reveal>The toolkit</span><h2 data-reveal="clip">Technologies I<br /><em>work with.</em></h2></div><div className="tech-cloud">{technologies.map((tech, index) => <span key={index} className={index % 4 === 0 ? 'tech-highlight' : ''} data-reveal="scale" style={stagger(index)}><Code2 size={14} />{tech}</span>)}</div></section>
 
         {/* No real testimonials saved yet means no section at all — a filler review card would read as fake. */}
-        {testimonials.length > 0 && <section className="testimonial-section section-pad"><div className="center-heading"><span className="section-kicker" data-reveal>Client feedback</span><h2 data-reveal="clip">Good work speaks<br /><em>for itself.</em></h2></div><div className={`testimonial-grid ${testimonials.length === 1 ? 'is-single' : ''}`}>{testimonials.map((testimonial, index) => <div className="testimonial-card" key={index} data-reveal style={stagger(index)}><div className="stars">{Array.from({ length: Math.min(Math.max(testimonial.rating || 5, 1), 5) }, (_, star) => <Star key={star} size={17} fill="currentColor" />)}</div><p>“{testimonial.quote}”</p><span>{[testimonial.author, testimonial.role].filter(Boolean).join(', ')}</span></div>)}</div></section>}
+        {testimonials.length > 0 && <section className="testimonial-section section-pad"><div className="center-heading"><span className="section-kicker" data-reveal>Client feedback</span><h2 data-reveal="clip">Good work speaks<br /><em>for itself.</em></h2></div><div className={`testimonial-grid ${testimonials.length === 1 ? 'is-single' : ''}`}>{testimonials.map((testimonial, index) => <div className="testimonial-card" key={index} data-reveal data-tilt="6" style={stagger(index)}><div className="stars">{Array.from({ length: Math.min(Math.max(testimonial.rating || 5, 1), 5) }, (_, star) => <Star key={star} size={17} fill="currentColor" />)}</div><p>“{testimonial.quote}”</p><span>{[testimonial.author, testimonial.role].filter(Boolean).join(', ')}</span></div>)}</div></section>}
 
         <section className="faq-section section-pad section-dark"><div className="section-heading"><div><span className="section-kicker" data-reveal>Need to know</span><h2 data-reveal="clip">Frequently<br /><em>asked.</em></h2></div><p data-reveal style={stagger(2)}>Still curious? Here are answers to a few of the questions clients ask most often.</p></div><div className="faq-list">{faqs.map((faq, index) => <div className={`faq-item ${openFaq === index ? 'open' : ''}`} key={index} data-reveal style={stagger(index)}><button onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{String(index + 1).padStart(2, '0')}</span><b>{faq.question}</b>{openFaq === index ? <ChevronUp size={19} /> : <ChevronDown size={19} />}</button>{openFaq === index && <p>{faq.answer}</p>}</div>)}</div></section>
 
