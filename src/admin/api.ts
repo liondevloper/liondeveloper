@@ -50,6 +50,34 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
+// Phone photos are often 5 MB+, so images are scaled to 1400px wide and re-encoded as JPEG before upload.
+const MAX_IMAGE_WIDTH = 1400;
+
+function compressImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      reject(new Error('Choose an image file'));
+      return;
+    }
+    const source = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const scale = Math.min(1, MAX_IMAGE_WIDTH / image.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(image.width * scale);
+      canvas.height = Math.round(image.height * scale);
+      canvas.getContext('2d')?.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(source);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(source);
+      reject(new Error('That image could not be read'));
+    };
+    image.src = source;
+  });
+}
+
 export const adminApi = {
   me: () => request<{ email: string }>('/auth/me'),
   login: (email: string, password: string) =>
@@ -70,6 +98,11 @@ export const adminApi = {
   deleteEnquiry: (id: number) => request<{ ok: true }>(`/enquiries/${id}`, { method: 'DELETE' }),
   getContent: () => request<Partial<SiteContent>>('/content'),
   saveContent: (content: SiteContent) => request<{ ok: true }>('/content', { method: 'PUT', body: JSON.stringify(content) }),
+  uploadImage: async (file: File) => {
+    const dataUrl = await compressImage(file);
+    const { url } = await request<{ url: string }>('/images', { method: 'POST', body: JSON.stringify({ dataUrl }) });
+    return url;
+  },
 };
 
 export function formatDate(value: string) {
