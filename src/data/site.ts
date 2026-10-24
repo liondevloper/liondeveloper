@@ -13,6 +13,14 @@ export type Project = {
   // Live site address. When set, the card shows a real screenshot of that homepage.
   url?: string;
 };
+// A live website shown in the Templates section. An uploaded image wins over the automatic screenshot.
+export type Template = {
+  title: string;
+  category: string;
+  url: string;
+  image?: string;
+  tags: string[];
+};
 export type Plan = {
   name: string;
   price: string;
@@ -30,6 +38,7 @@ export type SiteContent = {
   stats: Stat[];
   services: Service[];
   projects: Project[];
+  templates: Template[];
   pricing: Plan[];
   technologies: string[];
   testimonials: Testimonial[];
@@ -102,6 +111,29 @@ export const defaultContent: SiteContent = {
       tech: ['React', 'UI/UX', 'Forms'],
     },
   ],
+  templates: [
+    {
+      title: 'The Imperial Palace',
+      category: 'Hotel / Hospitality',
+      url: 'https://theimperialpalace.vercel.app',
+      image: '',
+      tags: ['Luxury', 'Rooms', 'Gallery'],
+    },
+    {
+      title: 'BRONZEX Unisex Salon',
+      category: 'Salon / Beauty',
+      url: 'https://bronzexunixessalon.vercel.app',
+      image: '',
+      tags: ['Services', 'Offers', 'Reviews'],
+    },
+    {
+      title: 'Aaraamam Restaurant',
+      category: 'Restaurant / Food',
+      url: 'https://aaraamam.vercel.app',
+      image: '',
+      tags: ['Menu', 'Online order', 'Table booking'],
+    },
+  ],
   pricing: [
     {
       name: 'Starter',
@@ -160,6 +192,7 @@ export function mergeContent(stored: unknown): SiteContent {
     stats: list(raw.stats, defaultContent.stats),
     services: list(raw.services, defaultContent.services),
     projects: list(raw.projects, defaultContent.projects),
+    templates: list(raw.templates, defaultContent.templates),
     pricing: list(raw.pricing, defaultContent.pricing),
     technologies: list(raw.technologies, defaultContent.technologies),
     testimonials: list(raw.testimonials, defaultContent.testimonials),
