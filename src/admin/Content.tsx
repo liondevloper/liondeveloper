@@ -1,5 +1,5 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, Plus, Save, Trash2 } from 'lucide-react';
+import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
+import { ArrowDown, ArrowUp, ImagePlus, Plus, Save, Trash2 } from 'lucide-react';
 import { adminApi } from './api';
 import {
   defaultContent,
@@ -12,6 +12,7 @@ import {
   type Service,
   type SiteContent,
   type Stat,
+  type Template,
   type Testimonial,
 } from '../data/site';
 
@@ -21,6 +22,7 @@ const TABS = [
   { id: 'stats', label: 'Stats' },
   { id: 'services', label: 'Services' },
   { id: 'projects', label: 'Projects' },
+  { id: 'templates', label: 'Templates' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'testimonials', label: 'Testimonials' },
   { id: 'faqs', label: 'FAQ' },
@@ -70,6 +72,49 @@ function Select({ label, value, options, onChange }: { label: string; value: str
         ))}
       </select>
     </label>
+  );
+}
+
+// Uploads straight away and hands back the stored image address; the content still needs saving to go live.
+function ImageUpload({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  const pick = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    setError('');
+    try {
+      onChange(await adminApi.uploadImage(file));
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="admin-upload">
+      <span className="admin-upload-label">{label}</span>
+      <div className="admin-upload-row">
+        <div className="admin-upload-preview">{value ? <img src={value} alt="" /> : <ImagePlus size={22} />}</div>
+        <div className="admin-upload-actions">
+          <label className="admin-button admin-button-ghost admin-upload-button">
+            <ImagePlus size={14} /> {uploading ? 'Uploading...' : value ? 'Replace image' : 'Upload image'}
+            <input type="file" accept="image/png,image/jpeg,image/webp" onChange={pick} disabled={uploading} hidden />
+          </label>
+          {value && (
+            <button type="button" className="admin-delete" onClick={() => onChange('')}>
+              <Trash2 size={13} /> Remove image
+            </button>
+          )}
+          {error && <span className="admin-error">{error}</span>}
+          <small className="admin-hint">Without an image, the card shows an automatic screenshot of the website link.</small>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -123,6 +168,7 @@ function clean(content: SiteContent): SiteContent {
     ...content,
     technologies: trimList(content.technologies),
     projects: content.projects.map((project) => ({ ...project, url: (project.url ?? '').trim(), features: trimList(project.features), tech: trimList(project.tech) })),
+    templates: content.templates.map((template) => ({ ...template, url: template.url.trim(), tags: trimList(template.tags) })),
     pricing: content.pricing.map((plan) => ({ ...plan, features: trimList(plan.features) })),
   };
 }
@@ -292,6 +338,31 @@ export default function Content() {
             </>
           )}
         </Repeater>
+      )}
+
+      {tab === 'templates' && (
+        <>
+          <p className="admin-muted">Live websites shown in the "Live templates" section. Visitors can open each one in a full preview.</p>
+          <Repeater<Template>
+            items={content.templates}
+            onChange={(templates) => patch({ templates })}
+            blank={() => ({ title: '', category: '', url: '', image: '', tags: [] })}
+            addLabel="Add template"
+            title={(template) => template.title}
+          >
+            {(template, update) => (
+              <>
+                <div className="admin-row">
+                  <Text label="Name" value={template.title} onChange={(title) => update({ ...template, title })} placeholder="The Imperial Palace" />
+                  <Text label="Category" value={template.category} onChange={(category) => update({ ...template, category })} placeholder="Hotel / Hospitality" />
+                </div>
+                <Text label="Website link" value={template.url} onChange={(url) => update({ ...template, url })} placeholder="https://yoursite.vercel.app" />
+                <ImageUpload label="Cover image" value={template.image ?? ''} onChange={(image) => update({ ...template, image })} />
+                <Lines label="Tags" value={template.tags} onChange={(tags) => update({ ...template, tags })} />
+              </>
+            )}
+          </Repeater>
+        </>
       )}
 
       {tab === 'pricing' && (
