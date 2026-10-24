@@ -16,9 +16,10 @@
 .site-header.is-scrolled .nav-links { color: #d8d6cc; }
 .site-header .brand-mark { transition: width .45s ease, height .45s ease; }
 
-/* ---------- Four-dot menu button ---------- */
-.dots-toggle { width: 46px; height: 46px; padding: 0; border-radius: 12px; place-items: center; background: rgba(255,255,255,.06) !important; border: 1px solid rgba(255,255,255,.16) !important; transition: border-color .3s ease, background-color .3s ease, transform .3s ease; }
-.dots-toggle:hover { border-color: var(--gold) !important; transform: scale(1.05); }
+/* ---------- Four-dot menu button (no box around it) ---------- */
+.dots-toggle { width: 46px; height: 46px; padding: 0; place-items: center; background: transparent !important; border: 0 !important; box-shadow: none !important; outline: none; transition: transform .3s ease; }
+.dots-toggle:hover { transform: scale(1.1); }
+.dots-toggle:focus-visible .dots-grid { outline: 1px dashed rgba(234,185,75,.7); outline-offset: 6px; }
 .dots-grid { display: grid; grid-template-columns: repeat(2, 9px); gap: 6px; transition: transform .5s cubic-bezier(.2, 1.3, .4, 1); }
 .dots-grid i { width: 9px; height: 9px; border-radius: 2px; transition: transform .4s ease, border-radius .4s ease; }
 .dots-grid i:nth-child(1) { background: #eab94b; }
@@ -39,6 +40,12 @@
 .service-deck-link:hover { color: var(--gold-bright); }
 .service-list button b { font-size: 18px; }
 
+/* ---------- How it works: sideways 3D coverflow ---------- */
+.process-deck.deck-x .deck-stage { height: 400px; }
+.process-deck.deck-x .deck-card { top: 20px; width: min(380px, 74vw); margin-left: calc(min(380px, 74vw) / -2); height: 340px; }
+.process-deck.deck-x .deck-card[data-pos="side"] { transform: translateX(calc(var(--o) * 58%)) translateZ(calc(var(--a) * -160px)) rotateY(calc(var(--o) * -34deg)); opacity: calc(1 - var(--a) * .3); filter: brightness(.65); }
+.process-deck.deck-x .deck-card[data-pos="hidden"] { transform: translateX(calc(var(--o) * 50%)) translateZ(-480px) rotateY(calc(var(--o) * -34deg)); }
+
 @media (max-width: 980px) {
   .service-list { grid-template-columns: repeat(4, 1fr); }
   .service-list button b { font-size: 12px; }
@@ -51,4 +58,6 @@
   .site-header.is-scrolled .brand-mark { width: 44px; height: 47px; }
   .service-list button b { font-size: 10px; }
   .preloader-dots i { width: 13px; height: 13px; }
+  .process-deck.deck-x .deck-stage { height: 370px; }
+  .process-deck.deck-x .deck-card { height: 310px; }
 }

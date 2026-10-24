@@ -95,6 +95,30 @@ export function useScrolled(threshold = 24) {
   return scrolled;
 }
 
+// Header height once it has shrunk into its scrolled state (see .is-scrolled .navbar in upgrades.css).
+const scrolledHeaderHeight = () => (window.matchMedia('(max-width: 680px)').matches ? 74 : 82);
+
+// Every in-page link (#contact, #services...) lands with the section top just below the pinned header.
+// The browser's own jump ignores the fixed header and lands mid-section, so the scroll is done here.
+export function useAnchorScroll() {
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      // Swipe decks cancel clicks on back cards; those must not scroll the page.
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return;
+      const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
+      const hash = link?.getAttribute('href') ?? '';
+      const target = hash.length > 1 ? document.getElementById(hash.slice(1)) : null;
+      if (!target) return;
+      event.preventDefault();
+      const top = hash === '#home' ? 0 : target.getBoundingClientRect().top + window.scrollY - scrolledHeaderHeight();
+      window.scrollTo({ top: Math.max(top, 0), behavior: MOTION_ENABLED ? 'smooth' : 'auto' });
+      window.history.replaceState(null, '', hash);
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
+}
+
 // Four coloured dots in a square (two on top, two below) instead of the usual three lines.
 export function DotsMenuButton({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   return (
