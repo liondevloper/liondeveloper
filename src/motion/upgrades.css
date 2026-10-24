@@ -41,6 +41,10 @@
 @keyframes wa-ring { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.65); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .wa-ring { display: none; } }
 
+/* ---------- Footer: copyright centred on its own, no Home / Services / Pricing / Instagram links ---------- */
+.site-shell .footer-bottom { display: flex !important; justify-content: center; text-align: center; }
+.site-shell .footer-bottom > div { display: none !important; }
+
 /* ---------- No numbers on the "What I do" and "How it works" cards or their side lists ---------- */
 .site-shell .process-card-count,
 .site-shell .process-card-number,
