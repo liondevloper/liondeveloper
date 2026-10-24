@@ -29,6 +29,19 @@ export type Plan = {
   features: string[];
   cta: string;
 };
+// Monthly after-launch plan, shown as its own strip under the pricing cards.
+export type CarePlan = {
+  enabled: boolean;
+  name: string;
+  price: string;
+  period: string;
+  yearly: string;
+  description: string;
+  included: string[];
+  excluded: string[];
+  offer: string;
+  cta: string;
+};
 export type Testimonial = { quote: string; author: string; role: string; rating: number };
 export type Faq = { question: string; answer: string };
 
@@ -40,6 +53,8 @@ export type SiteContent = {
   projects: Project[];
   templates: Template[];
   pricing: Plan[];
+  care: CarePlan;
+  budgets: string[];
   technologies: string[];
   testimonials: Testimonial[];
   faqs: Faq[];
@@ -140,7 +155,7 @@ export const defaultContent: SiteContent = {
       price: '₹8,000',
       description: 'A polished launchpad for a focused online presence.',
       popular: false,
-      features: ['1–5 pages', 'Responsive design', 'Modern UI', 'WhatsApp button', 'Contact form', 'Basic SEO', 'Mobile optimization', 'Deployment'],
+      features: ['1–5 pages', 'Mobile-friendly modern design', 'WhatsApp button', 'Contact form', 'Basic SEO', 'Free deployment', '1 month free care'],
       cta: 'Get Started',
     },
     {
@@ -148,15 +163,15 @@ export const defaultContent: SiteContent = {
       price: '₹12,000',
       description: 'A premium website built to support your next stage of growth.',
       popular: true,
-      features: ['Up to 10 pages', 'Premium UI/UX', 'WhatsApp integration', 'Booking/enquiry form', 'Basic SEO', 'Performance optimization', 'Deployment', 'Basic support'],
+      features: ['Up to 10 pages', 'Premium UI/UX', 'WhatsApp integration', 'Booking / enquiry form', 'On-page SEO', 'Speed optimization', 'Free deployment', '1 month free care'],
       cta: 'Get Started',
     },
     {
       name: 'Professional',
-      price: '₹18,000+',
+      price: '₹18,000',
       description: 'Advanced functionality for businesses with bigger requirements.',
       popular: false,
-      features: ['Custom UI/UX', 'Advanced functionality', 'Admin panel', 'Database', 'Authentication', 'API integrations', 'Custom features', 'Technical support'],
+      features: ['Everything in Business', 'Custom UI/UX', 'Admin panel', 'Database & login', 'API integrations', 'Advanced SEO', 'Free deployment', '2 months free care'],
       cta: 'Request Quote',
     },
     {
@@ -164,10 +179,30 @@ export const defaultContent: SiteContent = {
       price: "Let's Discuss",
       description: 'For ambitious products and systems that need a tailored approach.',
       popular: false,
-      features: ['SaaS products', 'Custom web applications', 'Advanced dashboards', 'E-commerce systems', 'Business management systems', 'Complex integrations'],
+      features: ['SaaS products', 'Custom web applications', 'Advanced dashboards', 'E-commerce systems', 'Business management systems', 'Complex integrations', 'Dedicated support'],
       cta: 'Talk To Me',
     },
   ],
+  care: {
+    enabled: true,
+    name: 'Website Care Plan',
+    price: '₹799',
+    period: '/month',
+    yearly: 'or ₹7,999/year (2 months free)',
+    description: 'Keep your website safe, updated and running smoothly after launch.',
+    included: [
+      'Up to 3 small text/photo changes per month',
+      'Bug fixes',
+      'Regular backups',
+      'Quick fix if the site goes down',
+      'Domain & hosting renewal reminders',
+      'WhatsApp support',
+    ],
+    excluded: ['New pages', 'New features (quoted separately)'],
+    offer: 'First month free with every website',
+    cta: 'Add Care Plan',
+  },
+  budgets: ['₹8,000 – ₹12,000', '₹12,000 – ₹20,000', '₹20,000 – ₹50,000', '₹50,000+', 'Not sure'],
   technologies: ['HTML5', 'CSS3', 'JavaScript', 'React', 'Node.js', 'PHP', 'Laravel', 'Firebase', 'Supabase', 'REST APIs', 'Cloudflare', 'Vercel', 'GitHub'],
   testimonials: [],
   faqs: [
@@ -176,7 +211,7 @@ export const defaultContent: SiteContent = {
     { question: 'Do you provide domain and hosting?', answer: 'Yes. Assistance with domain, hosting and deployment is available.' },
     { question: 'Can you build an admin panel?', answer: 'Yes. Custom admin panels can be developed when required.' },
     { question: 'Can you integrate WhatsApp?', answer: 'Yes. WhatsApp enquiry and booking functionality can be integrated.' },
-    { question: 'Do you provide maintenance?', answer: 'Yes. Website updates, fixes and improvements can be provided.' },
+    { question: 'Do you provide maintenance?', answer: 'Yes. The Website Care Plan starts at ₹799/month and covers small updates, bug fixes, backups and support. The first month is free with every website.' },
   ],
 };
 
@@ -186,6 +221,7 @@ const list = <T,>(value: unknown, fallback: T[]): T[] => (Array.isArray(value) ?
 export function mergeContent(stored: unknown): SiteContent {
   if (!stored || typeof stored !== 'object') return defaultContent;
   const raw = stored as Partial<SiteContent>;
+  const care = { ...defaultContent.care, ...(raw.care ?? {}) };
   return {
     contact: { ...defaultContent.contact, ...(raw.contact ?? {}) },
     hero: { ...defaultContent.hero, ...(raw.hero ?? {}) },
@@ -194,6 +230,8 @@ export function mergeContent(stored: unknown): SiteContent {
     projects: list(raw.projects, defaultContent.projects),
     templates: list(raw.templates, defaultContent.templates),
     pricing: list(raw.pricing, defaultContent.pricing),
+    care: { ...care, included: list(care.included, defaultContent.care.included), excluded: list(care.excluded, defaultContent.care.excluded) },
+    budgets: list(raw.budgets, defaultContent.budgets),
     technologies: list(raw.technologies, defaultContent.technologies),
     testimonials: list(raw.testimonials, defaultContent.testimonials),
     faqs: list(raw.faqs, defaultContent.faqs),
