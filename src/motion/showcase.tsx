@@ -136,14 +136,16 @@ type DeckProps<T> = {
   axis: DeckAxis;
   label: string;
   renderCard: (item: T, index: number, active: boolean) => ReactNode;
-  // Autoplay delay in ms; 0 turns it off. Autoplay stops for good once the visitor takes control.
+  // Autoplay delay in ms; 0 turns it off. By default autoplay stops for good once the visitor takes control.
   interval?: number;
+  // Keep auto-swiping no matter what: no pause on hover, and a manual swipe only restarts the timer.
+  persistent?: boolean;
   initial?: number;
   className?: string;
   aside?: (current: number, go: (index: number) => void) => ReactNode;
 };
 
-export function Deck<T>({ items, axis, label, renderCard, interval = 0, initial = 0, className = '', aside }: DeckProps<T>) {
+export function Deck<T>({ items, axis, label, renderCard, interval = 0, persistent = false, initial = 0, className = '', aside }: DeckProps<T>) {
   const count = items.length;
   const [active, setActive] = useState(initial);
   const [hovered, setHovered] = useState(false);
@@ -152,14 +154,15 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, initial 
   const swiped = useRef(false);
 
   const current = count ? ((active % count) + count) % count : 0;
-  const autoplay = MOTION_ENABLED && interval > 0 && count > 1 && !touched;
-  const running = autoplay && !hovered;
+  const autoplay = (persistent || (MOTION_ENABLED && !touched)) && interval > 0 && count > 1;
+  const running = autoplay && (persistent || !hovered);
 
+  // Re-armed on every card change, so a manual swipe gives the visitor a full interval before the next auto move.
   useEffect(() => {
     if (!running) return;
-    const timer = window.setInterval(() => setActive((value) => value + 1), interval);
-    return () => window.clearInterval(timer);
-  }, [running, interval]);
+    const timer = window.setTimeout(() => setActive((value) => value + 1), interval);
+    return () => window.clearTimeout(timer);
+  }, [running, interval, active]);
 
   if (!count) return null;
 
@@ -267,7 +270,7 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, initial 
             <NextIcon size={18} />
           </button>
         </div>
-        {/* Restarts with every card; hidden while hovering because autoplay is paused then. */}
+        {/* Restarts with every card; hidden while autoplay is paused. */}
         {running && (
           <div className="deck-timer" key={active} style={{ '--deck-ms': `${interval}ms` } as CSSProperties}>
             <i />

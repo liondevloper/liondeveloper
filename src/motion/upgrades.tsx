@@ -4,6 +4,9 @@ import { MOTION_ENABLED } from './effects';
 import { Deck } from './showcase';
 import './upgrades.css';
 
+// "What I do" and "How it works" both auto-swipe on this beat, and keep going after a manual swipe.
+export const AUTO_SWIPE_MS = 3000;
+
 /* ------------------------------------------------------------- preloader */
 
 // Slower intro: each beat lasts a full second and shows dots (3, 2, 1) instead of numbers.
@@ -167,15 +170,12 @@ export function FloatingWhatsApp({ href }: { href: string }) {
 
 type ServiceItem = { title: string; description: string; icon: string };
 
-function ServiceDeckCard({ service, index, total, Icon }: { service: ServiceItem; index: number; total: number; Icon: LucideIcon }) {
-  const number = String(index + 1).padStart(2, '0');
+function ServiceDeckCard({ service, Icon }: { service: ServiceItem; Icon: LucideIcon }) {
   return (
     <article className="process-card service-deck-card">
       <div className="process-card-top">
         <span className="process-card-icon"><Icon size={24} /></span>
-        <span className="process-card-count">{number} / {String(total).padStart(2, '0')}</span>
       </div>
-      <span className="process-card-number" aria-hidden="true">{number}</span>
       <h3>{service.title}</h3>
       <p>{service.description}</p>
       <a className="service-deck-link" href="#contact">Start this project <ArrowUpRight size={15} /></a>
@@ -183,7 +183,7 @@ function ServiceDeckCard({ service, index, total, Icon }: { service: ServiceItem
   );
 }
 
-// The 8 services live in one 3D stack. Swiping up/down flips through the cards without moving the page.
+// The 8 services live in one 3D stack. It flips to the next card every 3 seconds; swiping up/down works too.
 export function ServiceDeck({ services, resolveIcon }: { services: ServiceItem[]; resolveIcon: (name: string) => LucideIcon }) {
   return (
     <Deck
@@ -191,17 +191,15 @@ export function ServiceDeck({ services, resolveIcon }: { services: ServiceItem[]
       items={services}
       axis="y"
       label="What I do"
-      interval={3400}
+      interval={AUTO_SWIPE_MS}
+      persistent
       className="service-deck"
-      renderCard={(service, index) => (
-        <ServiceDeckCard service={service} index={index} total={services.length} Icon={resolveIcon(service.icon)} />
-      )}
+      renderCard={(service) => <ServiceDeckCard service={service} Icon={resolveIcon(service.icon)} />}
       aside={(current, go) => (
         <ol className="process-list service-list">
           {services.map((service, index) => (
             <li key={index}>
               <button type="button" className={index === current ? 'is-active' : index < current ? 'is-done' : ''} onClick={() => go(index)}>
-                <span>{String(index + 1).padStart(2, '0')}</span>
                 <b>{service.title}</b>
               </button>
             </li>
