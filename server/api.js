@@ -9,6 +9,9 @@ const SESSION_DAYS = 7;
 const secret = () => process.env.SESSION_SECRET || '';
 const NO_SECRET = 'Admin access is disabled until SESSION_SECRET is set on the server.';
 
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+
 function requireSecret(_req, res, next) {
   if (!secret()) return res.status(503).json({ error: NO_SECRET });
   next();
@@ -104,6 +107,22 @@ api.get('/content', async (_req, res) => {
   }
 });
 
+// Uploaded images never change once stored, so browsers and the CDN can cache them for a year.
+api.get('/images/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return res.status(400).json({ error: 'Bad id' });
+  try {
+    const { rows } = await pool.query('SELECT mime, data FROM images WHERE id = $1', [id]);
+    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+    res.set('Content-Type', rows[0].mime);
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    res.send(rows[0].data);
+  } catch (error) {
+    console.error('[images] read failed', error);
+    res.status(500).json({ error: 'Could not load image' });
+  }
+});
+
 /* ------------------------------------------------------------------ auth */
 
 api.post('/auth/login', requireSecret, async (req, res) => {
@@ -155,6 +174,24 @@ api.post('/auth/password', requireAuth, async (req, res) => {
 });
 
 /* ----------------------------------------------------------------- admin */
+
+// Accepts a base64 data URL from the admin panel and returns the public address of the stored image.
+api.post('/images', requireAuth, async (req, res) => {
+  const match = /^data:([\w/+.-]+);base64,(.+)$/.exec(typeof req.body?.dataUrl === 'string' ? req.body.dataUrl : '');
+  if (!match || !IMAGE_TYPES.includes(match[1])) {
+    return res.status(400).json({ error: 'Upload a JPG, PNG or WebP image' });
+  }
+  const data = Buffer.from(match[2], 'base64');
+  if (data.length > MAX_IMAGE_BYTES) return res.status(400).json({ error: 'Image is too large (max 2 MB)' });
+
+  try {
+    const { rows } = await pool.query('INSERT INTO images (mime, data) VALUES ($1, $2) RETURNING id', [match[1], data]);
+    res.status(201).json({ url: `/api/images/${rows[0].id}` });
+  } catch (error) {
+    console.error('[images] insert failed', error);
+    res.status(500).json({ error: 'Could not save image' });
+  }
+});
 
 api.get('/enquiries', requireAuth, async (req, res) => {
   const status = ENQUIRY_STATUSES.includes(req.query.status) ? req.query.status : null;
