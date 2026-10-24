@@ -9,7 +9,7 @@ import { useSiteContent, whatsappLink, type Plan } from '@/data/site';
 import lionLogo from '@/assets/images/lion-logo.png';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
-import { DotPreloader, DotsMenuButton, ServiceDeck, useScrolled } from '@/motion/upgrades';
+import { DotPreloader, DotsMenuButton, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
@@ -119,6 +119,7 @@ function App() {
   const [sendError, setSendError] = useState(false);
   useMotionEffects();
   useTiltEffect();
+  useAnchorScroll();
   const scrolled = useScrolled();
 
   const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
@@ -245,12 +246,12 @@ function App() {
               <span className="section-kicker" data-reveal>A clear path forward</span>
               <h2 data-reveal="clip">How it<br /><em>works.</em></h2>
             </div>
-            <p data-reveal style={stagger(2)}>From first conversation to launch day, the process stays transparent, focused and built around your goals.</p>
+            <p data-reveal style={stagger(2)}>From first conversation to launch day, the process stays transparent, focused and built around your goals. Swipe left or right to follow along.</p>
           </div>
           <div data-reveal>
             <Deck
               items={PROCESS_STEPS}
-              axis="y"
+              axis="x"
               label="How it works"
               interval={3200}
               className="process-deck"
