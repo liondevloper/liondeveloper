@@ -9,7 +9,7 @@ import { phoneLink, useSiteContent, whatsappLink, type Plan } from '@/data/site'
 import lionLogo from '@/assets/images/lion-logo.png';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
-import { DotPreloader, DotsMenuButton, FloatingWhatsApp, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
+import { AUTO_SWIPE_MS, DotPreloader, DotsMenuButton, FloatingWhatsApp, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
@@ -20,11 +20,11 @@ const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Developer'];
 const NAV_ITEMS = ['Home', 'Services', 'Templates', 'Pricing', 'About', 'Contact'];
 
 const PROCESS_STEPS = [
-  { number: '01', title: 'Discuss', text: 'Understand your business, goals and requirements.', icon: MessagesSquare },
-  { number: '02', title: 'Plan', text: 'Plan the structure, features and user experience.', icon: ClipboardList },
-  { number: '03', title: 'Design', text: 'Create a modern visual experience for your brand.', icon: Palette },
-  { number: '04', title: 'Develop', text: 'Build, integrate and test the website on every screen.', icon: Code2 },
-  { number: '05', title: 'Launch', text: 'Deploy the website and make it live for your customers.', icon: Rocket },
+  { title: 'Discuss', text: 'Understand your business, goals and requirements.', icon: MessagesSquare },
+  { title: 'Plan', text: 'Plan the structure, features and user experience.', icon: ClipboardList },
+  { title: 'Design', text: 'Create a modern visual experience for your brand.', icon: Palette },
+  { title: 'Develop', text: 'Build, integrate and test the website on every screen.', icon: Code2 },
+  { title: 'Launch', text: 'Deploy the website and make it live for your customers.', icon: Rocket },
 ];
 
 function PriceCard({ plan }: { plan: Plan }) {
@@ -41,15 +41,13 @@ function PriceCard({ plan }: { plan: Plan }) {
   );
 }
 
-function ProcessCard({ step, total }: { step: (typeof PROCESS_STEPS)[number]; total: number }) {
+function ProcessCard({ step }: { step: (typeof PROCESS_STEPS)[number] }) {
   const Icon = step.icon;
   return (
     <article className="process-card">
       <div className="process-card-top">
         <span className="process-card-icon"><Icon size={24} /></span>
-        <span className="process-card-count">{step.number} / {String(total).padStart(2, '0')}</span>
       </div>
-      <span className="process-card-number" aria-hidden="true">{step.number}</span>
       <h3>{step.title}</h3>
       <p>{step.text}</p>
     </article>
@@ -183,7 +181,6 @@ function App() {
         <section className="hero section-pad" id="home">
           <div className="hero-grid" aria-hidden="true" />
           <div className="hero-copy">
-            {hero.badge && <div className="eyebrow"><span className="status-dot" /> {hero.badge}</div>}
             <h1>{headlineWords(hero.headline)}</h1>
             <p className="hero-text">{hero.text}</p>
             <div className="hero-actions"><a className="button button-gold" href="#contact">Get a Website <ArrowUpRight size={18} /></a><a className="button button-outline" href="#services">View Services <ArrowUpRight size={18} /></a></div>
@@ -254,15 +251,15 @@ function App() {
               items={PROCESS_STEPS}
               axis="x"
               label="How it works"
-              interval={3200}
+              interval={AUTO_SWIPE_MS}
+              persistent
               className="process-deck"
-              renderCard={(step) => <ProcessCard step={step} total={PROCESS_STEPS.length} />}
+              renderCard={(step) => <ProcessCard step={step} />}
               aside={(current, go) => (
                 <ol className="process-list">
                   {PROCESS_STEPS.map((step, index) => (
-                    <li key={step.number}>
+                    <li key={step.title}>
                       <button type="button" className={index === current ? 'is-active' : index < current ? 'is-done' : ''} onClick={() => go(index)}>
-                        <span>{step.number}</span>
                         <b>{step.title}</b>
                       </button>
                     </li>
