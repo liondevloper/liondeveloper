@@ -27,10 +27,10 @@
 .site-shell .price-feature { color: #b1b0a9; }
 .site-shell .price-feature svg { color: var(--gold); }
 
-/* tech chips */
+/* tech chips: bob gently once they have finished revealing */
 .site-shell .tech-cloud span { border-color: rgba(255,255,255,.14); color: #b1b0a9; background: rgba(255,255,255,.04); }
 .site-shell .tech-cloud .tech-highlight { border-color: rgba(234,185,75,.5); color: var(--gold); background: rgba(234,185,75,.08); }
-.motion-ready.is-loaded .site-shell .tech-cloud span[data-shown] { animation: ld-chip 4.5s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -.35s); }
+.motion-ready.is-loaded .site-shell .tech-cloud span[data-shown] { animation: ld-chip 4.5s ease-in-out infinite; animation-delay: calc(1.2s + var(--i, 0) * .18s); }
 .motion-ready .site-shell .tech-cloud span:hover { border-color: var(--gold); color: var(--gold-bright); }
 
 /* testimonials */
@@ -39,8 +39,8 @@
 .site-shell .stars { color: var(--gold); }
 
 /* ---------- 3D tilt (any [data-tilt] card) ---------- */
-.site-shell [data-tilt] { transform-style: preserve-3d; will-change: transform; }
-.site-shell .template-card { transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+/* The scroll-reveal transition already eases transform, so the tilt follows the mouse smoothly. */
+.site-shell [data-tilt] { transform-style: preserve-3d; }
 .site-shell [data-tilt][data-tilting] { transform: perspective(900px) rotateX(var(--trx, 0deg)) rotateY(var(--try, 0deg)) translateY(-6px); z-index: 3; }
 
 /* ---------- Swipe decks ---------- */
@@ -78,7 +78,6 @@
 .deck-dots button.is-active { width: 28px; background: var(--gold); }
 .deck-timer { width: 120px; height: 2px; margin: 14px auto 0; background: rgba(255,255,255,.1); overflow: hidden; border-radius: 2px; }
 .deck-timer i { display: block; height: 100%; background: var(--gold); transform-origin: left; animation: ld-fill var(--deck-ms, 4s) linear both; }
-.deck-timer.is-paused i { animation-play-state: paused; }
 
 /* process deck: list on the left, cards on the right */
 .deck-has-aside { display: grid; grid-template-columns: .8fr 1.2fr; gap: 70px; align-items: center; }
@@ -181,7 +180,7 @@
   .process-card-number { font-size: 170px; }
   .process-list button b { font-size: 11px; }
   .process-list button span { font-size: 9px; }
-  .template-modal-backdrop { padding: 10px; }
+  .site-shell .template-modal-backdrop { padding: 10px; }
   .template-modal { height: calc(100vh - 20px); }
   .template-modal-bar { flex-wrap: wrap; gap: 10px; }
   .template-modal-title { flex-basis: calc(100% - 50px); }
