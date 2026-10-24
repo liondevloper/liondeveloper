@@ -1,11 +1,11 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   ArrowUpRight, CalendarCheck2, Check, ChevronDown, ChevronUp, ClipboardList, Code2, Globe, Instagram,
   LayoutDashboard, MessagesSquare, MousePointerClick, Palette, PanelsTopLeft, Phone, PlugZap, Rocket, Send, ShoppingBag,
   Sparkles, Star, Wrench, MessageCircle, Mail, Smartphone, Zap, ShieldCheck, Target,
-  Gauge, Monitor, CircleCheck
+  Gauge, Monitor, CircleCheck, X, HeartHandshake
 } from 'lucide-react';
-import { phoneLink, useSiteContent, whatsappLink, type Plan } from '@/data/site';
+import { phoneLink, useSiteContent, whatsappLink, type CarePlan, type Plan } from '@/data/site';
 import lionLogo from '@/assets/images/lion-logo.png';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
@@ -18,6 +18,9 @@ type EnquiryFields = Record<string, FormDataEntryValue>;
 const BAND_WORDS = ['Business Websites', 'Landing Pages', 'E-Commerce', 'Web Apps', 'Admin Panels', 'Booking Systems', 'UI/UX Design'];
 const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Developer'];
 const NAV_ITEMS = ['Home', 'Services', 'Templates', 'Pricing', 'About', 'Contact'];
+// Long enough to read a full feature list before the next package slides in.
+const PRICING_SWIPE_MS = 9000;
+const WIDE_SCREEN = '(min-width: 1100px)';
 
 const PROCESS_STEPS = [
   { title: 'Discuss', text: 'Understand your business, goals and requirements.', icon: MessagesSquare },
@@ -27,17 +30,65 @@ const PROCESS_STEPS = [
   { title: 'Launch', text: 'Deploy the website and make it live for your customers.', icon: Rocket },
 ];
 
-function PriceCard({ plan }: { plan: Plan }) {
+// Big screens show every package side by side for easy comparison; smaller screens keep the swipe deck.
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, [query]);
+  return matches;
+}
+
+// "₹18,000+" already says "or more", so "Starting from" replaces the plus instead of doubling it.
+function PriceLabel({ price }: { price: string }) {
+  if (!/\d/.test(price)) return <>{price}</>;
+  return <><small>Starting from</small>{price.replace(/\s*\+\s*$/, '')}</>;
+}
+
+function PriceCard({ plan, onChoose }: { plan: Plan; onChoose: (name: string) => void }) {
   return (
     <article className={`price-card ${plan.popular ? 'popular' : ''}`}>
       {plan.popular && <span className="popular-tag">Most popular</span>}
       <span className="price-name">{plan.name}</span>
-      <h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{plan.price}</> : plan.price}</h3>
+      <h3><PriceLabel price={plan.price} /></h3>
       <p>{plan.description}</p>
       <div className="price-divider" />
       {plan.features.map((feature, index) => <span className="price-feature" key={index}><Check size={15} />{feature}</span>)}
-      <a className={`button ${plan.popular ? 'button-gold' : 'button-outline'} price-button`} href="#contact">{plan.cta} <ArrowUpRight size={16} /></a>
+      <a className={`button ${plan.popular ? 'button-gold' : 'button-outline'} price-button`} href="#contact" onClick={() => onChoose(plan.name)}>{plan.cta} <ArrowUpRight size={16} /></a>
     </article>
+  );
+}
+
+function CareStrip({ care, onChoose }: { care: CarePlan; onChoose: (name: string) => void }) {
+  return (
+    <div className="care-strip" data-reveal>
+      <div className="care-intro">
+        <span className="care-icon"><HeartHandshake size={22} /></span>
+        <span className="price-name">After launch</span>
+        <h3>{care.name}</h3>
+        <p>{care.description}</p>
+        <div className="care-price"><b>{care.price}</b><span>{care.period}</span></div>
+        {care.yearly && <small className="care-yearly">{care.yearly}</small>}
+        {care.offer && <span className="care-offer"><Sparkles size={13} />{care.offer}</span>}
+      </div>
+      <div className="care-lists">
+        <div>
+          <span className="care-list-title">Included</span>
+          {care.included.map((item, index) => <span className="price-feature" key={index}><Check size={15} />{item}</span>)}
+        </div>
+        {care.excluded.length > 0 && (
+          <div>
+            <span className="care-list-title">Not included</span>
+            {care.excluded.map((item, index) => <span className="price-feature care-excluded" key={index}><X size={15} />{item}</span>)}
+          </div>
+        )}
+        <a className="button button-gold care-button" href="#contact" onClick={() => onChoose(care.name)}>{care.cta} <ArrowUpRight size={16} /></a>
+      </div>
+    </div>
   );
 }
 
@@ -107,7 +158,7 @@ async function emailEnquiry(data: EnquiryFields, email: string) {
 
 function App() {
   const content = useSiteContent();
-  const { contact, hero, stats, services, templates, pricing, technologies, testimonials, faqs } = content;
+  const { contact, hero, stats, services, templates, pricing, care, budgets, technologies, testimonials, faqs } = content;
   const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
   const phoneHref = phoneLink(contact.whatsapp) ?? '#contact';
   const [menuOpen, setMenuOpen] = useState(false);
@@ -116,12 +167,19 @@ function App() {
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState(false);
+  const [chosenPackage, setChosenPackage] = useState('');
+  const wide = useMediaQuery(WIDE_SCREEN);
   useMotionEffects();
   useTiltEffect();
   useAnchorScroll();
   const scrolled = useScrolled();
 
   const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
+  const packageOptions = [...pricing.map((plan) => plan.name), ...(care.enabled ? [care.name] : [])].filter(Boolean);
+  const chooseTitle = (name: string) => {
+    setChosenPackage(name);
+    setSubmitted(false);
+  };
 
   const closeMenu = () => setMenuOpen(false);
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -130,6 +188,8 @@ function App() {
     setSending(true);
     setSendError(false);
     const data = Object.fromEntries(new FormData(form));
+    // The enquiry store has no package column, so the chosen package leads the project details.
+    if (data.package) data.details = `Package: ${data.package}\n\n${data.details}`;
     const [saved, mailed] = await Promise.all([saveEnquiry(data), emailEnquiry(data, contact.email)]);
     setSending(false);
 
@@ -138,6 +198,7 @@ function App() {
       return;
     }
     form.reset();
+    setChosenPackage('');
     setSentEnquiry(data);
     setSubmitted(true);
   };
@@ -149,6 +210,7 @@ function App() {
         [
           `Hi Lion Developer, I just sent a project request from your website.`,
           `Name: ${sentEnquiry.name}`,
+          sentEnquiry.package ? `Package: ${sentEnquiry.package}` : '',
           sentEnquiry.website_type ? `Website type: ${sentEnquiry.website_type}` : '',
           sentEnquiry.budget ? `Budget: ${sentEnquiry.budget}` : '',
         ]
@@ -221,20 +283,27 @@ function App() {
           <div className="center-heading">
             <span className="section-kicker" data-reveal>Clear starting points</span>
             <h2 data-reveal="clip">Simple website<br /><em>pricing.</em></h2>
-            <p data-reveal style={stagger(2)}>Professional websites starting from ₹8,000. Swipe through the packages to find the right fit.</p>
+            <p data-reveal style={stagger(2)}>Professional websites starting from {pricing[0]?.price.replace(/\s*\+\s*$/, '') || '₹8,000'}. {wide ? 'Compare the packages to find the right fit.' : 'Swipe through the packages to find the right fit.'}</p>
           </div>
-          <div data-reveal="scale">
-            <Deck<Plan>
-              key={pricing.length}
-              items={pricing}
-              axis="x"
-              label="Pricing packages"
-              initial={popularPlan}
-              interval={5000}
-              className="pricing-deck"
-              renderCard={(plan) => <PriceCard plan={plan} />}
-            />
-          </div>
+          {wide ? (
+            <div className="pricing-grid pricing-grid-wide">
+              {pricing.map((plan, index) => <div key={index} data-reveal style={stagger(index)}><PriceCard plan={plan} onChoose={chooseTitle} /></div>)}
+            </div>
+          ) : (
+            <div data-reveal="scale">
+              <Deck<Plan>
+                key={pricing.length}
+                items={pricing}
+                axis="x"
+                label="Pricing packages"
+                initial={popularPlan}
+                interval={PRICING_SWIPE_MS}
+                className="pricing-deck"
+                renderCard={(plan) => <PriceCard plan={plan} onChoose={chooseTitle} />}
+              />
+            </div>
+          )}
+          {care.enabled && <CareStrip care={care} onChoose={chooseTitle} />}
           <p className="pricing-note" data-reveal>Final pricing depends on pages, features, integrations and project requirements.</p>
         </section>
 
@@ -279,7 +348,7 @@ function App() {
 
         <section className="faq-section section-pad section-dark"><div className="section-heading"><div><span className="section-kicker" data-reveal>Need to know</span><h2 data-reveal="clip">Frequently<br /><em>asked.</em></h2></div><p data-reveal style={stagger(2)}>Still curious? Here are answers to a few of the questions clients ask most often.</p></div><div className="faq-list">{faqs.map((faq, index) => <div className={`faq-item ${openFaq === index ? 'open' : ''}`} key={index} data-reveal style={stagger(index)}><button onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{String(index + 1).padStart(2, '0')}</span><b>{faq.question}</b>{openFaq === index ? <ChevronUp size={19} /> : <ChevronDown size={19} />}</button>{openFaq === index && <p>{faq.answer}</p>}</div>)}</div></section>
 
-        <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy" data-reveal="left"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={phoneHref}><Phone size={19} />{contact.whatsapp || 'Call me'}</a></div></div><div className="form-card" data-reveal="right">{submitted ? <div className="success-message"><div><Check size={30} /></div><h3>Request received.</h3><p>Thanks for reaching out. Your project details are ready for review.</p>{followUpHref && <a className="button button-gold success-whatsapp" href={followUpHref} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Continue on WhatsApp</a>}<button className="button button-outline" onClick={() => setSubmitted(false)}>Send another request</button></div> : <form onSubmit={handleSubmit}><div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder="+91 00000 00000" /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Website type<select name="website_type" defaultValue=""><option value="" disabled>Select a website type</option><option>Business website</option><option>Landing page</option><option>E-commerce website</option><option>Custom web application</option></select></label><label>Budget<select name="budget" defaultValue=""><option value="" disabled>Choose your budget</option><option>₹5,000 – ₹10,000</option><option>₹10,000 – ₹20,000</option><option>₹20,000 – ₹50,000</option><option>₹50,000+</option><option>Not sure</option></select></label><label>Project details<textarea required name="details" placeholder="Tell me a little about what you want to build..." rows={4} /></label><button className="button button-gold form-submit" type="submit" disabled={sending}>{sending ? 'Sending...' : <>Send project request <Send size={17} /></>}</button>{sendError && <p className="form-error">Couldn’t send that. Try again, or email {contact.email} directly.</p>}</form>}</div></div></section>
+        <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy" data-reveal="left"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={phoneHref}><Phone size={19} />{contact.whatsapp || 'Call me'}</a></div></div><div className="form-card" data-reveal="right">{submitted ? <div className="success-message"><div><Check size={30} /></div><h3>Request received.</h3><p>Thanks for reaching out. Your project details are ready for review.</p>{followUpHref && <a className="button button-gold success-whatsapp" href={followUpHref} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Continue on WhatsApp</a>}<button className="button button-outline" onClick={() => setSubmitted(false)}>Send another request</button></div> : <form onSubmit={handleSubmit}><div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder="+91 00000 00000" /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Package<select name="package" value={chosenPackage} onChange={(event) => setChosenPackage(event.target.value)}><option value="">Not decided yet</option>{packageOptions.map((name) => <option key={name}>{name}</option>)}</select></label><label>Website type<select name="website_type" defaultValue=""><option value="" disabled>Select a website type</option><option>Business website</option><option>Landing page</option><option>E-commerce website</option><option>Custom web application</option></select></label><label>Budget<select name="budget" defaultValue=""><option value="" disabled>Choose your budget</option>{budgets.map((budget) => <option key={budget}>{budget}</option>)}</select></label><label>Project details<textarea required name="details" placeholder="Tell me a little about what you want to build..." rows={4} /></label><button className="button button-gold form-submit" type="submit" disabled={sending}>{sending ? 'Sending...' : <>Send project request <Send size={17} /></>}</button>{sendError && <p className="form-error">Couldn’t send that. Try again, or email {contact.email} directly.</p>}</form>}</div></div></section>
 
         <Marquee items={OUTRO_WORDS} />
       </main>
