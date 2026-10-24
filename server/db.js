@@ -52,6 +52,16 @@ export async function initDatabase() {
     );
   `);
 
+  // Template cover images uploaded from the admin panel. Kept in the database so no extra storage service is needed.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS images (
+      id         SERIAL PRIMARY KEY,
+      mime       TEXT NOT NULL,
+      data       BYTEA NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+
   await pool.query('CREATE INDEX IF NOT EXISTS enquiries_created_at_idx ON enquiries (created_at DESC);');
 
   await seedAdmin();
