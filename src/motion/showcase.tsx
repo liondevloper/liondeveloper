@@ -11,6 +11,7 @@ import {
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Eye, Monitor, Smartphone, X } from 'lucide-react';
 import type { Template } from '@/data/site';
 import { MOTION_ENABLED, stagger } from './effects';
+import './showcase.css';
 
 /* ---------------------------------------------------------- screenshots */
 
@@ -123,6 +124,13 @@ function deckPosition(offset: number, count: number, axis: DeckAxis): DeckPositi
   return axis === 'x' ? 'side' : 'next';
 }
 
+// Sideways decks only listen to horizontal drags. Vertical decks take whichever direction moved most,
+// because on phones a vertical drag scrolls the page, so a sideways flick is the reliable gesture there.
+function swipeDelta(axis: DeckAxis, dx: number, dy: number) {
+  if (axis === 'x') return dx;
+  return Math.abs(dy) >= Math.abs(dx) ? dy : dx;
+}
+
 type DeckProps<T> = {
   items: T[];
   axis: DeckAxis;
@@ -140,7 +148,7 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, initial 
   const [active, setActive] = useState(initial);
   const [hovered, setHovered] = useState(false);
   const [touched, setTouched] = useState(false);
-  const start = useRef<number | null>(null);
+  const start = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
 
   const current = count ? ((active % count) + count) % count : 0;
@@ -160,15 +168,14 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, initial 
     setTouched(true);
   };
   const step = (delta: number) => go(current + delta);
-  const coordinate = (event: ReactPointerEvent) => (axis === 'x' ? event.clientX : event.clientY);
 
   const onPointerDown = (event: ReactPointerEvent) => {
-    start.current = coordinate(event);
+    start.current = { x: event.clientX, y: event.clientY };
     swiped.current = false;
   };
   const onPointerUp = (event: ReactPointerEvent) => {
-    if (start.current === null) return;
-    const delta = coordinate(event) - start.current;
+    if (!start.current) return;
+    const delta = swipeDelta(axis, event.clientX - start.current.x, event.clientY - start.current.y);
     start.current = null;
     if (Math.abs(delta) < SWIPE_DISTANCE) return;
     swiped.current = true;
@@ -260,8 +267,9 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, initial 
             <NextIcon size={18} />
           </button>
         </div>
-        {autoplay && (
-          <div className={`deck-timer ${hovered ? 'is-paused' : ''}`} key={active} style={{ '--deck-ms': `${interval}ms` } as CSSProperties}>
+        {/* Restarts with every card; hidden while hovering because autoplay is paused then. */}
+        {running && (
+          <div className="deck-timer" key={active} style={{ '--deck-ms': `${interval}ms` } as CSSProperties}>
             <i />
           </div>
         )}
