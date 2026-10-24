@@ -20,12 +20,40 @@
 .site-shell .pricing-note { color: #77766f; }
 
 /* glass price cards */
-.site-shell .price-card { background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.015)); border: 1px solid rgba(255,255,255,.12); color: var(--ink); min-height: 520px; height: 100%; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 30px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08); }
+.site-shell .price-card { background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.015)); border: 1px solid rgba(255,255,255,.12); color: var(--ink); min-height: 0; height: 100%; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 30px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08); }
 .site-shell .price-card.popular { background: linear-gradient(160deg, rgba(234,185,75,.16), rgba(29,30,27,.92) 45%); border-color: rgba(234,185,75,.65); }
 .site-shell .price-card > p { color: var(--muted); }
 .site-shell .price-divider { background: rgba(255,255,255,.1); }
 .site-shell .price-feature { color: #b1b0a9; }
-.site-shell .price-feature svg { color: var(--gold); }
+.site-shell .price-feature svg { color: var(--gold); flex-shrink: 0; }
+
+/* desktop: every package side by side so they are easy to compare */
+.site-shell .pricing-grid-wide { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-top: 14px; align-items: stretch; }
+.site-shell .pricing-grid-wide > div { height: 100%; }
+.site-shell .pricing-grid-wide .price-card { min-height: 540px; transition: transform .35s ease, border-color .35s ease; }
+.site-shell .pricing-grid-wide .price-card:hover { transform: translateY(-6px); border-color: rgba(234,185,75,.5); }
+
+/* pricing deck (tablet + mobile): tall enough for the longest feature list */
+.site-shell .pricing-deck .deck-stage { height: 620px; }
+.site-shell .pricing-deck .deck-card { height: 570px; }
+
+/* care plan strip under the packages */
+.site-shell .care-strip { display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; margin-top: 48px; padding: 32px; border: 1px solid rgba(234,185,75,.35); background: linear-gradient(120deg, rgba(234,185,75,.1), rgba(255,255,255,.02) 55%); box-shadow: 0 30px 60px rgba(0,0,0,.3); }
+.care-intro { display: flex; flex-direction: column; align-items: flex-start; }
+.care-icon { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 18px; color: #16130c; background: linear-gradient(140deg, var(--gold-bright), var(--gold)); }
+.care-intro h3 { font-size: 30px; letter-spacing: -.05em; margin: 10px 0 8px; }
+.care-intro > p { color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 360px; margin: 0 0 18px; }
+.care-price { display: flex; align-items: baseline; gap: 6px; }
+.care-price b { font-size: 40px; letter-spacing: -.06em; color: var(--gold); }
+.care-price span { color: var(--muted); font-size: 13px; }
+.care-yearly { color: #8e8d86; font: 10px 'DM Mono', monospace; letter-spacing: .06em; margin-top: 4px; }
+.care-offer { display: inline-flex; align-items: center; gap: 7px; margin-top: 18px; padding: 8px 12px; border: 1px solid rgba(234,185,75,.4); background: rgba(234,185,75,.08); color: var(--gold-bright); font-size: 11px; font-weight: 700; }
+.care-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; align-content: start; }
+.care-lists > div { display: flex; flex-direction: column; }
+.care-list-title { font: 10px 'DM Mono', monospace; color: var(--gold); text-transform: uppercase; letter-spacing: .14em; margin-bottom: 14px; }
+.site-shell .care-excluded { color: #7d7c76; }
+.site-shell .care-excluded svg { color: #8a5a50; }
+.care-button { grid-column: 1 / -1; justify-content: center; margin-top: 10px; }
 
 /* tech chips: bob gently once they have finished revealing */
 .site-shell .tech-cloud span { border-color: rgba(255,255,255,.14); color: #b1b0a9; background: rgba(255,255,255,.04); }
@@ -167,12 +195,19 @@
   .process-list button.is-active { padding-left: 6px; border-top-color: var(--gold); }
   .process-list button.is-done { border-top-color: rgba(234,185,75,.4); }
   .process-list button b { font-size: 15px; }
+  .site-shell .care-strip { grid-template-columns: 1fr; gap: 28px; }
 }
 @media (max-width: 680px) {
   .template-grid { grid-template-columns: 1fr; }
   .template-card:last-child:nth-child(odd) { grid-column: auto; }
   .deck-x .deck-stage { height: 560px; }
   .deck-x .deck-card { height: 510px; }
+  .site-shell .pricing-deck .deck-stage { height: 610px; }
+  .site-shell .pricing-deck .deck-card { height: 560px; }
+  .site-shell .pricing-deck .price-card { padding: 24px 20px; }
+  .site-shell .care-strip { padding: 24px 20px; margin-top: 36px; }
+  .care-lists { grid-template-columns: 1fr; gap: 18px; }
+  .care-intro h3 { font-size: 26px; }
   .deck-y .deck-stage { height: 360px; }
   .deck-y .deck-card { height: 300px; }
   .process-card { padding: 24px 22px; }
