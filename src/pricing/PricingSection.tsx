@@ -211,6 +211,11 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
   const wide = useMediaQuery(WIDE_SCREEN);
   const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
   const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? '₹8,000';
+  // Names the packages that carry the free domain offer, so the note never promises it on the Starter plan.
+  const perkPlans = pricing.filter((plan) => plan.perk).map((plan) => plan.name);
+  const perkNote = perkPlans.length > 0
+    ? ` ${perkPlans.join(' and ')} include a FREE .in / .com domain & hosting for the first year; renewals from the second year are charged separately.`
+    : '';
 
   return (
     <section className="pricing-section section-pad" id="pricing">
@@ -237,7 +242,7 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
           />
         </div>
       )}
-      <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements. Free domain &amp; hosting covers the first year; renewals are charged separately.</p>
+      <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.{perkNote}</p>
       {care.enabled && <CareBlock care={care} whatsapp={whatsapp} onChoose={onChoose} />}
       <PolicyPanel pricing={pricing} terms={terms} />
     </section>
