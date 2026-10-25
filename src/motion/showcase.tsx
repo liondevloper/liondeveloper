@@ -7,6 +7,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Eye, Monitor, Smartphone, X } from 'lucide-react';
 import type { Template } from '@/data/site';
@@ -342,9 +343,47 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
 
 type Device = 'desktop' | 'mobile';
 
+// The preview always renders the site at a real screen size and scales it down to fit, so the desktop view
+// shows the true PC layout even on a phone, and the phone view never spills past the right edge.
+const VIEWPORTS: Record<Device, { width: number; height: number }> = {
+  desktop: { width: 1440, height: 900 },
+  mobile: { width: 390, height: 844 },
+};
+// Room for the phone bezel drawn around the mobile view.
+const BEZEL = 8;
+
+function useBoxSize(ref: RefObject<HTMLElement | null>) {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+  return size;
+}
+
+function fitFrame(device: Device, box: { width: number; height: number }) {
+  const view = VIEWPORTS[device];
+  if (device === 'desktop') {
+    const scale = Math.min(1, box.width / view.width);
+    // Fill the whole height of the preview area with the scaled-down desktop page.
+    return { scale, width: view.width, height: scale > 0 ? box.height / scale : view.height };
+  }
+  const scale = Math.min(1, (box.width - BEZEL * 2) / view.width, (box.height - BEZEL * 2) / view.height);
+  return { scale, width: view.width, height: view.height };
+}
+
 function TemplatePreview({ template, onClose }: { template: Template; onClose: () => void }) {
   const [device, setDevice] = useState<Device>('desktop');
   const [loaded, setLoaded] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const box = useBoxSize(wrapRef);
+  const frame = fitFrame(device, box);
+  const ready = box.width > 0 && frame.scale > 0;
 
   useEffect(() => {
     const onKey = (event: globalThis.KeyboardEvent) => {
@@ -382,11 +421,21 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
             <X size={18} />
           </button>
         </div>
-        <div className="template-frame-wrap">
-          <div className={`template-frame is-${device}`}>
-            {!loaded && <div className="template-frame-loading">Loading live preview</div>}
-            <iframe src={template.url} title={`${template.title} live preview`} onLoad={() => setLoaded(true)} />
-          </div>
+        <div className="template-frame-wrap" ref={wrapRef}>
+          {ready && (
+            <div
+              className={`template-frame is-${device}`}
+              style={{ width: frame.width * frame.scale, height: frame.height * frame.scale }}
+            >
+              {!loaded && <div className="template-frame-loading">Loading live preview</div>}
+              <iframe
+                src={template.url}
+                title={`${template.title} live preview`}
+                onLoad={() => setLoaded(true)}
+                style={{ width: frame.width, height: frame.height, transform: `scale(${frame.scale})` }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
