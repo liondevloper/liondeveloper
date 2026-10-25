@@ -1,0 +1,73 @@
+/* Layout tightening, header/menu clean-up and the WhatsApp entrance.
+   Loaded last from main.tsx. Every rule starts with ":root body .site-shell" so it wins over
+   index.css, theme.css, light.css, showcase.css and pricing.css regardless of load order. */
+
+/* ---------- Header: no moving progress line along the top while scrolling ---------- */
+:root body .site-shell .scroll-progress { display: none; }
+
+/* ---------- Mobile menu: links only, no "Get a Website" button inside it ---------- */
+@media (max-width: 680px) {
+  :root body .site-shell .nav-links > .button { display: none; }
+}
+
+/* ---------- Less empty space everywhere ---------- */
+:root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 76px; padding-bottom: 76px; }
+:root body .site-shell .hero { min-height: 0; padding-top: 36px; padding-bottom: 56px; }
+:root body .site-shell .hero-actions { margin: 26px 0 22px; }
+:root body .site-shell :is(.section-heading, .center-heading) { margin-bottom: 36px; }
+:root body .site-shell .center-heading h2 { margin-bottom: 14px; }
+:root body .site-shell .feature-section { gap: 56px; }
+:root body .site-shell :is(.about-grid, .contact-grid) { gap: 56px; }
+:root body .site-shell .deck-has-aside { gap: 44px; }
+:root body .site-shell .feature-copy > p { margin: 18px 0 22px; }
+:root body .site-shell .about-copy p { margin: 20px 0 22px; }
+:root body .site-shell .contact-copy > p { margin: 20px 0 24px; }
+:root body .site-shell .marquee-outline { padding: 30px 0 10px; }
+:root body .site-shell .marquee-band { margin: 8px -20px; }
+:root body .site-shell .footer { padding-top: 36px; }
+:root body .site-shell .footer-top { padding-bottom: 26px; }
+
+/* ---------- Pricing: compact, equal-size cards ---------- */
+:root body .site-shell .pricing-grid-wide { gap: 12px; padding-top: 10px; }
+:root body .site-shell .pricing-grid-wide .price-card { min-height: 0; }
+:root body .site-shell .price-card { padding: 22px 18px; }
+:root body .site-shell .price-card h3 { font-size: 30px; margin: 12px 0 8px; }
+:root body .site-shell .price-card > p { min-height: 0; margin-bottom: 8px; }
+:root body .site-shell .price-feature { margin-bottom: 8px; }
+:root body .site-shell .price-perk { margin: 10px 0 2px; padding: 9px 12px; }
+:root body .site-shell .price-revisions { margin: 4px 0 14px; padding-top: 10px; }
+/* Swipe deck (tablet + phone): every card has the same fixed size. */
+:root body .site-shell .pricing-deck .deck-stage { height: 560px; }
+:root body .site-shell .pricing-deck .deck-card { height: 520px; width: min(320px, 82vw); margin-left: calc(min(320px, 82vw) / -2); }
+:root body .site-shell .pricing-deck .price-card { overflow: hidden; }
+/* Care plan tiers + policies */
+:root body .site-shell .care-block { margin-top: 36px; padding: 26px; gap: 22px; }
+:root body .site-shell .care-tiers { gap: 14px; }
+:root body .site-shell .care-tier { padding: 22px 18px 18px; gap: 10px; }
+:root body .site-shell .care-tier .care-price b { font-size: 36px; }
+:root body .site-shell .policy-panel { margin-top: 24px; padding: 22px; }
+
+@media (max-width: 980px) {
+  :root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 60px; padding-bottom: 60px; }
+  :root body .site-shell :is(.feature-section, .about-grid, .contact-grid) { gap: 36px; }
+  :root body .site-shell .deck-has-aside { gap: 24px; }
+}
+@media (max-width: 680px) {
+  :root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 52px; padding-bottom: 52px; }
+  :root body .site-shell .hero { padding-top: 24px; padding-bottom: 44px; }
+  :root body .site-shell :is(.section-heading, .center-heading) { margin-bottom: 28px; }
+  :root body .site-shell .section-heading > p { margin-top: 14px; }
+  :root body .site-shell .care-block { padding: 20px 16px; margin-top: 28px; }
+  :root body .site-shell .policy-panel { padding: 18px 14px; }
+}
+
+/* ---------- WhatsApp button flies in with a 3D flip once the site opens ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-ready body .site-shell .floating-whatsapp { opacity: 0; }
+  html.motion-ready.is-loaded body .site-shell .floating-whatsapp { animation: ld-wa-in 1.1s cubic-bezier(.34, 1.56, .64, 1) 2.1s both; }
+}
+@keyframes ld-wa-in {
+  0% { opacity: 0; translate: 0 120px; rotate: y 180deg; scale: .3; }
+  60% { opacity: 1; }
+  100% { opacity: 1; translate: 0 0; rotate: y 0deg; scale: 1; }
+}
