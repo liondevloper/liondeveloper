@@ -1,0 +1,96 @@
+/* =====================================================================
+   Scroll scenes + menu button motion.
+   --e / --l come from useScrollScenes (scenes.tsx). Without motion they are
+   never set, so every fallback below equals the normal, static layout.
+   Only individual transform properties (translate / rotate / scale) and
+   opacity are used, so nothing fights the existing transform-based effects.
+   ===================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ---------- Hero: the browser tilts back and sinks into the page as you scroll away ---------- */
+  :root body .site-shell .hero .hero-browser {
+    translate: 0 calc(var(--l, 0) * 110px);
+    rotate: x calc(var(--l, 0) * 26deg);
+    scale: calc(1 - var(--l, 0) * .16);
+    will-change: translate, rotate, scale;
+  }
+  :root body .site-shell .hero .hero-copy {
+    translate: 0 calc(var(--l, 0) * -70px);
+    opacity: calc(1 - var(--l, 0) * 1.25);
+    will-change: translate, opacity;
+  }
+
+  /* ---------- Section headings flip up in 3D as their section scrolls in ---------- */
+  :root body .site-shell main > section .section-heading > div,
+  :root body .site-shell main > section .center-heading { perspective: 800px; }
+  :root body .site-shell main > section .section-heading h2,
+  :root body .site-shell main > section .center-heading h2 {
+    transform-origin: 50% 100%;
+    rotate: x calc((1 - min(var(--e, 1) * 1.35, 1)) * 38deg);
+  }
+}
+
+/* ---------- Feature section: labelled chips swirl into place (the "ballet") ---------- */
+:root body .site-shell .feature-section { overflow-x: clip; }
+:root body .site-shell .feature-visual { position: relative; }
+:root body .site-shell .ballet { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+:root body .site-shell .ballet-chip {
+  /* Each chip finishes a little after the one before it. */
+  --cp: clamp(0, (var(--e, 1) - var(--i) * .05) / .65, 1);
+  --spin: calc(var(--a) + (1 - var(--cp)) * 210deg);
+  position: absolute; left: 50%; top: 50%; display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px 7px 9px; border-radius: 999px; white-space: nowrap;
+  font-size: 11px; font-weight: 700; letter-spacing: .02em; color: #1c160e;
+  background: rgba(255,250,241,.94); border: 1px solid rgba(239,106,40,.28);
+  box-shadow: 0 10px 22px -8px rgba(90,45,15,.28);
+  transform: translate(-50%, -50%) rotate(var(--spin)) translateX(calc(min(var(--r), 40vw) * (.2 + var(--cp) * .8))) rotate(calc(-1 * var(--spin))) scale(calc(.45 + var(--cp) * .55));
+  opacity: var(--cp);
+  will-change: transform, opacity;
+}
+:root body .site-shell .ballet-chip svg { color: #ef6a28; flex-shrink: 0; }
+:root body .site-shell .ballet-chip:nth-child(even) svg { color: #0a96b6; }
+:root body .site-shell .ballet-chip > i { display: block; width: 6px; height: 6px; border-radius: 50%; background: #ef6a28; box-shadow: 0 0 0 3px rgba(239,106,40,.18); }
+:root body .site-shell .ballet-chip:nth-child(even) > i { background: #0a96b6; box-shadow: 0 0 0 3px rgba(10,150,182,.18); }
+
+@media (max-width: 680px) {
+  :root body .site-shell .ballet-chip { font-size: 10px; padding: 5px 9px 5px 7px; }
+  :root body .site-shell .ballet-chip:nth-child(even) { display: none; }
+  :root body .site-shell .ballet-chip { --r: 150px !important; }
+}
+
+/* ---------- Menu button: the four dots fly in when the site opens, then shuffle now and then ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-ready.is-loaded body .dots-grid i { animation: ld-dot-in .95s cubic-bezier(.34, 1.56, .64, 1) both; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(1) { --fx: -24px; --fy: -24px; animation-delay: 1.5s; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(2) { --fx: 24px; --fy: -24px; animation-delay: 1.6s; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(3) { --fx: -24px; --fy: 24px; animation-delay: 1.7s; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(4) { --fx: 24px; --fy: 24px; animation-delay: 1.8s; }
+  html.motion-ready.is-loaded body .dots-toggle:not(.is-open) .dots-grid { animation: ld-dots-shuffle 9s cubic-bezier(.65, 0, .35, 1) 3.4s infinite; }
+  body .dots-toggle .dots-grid { transition: transform .5s cubic-bezier(.2, 1.3, .4, 1), gap .35s cubic-bezier(.16, 1, .3, 1); }
+  body .dots-toggle:hover:not(.is-open) .dots-grid { gap: 9px; }
+
+  /* Mobile menu links flip in one after another when the menu opens. */
+  body .site-shell .nav-links.is-open { perspective: 700px; }
+  body .site-shell .nav-links.is-open > a { animation: ld-nav-in .7s cubic-bezier(.16, 1, .3, 1) both; transform-origin: 50% 0; }
+  body .site-shell .nav-links.is-open > a:nth-child(2) { animation-delay: .05s; }
+  body .site-shell .nav-links.is-open > a:nth-child(3) { animation-delay: .1s; }
+  body .site-shell .nav-links.is-open > a:nth-child(4) { animation-delay: .15s; }
+  body .site-shell .nav-links.is-open > a:nth-child(5) { animation-delay: .2s; }
+  body .site-shell .nav-links.is-open > a:nth-child(6) { animation-delay: .25s; }
+  body .site-shell .nav-links.is-open > a:nth-child(7) { animation-delay: .3s; }
+}
+
+@keyframes ld-dot-in {
+  0% { translate: var(--fx) var(--fy); rotate: 200deg; scale: .2; opacity: 0; }
+  55% { opacity: 1; }
+  100% { translate: 0 0; rotate: 0deg; scale: 1; opacity: 1; }
+}
+/* Quarter turns with pauses; 360deg equals 0deg, so the loop never snaps. */
+@keyframes ld-dots-shuffle {
+  0%, 16% { rotate: 0deg; }
+  25%, 41% { rotate: 90deg; }
+  50%, 66% { rotate: 180deg; }
+  75%, 91% { rotate: 270deg; }
+  100% { rotate: 360deg; }
+}
+@keyframes ld-nav-in { from { opacity: 0; translate: 0 16px; rotate: x -70deg; } to { opacity: 1; translate: 0 0; rotate: x 0deg; } }
