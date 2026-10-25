@@ -109,7 +109,7 @@ export const defaultContent: SiteContent = {
   hero: {
     badge: 'Available for New Projects',
     headline: 'I build websites that *grow* your business.',
-    text: 'Modern websites, web applications and digital solutions designed to help businesses build a stronger online presence and turn visitors into customers.',
+    text: 'Modern websites, web applications and digital solutions designed to help businesses build a stronger online presence and turn visitors into customers. Your website can be ready in just 1–3 days, depending on the website.',
   },
   stats: [
     { value: '50+', label: 'Projects' },
@@ -315,7 +315,7 @@ export const defaultContent: SiteContent = {
   testimonials: [],
   faqs: [
     { question: 'How much does a website cost?', answer: 'Website packages start from ₹8,000. Final pricing depends on pages, features and integrations.' },
-    { question: 'How long does a website take?', answer: 'Timeline depends on the project scope and required functionality. A clear timeline is shared before work begins.' },
+    { question: 'How long does a website take?', answer: 'Most websites are ready in just 1–3 days, depending on the website. Bigger projects with custom features may take longer, and a clear timeline is shared before work begins.' },
     { question: 'Do you provide domain and hosting?', answer: 'Yes. Business (₹18,000+), Professional (₹30,000+) and Custom Project include a FREE .in or .com domain and hosting for the first year. Renewals from the second year are charged separately.' },
     { question: 'Can you build an admin panel?', answer: 'Yes. Custom admin panels can be developed when required.' },
     { question: 'Can you integrate WhatsApp?', answer: 'Yes. WhatsApp enquiry and booking functionality can be integrated.' },
