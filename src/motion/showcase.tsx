@@ -352,16 +352,20 @@ const VIEWPORTS: Record<Device, { width: number; height: number }> = {
 };
 // Room for the phone bezel drawn around the mobile view.
 const BEZEL = 8;
-// Keep in sync with the .42s ld-pop-out animation in popup.css.
-const POPUP_CLOSE_MS = 420;
+// Keep in sync with the .3s ld-fix-out animation in fixes.css.
+const POPUP_CLOSE_MS = 300;
 
+// Rounded down to whole pixels: fractional sizes made the frame re-measure itself and flicker.
 function useBoxSize(ref: RefObject<HTMLElement | null>) {
   const [size, setSize] = useState({ width: 0, height: 0 });
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
     const observer = new ResizeObserver(([entry]) => {
-      setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+      if (!entry) return;
+      const width = Math.floor(entry.contentRect.width);
+      const height = Math.floor(entry.contentRect.height);
+      setSize((previous) => (previous.width === width && previous.height === height ? previous : { width, height }));
     });
     observer.observe(element);
     return () => observer.disconnect();
@@ -369,12 +373,13 @@ function useBoxSize(ref: RefObject<HTMLElement | null>) {
   return size;
 }
 
+// Both views fit fully inside the preview area, so no side of the website is ever cut off.
 function fitFrame(device: Device, box: { width: number; height: number }) {
   const view = VIEWPORTS[device];
   if (device === 'desktop') {
     const scale = Math.min(1, box.width / view.width);
     // Fill the whole height of the preview area with the scaled-down desktop page.
-    return { scale, width: view.width, height: scale > 0 ? box.height / scale : view.height };
+    return { scale, width: view.width, height: scale > 0 ? Math.floor(box.height / scale) : view.height };
   }
   const scale = Math.min(1, (box.width - BEZEL * 2) / view.width, (box.height - BEZEL * 2) / view.height);
   return { scale, width: view.width, height: view.height };
@@ -391,7 +396,7 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
 
-  // Plays the 3D drop-away before the popup unmounts.
+  // Plays the drop-away before the popup unmounts.
   const requestClose = () => {
     if (closing) return;
     if (!MOTION_ENABLED) {
@@ -414,20 +419,22 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
     const onKey = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') requestCloseRef.current();
     };
+    const root = document.documentElement;
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // Pauses the 3D backdrop and page animations behind the popup; repainting them made the preview blink.
+    root.classList.add('preview-open');
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = previous;
+      root.classList.remove('preview-open');
       window.removeEventListener('keydown', onKey);
     };
   }, []);
 
   return (
     <div className={`modal-backdrop template-modal-backdrop ${closing ? 'is-closing' : ''}`} onClick={requestClose}>
-      <div className="popup-fx" aria-hidden="true"><b /><i /><i /><i /></div>
       <div className="template-modal" role="dialog" aria-modal="true" aria-label={`${template.title} live preview`} onClick={(event) => event.stopPropagation()}>
-        <span className="popup-sweep" aria-hidden="true" />
         <div className="template-modal-bar">
           <div className="template-modal-title">
             <span className="section-kicker">{template.category}</span>
@@ -452,14 +459,14 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
           {ready && (
             <div
               className={`template-frame is-${device}`}
-              style={{ width: frame.width * frame.scale, height: frame.height * frame.scale }}
+              style={{ width: Math.floor(frame.width * frame.scale), height: Math.floor(frame.height * frame.scale) }}
             >
               {!loaded && <div className="template-frame-loading">Loading live preview</div>}
               <iframe
                 src={template.url}
                 title={`${template.title} live preview`}
                 onLoad={() => setLoaded(true)}
-                style={{ width: frame.width, height: frame.height, transform: `scale(${frame.scale})` }}
+                style={{ width: frame.width, height: frame.height, transform: `scale(${frame.scale})`, opacity: loaded ? 1 : 0 }}
               />
             </div>
           )}
