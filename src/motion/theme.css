@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+/* Lion Developer theme: ember orange + electric cyan on a deep night-sky navy, glass panels that let the
+   live 3D backdrop (scene.tsx) show through, and soft rounded corners instead of sharp square boxes.
+   This file loads after every other stylesheet, so equal-specificity rules here win. */
+
+body:has(.site-shell) { background: #06070d; }
+.scene-3d { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; display: block; }
+
+.site-shell {
+  --ink: #f4f3ff; --muted: #a3a6bf; --line: rgba(160,170,255,.12);
+  --gold: #ff7a3d; --gold-bright: #ffb15c; --cyan: #3ee6ff; --violet: #8b6cff;
+  --black: #06070d; --panel: rgba(16,18,32,.62);
+  --glass: linear-gradient(155deg, rgba(255,255,255,.075), rgba(255,255,255,.015));
+  --glass-border: rgba(170,180,255,.16);
+  --r-lg: 24px; --r-md: 16px;
+  position: relative; z-index: 1; background: transparent; color: var(--ink);
+  font-family: 'Sora', 'Manrope', sans-serif;
+}
+
+/* ---------- Sections: transparent so the 3D scene shows through, with soft colour washes ---------- */
+.site-shell .hero { background: radial-gradient(circle at 75% 40%, rgba(255,122,61,.10), transparent 32%), radial-gradient(circle at 12% 85%, rgba(62,230,255,.07), transparent 30%); }
+.site-shell .section-dark,
+.site-shell .pricing-section,
+.site-shell .process-section,
+.site-shell .tech-section,
+.site-shell .testimonial-section,
+.site-shell .templates-section,
+.site-shell .contact-section,
+.site-shell .marquee-outline,
+.site-shell .footer { background: transparent; }
+.site-shell .section-dark { background: linear-gradient(180deg, rgba(10,12,26,.55), rgba(10,12,26,.25)); }
+.site-shell .pricing-section { background: radial-gradient(circle at 50% 0%, rgba(255,122,61,.10), transparent 45%); }
+.site-shell .process-section { background: radial-gradient(circle at 85% 30%, rgba(139,108,255,.10), transparent 40%); }
+.site-shell .tech-section { background: radial-gradient(circle at 50% 100%, rgba(62,230,255,.08), transparent 45%); }
+.site-shell .contact-section { background: radial-gradient(circle at 0 100%, rgba(255,122,61,.10), transparent 38%); }
+.site-shell .footer { border-top: 1px solid var(--line); }
+.site-shell .templates-aurora i:nth-child(1) { background: rgba(255,122,61,.16); }
+.site-shell .templates-aurora i:nth-child(2) { background: rgba(62,230,255,.14); }
+.site-shell .templates-aurora i:nth-child(3) { background: rgba(139,108,255,.14); }
+.site-shell .section-pad .section-kicker { color: var(--cyan); }
+
+/* ---------- Headline accent: orange to cyan gradient ---------- */
+.site-shell .hero h1 em { background: linear-gradient(100deg, #ff7a3d, #ffb15c 35%, #3ee6ff 70%, #8b6cff); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.site-shell .hero-glow { background: rgba(255,122,61,.16); }
+.site-shell .orbit { border-color: rgba(62,230,255,.22); }
+.site-shell .orbit b { background: var(--cyan); box-shadow: 0 0 14px 3px rgba(62,230,255,.55); }
+.site-shell .orbit-two b { background: var(--gold); box-shadow: 0 0 14px 3px rgba(255,122,61,.55); }
+
+/* ---------- Rounded glass cards (no more sharp square boxes) ---------- */
+.site-shell .service-card,
+.site-shell .why-card,
+.site-shell .project-card,
+.site-shell .price-card,
+.site-shell .testimonial-card,
+.site-shell .process-card,
+.site-shell .form-card,
+.site-shell .care-block,
+.site-shell .care-strip,
+.site-shell .policy-panel,
+.site-shell .stats-inner {
+  background: var(--glass), rgba(14,16,30,.62); border: 1px solid var(--glass-border); border-radius: var(--r-lg);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 30px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.site-shell .project-card { overflow: hidden; }
+.site-shell .stats-inner { padding: 30px 10px; }
+.site-shell .why-cards, .site-shell .service-grid { background: transparent; border: 0; gap: 14px; }
+.site-shell .why-card:hover { background-color: rgba(255,255,255,.06); border-color: rgba(255,122,61,.45); }
+.site-shell .service-card:hover { background-color: rgba(255,255,255,.06); }
+.site-shell .care-price-option, .site-shell .policy-examples { border-radius: var(--r-md); }
+.site-shell .care-price-option.is-annual, .site-shell .policy-examples { border-color: rgba(255,122,61,.45); background: rgba(255,122,61,.06); }
+.site-shell .float-card, .site-shell .feature-tag { border-radius: var(--r-md); background: rgba(14,16,30,.82); border-color: var(--glass-border); }
+.site-shell .browser { border-radius: 18px; border-color: var(--glass-border); background: #0d0f1c; }
+.site-shell .browser-bar { background: #141729; border-bottom-color: rgba(170,180,255,.1); }
+.site-shell .feature-site { background: linear-gradient(135deg, rgba(255,122,61,.14), transparent 50%), #10142a; }
+.site-shell .feature-sun { border-color: rgba(62,230,255,.45); box-shadow: 0 0 0 15px rgba(62,230,255,.04), 0 0 0 35px rgba(62,230,255,.02); }
+.site-shell .project-modal { border-radius: var(--r-lg); }
+
+/* ---------- Buttons: rounded pills ---------- */
+.site-shell .button { border-radius: 999px; }
+.site-shell .button-gold { background: linear-gradient(120deg, #ff7a3d, #ffb15c); color: #1a0d05; }
+.site-shell .button-gold:hover { background: linear-gradient(120deg, #ff8f57, #ffc47a); box-shadow: 0 12px 34px rgba(255,122,61,.35); }
+.site-shell .button-outline { border-color: rgba(200,205,255,.24); color: var(--ink); }
+.site-shell .button-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ---------- Pricing ---------- */
+.site-shell .price-card.popular { background: linear-gradient(160deg, rgba(255,122,61,.22), rgba(14,16,30,.88) 50%); border-color: rgba(255,122,61,.7); }
+.site-shell .pricing-grid-wide .price-card:hover { border-color: rgba(62,230,255,.5); }
+.site-shell .popular-tag { border-radius: 999px; background: linear-gradient(120deg, #ff7a3d, #ffb15c); color: #1a0d05; }
+.site-shell .price-perk { border-radius: 14px; border-color: rgba(62,230,255,.5); background: linear-gradient(120deg, rgba(62,230,255,.16), rgba(139,108,255,.08)); color: #dcfbff; }
+.site-shell .price-perk svg { color: var(--cyan); }
+.site-shell .care-offer { border-radius: 999px; border-color: rgba(255,122,61,.45); background: rgba(255,122,61,.08); }
+.site-shell .care-block { border-color: rgba(255,122,61,.4); }
+.site-shell .policy-tabs button { border-radius: 999px; }
+.site-shell .policy-tabs button.is-active { background: linear-gradient(120deg, #ff7a3d, #ffb15c); border-color: transparent; color: #1a0d05; }
+
+/* ---------- Chips, marquee, steps ---------- */
+.site-shell .tech-cloud span, .site-shell .tech-row small, .site-shell .modal-features span { border-radius: 999px; }
+.site-shell .tech-cloud span { background: rgba(255,255,255,.04); border-color: var(--glass-border); }
+.site-shell .tech-cloud .tech-highlight { border-color: rgba(62,230,255,.5); color: var(--cyan); background: rgba(62,230,255,.08); }
+.site-shell .marquee-band { background: linear-gradient(90deg, #ff7a3d, #ffb15c 50%, #ff7a3d); color: #1a0d05; }
+.site-shell .process-list button.is-active { background: linear-gradient(90deg, rgba(255,122,61,.14), transparent); border-radius: 0 12px 12px 0; }
+.site-shell .process-list button.is-done { border-color: rgba(255,122,61,.4); }
+.site-shell .deck-card[data-pos="active"] .process-card { border-color: rgba(255,122,61,.5); }
+.site-shell .deck-dots button.is-active { background: linear-gradient(90deg, var(--gold), var(--cyan)); }
+
+/* ---------- FAQ: rounded cards ---------- */
+.site-shell .faq-list { border-top: 0; display: grid; gap: 10px; }
+.site-shell .faq-item { border: 1px solid var(--glass-border); border-radius: 18px; padding: 0 20px; background: rgba(14,16,30,.55); }
+.site-shell .faq-item.open { border-color: rgba(255,122,61,.45); }
+
+/* ---------- Contact form: dark glass instead of the pale box ---------- */
+.site-shell .form-card { color: var(--ink); }
+.site-shell .form-card label { color: var(--muted); }
+.site-shell .form-card input,
+.site-shell .form-card select,
+.site-shell .form-card textarea { background: rgba(255,255,255,.04); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 14px; color: var(--ink); transition: border-color .25s ease, box-shadow .25s ease; }
+.site-shell .form-card input:focus,
+.site-shell .form-card select:focus,
+.site-shell .form-card textarea:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(62,230,255,.15); }
+.site-shell .form-card input::placeholder, .site-shell .form-card textarea::placeholder { color: #6f7390; }
+.site-shell .form-card option { background: #11131f; color: var(--ink); }
+.site-shell .success-message h3 { color: var(--ink); }
+.site-shell .success-message p { color: var(--muted); }
+.site-shell .success-message > div { background: linear-gradient(120deg, #ff7a3d, #ffb15c); }
+.site-shell .form-error { color: #ff9a8a; }
+
+/* ---------- Live templates ---------- */
+.site-shell .template-frame-outer { border-radius: 20px; }
+.site-shell .template-browser { border-radius: 18.5px; background: #0d0f1c; }
+.site-shell .template-ring { background: conic-gradient(from 0deg, transparent 0 55%, rgba(255,122,61,.9) 72%, #3ee6ff 86%, transparent 100%); }
+.site-shell .template-modal { border-radius: 22px; background: #0c0e1a; border-color: var(--glass-border); }
+.site-shell .template-frame-wrap { background: radial-gradient(circle at 50% 0%, rgba(62,230,255,.07), transparent 50%), #070812; }
+
+/* ---------- Header, preloader, cursor, scroll bar ---------- */
+.site-shell .site-header.is-scrolled { background: linear-gradient(90deg, rgba(26,14,10,.86), rgba(8,9,18,.86) 45%, rgba(10,18,34,.88)); }
+.site-shell .preloader { background: radial-gradient(circle at 50% 45%, #141831 0%, #06070d 65%); }
+.site-shell .preloader::after { background: linear-gradient(90deg, var(--gold), var(--cyan)); box-shadow: 0 0 24px var(--cyan); }
+.site-shell .orb-a { background: rgba(255,122,61,.26); }
+.site-shell .orb-b { background: rgba(62,230,255,.16); }
+.site-shell .preloader-dots i { background: linear-gradient(180deg, #ffb15c, #ff7a3d); box-shadow: 0 0 18px rgba(255,122,61,.55); }
+.site-shell .scroll-progress { background: linear-gradient(90deg, var(--gold), var(--cyan)); box-shadow: 0 0 12px rgba(62,230,255,.5); }
+.site-shell .cursor-ring span { border-color: rgba(62,230,255,.6); }
+.site-shell .cursor-ring.is-hover span { background: rgba(62,230,255,.1); border-color: rgba(62,230,255,.9); }
+
+@media (max-width: 680px) {
+  /* Phones: skip the heavy blur so the 3D scene stays smooth, and use slightly more solid panels instead. */
+  .site-shell .service-card, .site-shell .why-card, .site-shell .project-card, .site-shell .price-card,
+  .site-shell .testimonial-card, .site-shell .process-card, .site-shell .form-card, .site-shell .care-block,
+  .site-shell .policy-panel, .site-shell .stats-inner {
+    -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--glass), rgba(14,16,30,.84);
+  }
+  .site-shell .nav-links { background: rgba(12,14,26,.96); border-radius: 20px; border-color: var(--glass-border); }
+  .site-shell .why-cards { gap: 10px; }
+  .site-shell .faq-item { padding: 0 14px; }
+}
