@@ -26,6 +26,8 @@ export type Plan = {
   price: string;
   description: string;
   popular: boolean;
+  // Highlighted offer box on the card, e.g. the free first-year domain + hosting. Blank hides it.
+  perk: string;
   features: string[];
   // Short line shown on the card, e.g. "2 revision rounds".
   revisions: string;
@@ -86,7 +88,9 @@ export const SERVICE_ICONS = [
 
 export const PROJECT_ACCENTS: ProjectAccent[] = ['gold', 'blue', 'dark'];
 
-export const BLANK_PLAN: Plan = { name: '', price: '', description: '', popular: false, features: [], revisions: '', hosting: [], cta: 'Get Started' };
+export const BLANK_PLAN: Plan = { name: '', price: '', description: '', popular: false, perk: '', features: [], revisions: '', hosting: [], cta: 'Get Started' };
+
+export const FREE_DOMAIN_PERK = 'FREE .in / .com domain + hosting for 1 year';
 
 export const siteConfig = {
   brand: 'LION DEVELOPER',
@@ -170,6 +174,7 @@ export const defaultContent: SiteContent = {
       price: '₹8,000+',
       description: 'A polished launchpad for a focused online presence.',
       popular: false,
+      perk: '',
       features: ['1–5 pages', 'Responsive design', 'Modern UI', 'WhatsApp button', 'Contact form', 'Basic SEO', 'Mobile optimization', 'Deployment'],
       revisions: '2 revision rounds',
       hosting: [
@@ -184,13 +189,14 @@ export const defaultContent: SiteContent = {
       price: '₹18,000+',
       description: 'A premium website built to support your next stage of growth.',
       popular: true,
+      perk: FREE_DOMAIN_PERK,
       features: ['Up to 10 pages', 'Premium UI/UX', 'WhatsApp integration', 'Booking / enquiry form', 'Basic SEO', 'Performance optimization', 'Deployment', 'Basic support'],
       revisions: '3 revision rounds',
       hosting: [
-        'Custom domain and first-year hosting are included only when stated in your approved quotation.',
-        'Recommended first-year allowance: up to ₹3,000 combined for domain and hosting.',
-        'If the actual cost is higher, the difference is shared with you and approved before purchase.',
-        'Renewals after the first year are charged separately.',
+        'FREE .in or .com domain and hosting for the first year.',
+        'The free first year covers a standard .in / .com domain and hosting, up to ₹3,000 combined.',
+        'Premium domains or bigger hosting plans: the extra cost is shared with you and approved before purchase.',
+        'Domain and hosting renewals from the second year are charged separately.',
       ],
       cta: 'Get Started',
     },
@@ -199,13 +205,14 @@ export const defaultContent: SiteContent = {
       price: '₹30,000+',
       description: 'Advanced functionality and custom solutions for businesses with bigger requirements.',
       popular: false,
+      perk: FREE_DOMAIN_PERK,
       features: ['Custom UI/UX', 'Advanced functionality', 'Admin panel', 'Database', 'Authentication', 'API integrations', 'Custom features', 'Technical support'],
       revisions: 'Revisions defined in your quotation',
       hosting: [
-        'Domain and hosting are quoted separately based on project requirements.',
+        'FREE .in or .com domain and standard hosting for the first year.',
+        'Larger hosting, database, cloud, email and API services are quoted separately based on project requirements.',
         'Domain, hosting and cloud services are preferably registered under your own account.',
-        'Recurring infrastructure, database, email, API and third-party charges are disclosed upfront.',
-        'Every project receives a custom quotation before work begins.',
+        'Renewals from the second year and any recurring third-party charges are disclosed upfront.',
       ],
       cta: 'Request Quote',
     },
@@ -261,7 +268,7 @@ export const defaultContent: SiteContent = {
       {
         question: 'Is domain and hosting included?',
         answer:
-          'It depends on the package. Starter: domain is charged separately and free-tier hosting is used where suitable. Business: first-year domain and hosting can be included when stated in your quotation, within an allowance of up to ₹3,000. Professional: quoted separately based on your requirements.',
+          'Business and Professional include a FREE .in or .com domain and hosting for the first year. Starter: the domain is charged separately and free-tier hosting is used where suitable. Renewals from the second year are charged separately for every package.',
       },
       {
         question: 'How does the 50% advance payment work?',
@@ -275,7 +282,7 @@ export const defaultContent: SiteContent = {
       },
       {
         question: 'Are domain and hosting renewals included?',
-        answer: 'No. Domain and hosting renewals after the first year are charged separately. Care Plan clients receive renewal reminders.',
+        answer: 'No. The free domain and hosting cover the first year only. Renewals from the second year are charged separately, and Care Plan clients receive renewal reminders.',
       },
       {
         question: 'Is the Website Care Plan compulsory?',
@@ -293,7 +300,7 @@ export const defaultContent: SiteContent = {
   faqs: [
     { question: 'How much does a website cost?', answer: 'Website packages start from ₹8,000. Final pricing depends on pages, features and integrations.' },
     { question: 'How long does a website take?', answer: 'Timeline depends on the project scope and required functionality. A clear timeline is shared before work begins.' },
-    { question: 'Do you provide domain and hosting?', answer: 'It depends on the package. See "Domain & hosting" in the pricing section. Renewals after the first year are charged separately.' },
+    { question: 'Do you provide domain and hosting?', answer: 'Yes. Business (₹18,000+) and Professional (₹30,000+) include a FREE .in or .com domain and hosting for the first year. Renewals from the second year are charged separately.' },
     { question: 'Can you build an admin panel?', answer: 'Yes. Custom admin panels can be developed when required.' },
     { question: 'Can you integrate WhatsApp?', answer: 'Yes. WhatsApp enquiry and booking functionality can be integrated.' },
     { question: 'Do you provide maintenance?', answer: 'Yes. The optional Website Care Plan is ₹799/month or ₹7,999/year, and the first month is free with every website.' },
@@ -306,6 +313,19 @@ const isCurrentPlans = (value: unknown): value is Plan[] =>
   Array.isArray(value) &&
   value.every((plan) => typeof plan === 'object' && plan !== null && Array.isArray((plan as { hosting?: unknown }).hosting));
 
+// Plans saved before the free domain offer have no perk; the default package with the same name supplies
+// both the offer box and the matching domain & hosting terms, so the card and the policy never disagree.
+function upgradePlan(stored: Plan): Plan {
+  const plan = { ...BLANK_PLAN, ...stored };
+  if (typeof (stored as Partial<Plan>).perk === 'string') return plan;
+  const preset = defaultContent.pricing.find((item) => item.name === plan.name);
+  return preset ? { ...plan, perk: preset.perk, hosting: preset.hosting } : plan;
+}
+
+// Replaces answers to the default questions with the current default answers.
+const refreshFaqs = (faqs: Faq[], defaults: Faq[]) =>
+  faqs.map((faq) => defaults.find((item) => item.question === faq.question) ?? faq);
+
 // Stored content only holds what the admin saved; anything missing falls back to the defaults above.
 export function mergeContent(stored: unknown): SiteContent {
   if (!stored || typeof stored !== 'object') return defaultContent;
@@ -313,10 +333,13 @@ export function mergeContent(stored: unknown): SiteContent {
   // Content saved before the pricing policy update has no hosting terms; it switches to the new defaults
   // so the site never shows the old prices or the old care plan claims.
   const legacyPricing = raw.pricing !== undefined && !isCurrentPlans(raw.pricing);
-  const pricing = isCurrentPlans(raw.pricing) ? raw.pricing.map((plan) => ({ ...BLANK_PLAN, ...plan })) : defaultContent.pricing;
+  const missingPerk = isCurrentPlans(raw.pricing) && raw.pricing.some((plan) => typeof (plan as Partial<Plan>).perk !== 'string');
+  const refresh = legacyPricing || missingPerk;
+  const pricing = isCurrentPlans(raw.pricing) ? raw.pricing.map(upgradePlan) : defaultContent.pricing;
   const storedCare = raw.care && typeof raw.care.yearlyPrice === 'string' ? raw.care : {};
   const care = { ...defaultContent.care, ...storedCare };
   const terms = { ...defaultContent.terms, ...(raw.terms ?? {}) };
+  const termFaqs = list<Faq>(terms.faqs, defaultContent.terms.faqs);
   const faqs = list<Faq>(raw.faqs, defaultContent.faqs);
   return {
     contact: { ...defaultContent.contact, ...(raw.contact ?? {}) },
@@ -336,13 +359,13 @@ export function mergeContent(stored: unknown): SiteContent {
       ...terms,
       payment: list(terms.payment, defaultContent.terms.payment),
       revisions: list(terms.revisions, defaultContent.terms.revisions),
-      faqs: list(terms.faqs, defaultContent.terms.faqs),
+      faqs: refresh ? refreshFaqs(termFaqs, defaultContent.terms.faqs) : termFaqs,
     },
     budgets: legacyPricing ? defaultContent.budgets : list(raw.budgets, defaultContent.budgets),
     technologies: list(raw.technologies, defaultContent.technologies),
     testimonials: list(raw.testimonials, defaultContent.testimonials),
     // Old answers about domains and maintenance no longer match the policy, so they are refreshed too.
-    faqs: legacyPricing ? faqs.map((faq) => defaultContent.faqs.find((item) => item.question === faq.question) ?? faq) : faqs,
+    faqs: refresh ? refreshFaqs(faqs, defaultContent.faqs) : faqs,
   };
 }
 
