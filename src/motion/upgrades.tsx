@@ -5,7 +5,7 @@ import { Deck } from './showcase';
 import './upgrades.css';
 import './premium.css';
 // Loaded after premium.css so its hero entrance timing wins.
-import './warp.css';
+import './intro.css';
 
 // "What I do" and "How it works" both auto-swipe on this beat, and keep going after a manual swipe.
 export const AUTO_SWIPE_MS = 3000;
@@ -18,45 +18,57 @@ const DOTS_FROM = 3;
 const DOT_STEP = 1000;
 const REVEAL_AT = DOTS_FROM * DOT_STEP;
 const LEAVE_AT = REVEAL_AT + 1100;
-// The 3D warp (warp.css) lasts ~2.3s: the logo dives into a tunnel, streaks rush past, then a portal opens.
-const DONE_AT = LEAVE_AT + 2400;
+// The 3D blinds intro (intro.css): logo spins + sparks, a light beam sweeps, panels turn open (~2.2s).
+const DONE_AT = LEAVE_AT + 2300;
 
-const RINGS = 12;
-const STARS = 48;
+const SPARKS = 16;
+// Panels open left to right, each a little after the one before, following the light beam.
+const SLAT_START = 0.62;
+const SLAT_STEP = 0.075;
 
 type PreloaderPhase = 'count' | 'reveal' | 'leave' | 'done';
 type VarStyle = CSSProperties & Record<`--${string}`, string>;
 
-// Repeatable pseudo-random numbers so the warp field always looks the same.
+// Repeatable pseudo-random numbers so the sparks always burst the same way.
 const rand = (index: number, seed: number) => {
   const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
   return x - Math.floor(x);
 };
 
-// Each tunnel ring is twisted a little more than the last, so the tunnel spirals as it rushes forward.
-const ringStyle = (index: number): VarStyle => ({ '--i': String(index), '--tw': `${index * 15}deg` });
-
-// Streaks spread around the centre at random angles, distances, speeds and start times.
-const starStyle = (index: number): VarStyle => ({
-  '--a': `${(rand(index, 1) * 360).toFixed(1)}deg`,
-  '--r': `${(4 + rand(index, 2) * 22).toFixed(1)}vmin`,
-  '--t': `${(0.55 + rand(index, 3) * 0.5).toFixed(2)}s`,
-  '--d': `${(0.15 + rand(index, 4) * 0.85).toFixed(2)}s`,
+const slatStyle = (index: number, count: number): VarStyle => ({
+  '--n': String(count),
+  '--bx': `${count > 1 ? (index / (count - 1)) * 100 : 0}%`,
+  '--d': `${(SLAT_START + index * SLAT_STEP).toFixed(3)}s`,
 });
 
-// After the splash: the logo charges and dives into a spiralling 3D tunnel, light streaks rush past
-// at warp speed, a flash fires and a glowing portal opens from the centre to reveal the site.
-function WarpIntro({ logo }: { logo: string }) {
+const sparkStyle = (index: number): VarStyle => ({
+  '--a': `${((360 / SPARKS) * index + rand(index, 1) * 14).toFixed(1)}deg`,
+  '--r': `${(22 + rand(index, 2) * 26).toFixed(1)}vmin`,
+  '--d': `${(0.42 + rand(index, 3) * 0.12).toFixed(2)}s`,
+});
+
+// After the splash: the lion spins inside two 3D gyroscope rings and bursts into sparks,
+// a beam of light sweeps across, and the screen turns open in tall 3D panels to reveal the site.
+function BlindsIntro({ logo }: { logo: string }) {
+  const [slats] = useState(() => (window.innerWidth < 680 ? 6 : 10));
   return (
-    <div className="intro-warp" aria-hidden="true">
-      <div className="intro-warp-cover">
-        {Array.from({ length: RINGS }, (_, index) => <i className="intro-ring" key={`r${index}`} style={ringStyle(index)} />)}
-        {Array.from({ length: STARS }, (_, index) => <b className="intro-star" key={`s${index}`} style={starStyle(index)} />)}
-        <span className="intro-warp-core" />
-        <img className="intro-warp-logo" src={logo} alt="" width={454} height={480} />
-        <span className="intro-warp-flash" />
+    <div className="intro-blinds" aria-hidden="true">
+      <div className="intro-slats" style={{ gridTemplateColumns: `repeat(${slats}, 1fr)` }}>
+        {Array.from({ length: slats }, (_, index) => (
+          <i className="intro-slat" key={index} style={slatStyle(index, slats)}>
+            <span className="intro-slat-shade" />
+            <span className="intro-slat-edge" />
+          </i>
+        ))}
       </div>
-      <span className="intro-warp-rim" />
+      <span className="intro-beam" />
+      <div className="intro-stage">
+        <span className="intro-halo" />
+        <span className="intro-orbit" />
+        <span className="intro-orbit intro-orbit-2" />
+        {Array.from({ length: SPARKS }, (_, index) => <i className="intro-spark" key={index} style={sparkStyle(index)} />)}
+        <img className="intro-mark" src={logo} alt="" width={454} height={480} />
+      </div>
     </div>
   );
 }
@@ -87,7 +99,7 @@ export function DotPreloader({ logo }: { logo: string }) {
   }, []);
 
   if (phase === 'done') return null;
-  if (phase === 'leave') return <WarpIntro logo={logo} />;
+  if (phase === 'leave') return <BlindsIntro logo={logo} />;
   const counting = phase === 'count';
   return (
     <div className={`preloader preloader-slow is-${phase}`} aria-hidden="true">
