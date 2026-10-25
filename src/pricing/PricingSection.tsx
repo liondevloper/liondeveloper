@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, Check, ChevronDown, ChevronUp, CreditCard, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
+import { ArrowUpRight, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
 import {
   annualSaving,
   careOption,
@@ -48,6 +48,7 @@ function PriceCard({ plan, onChoose }: { plan: Plan; onChoose: Choose }) {
       <span className="price-name">{plan.name}</span>
       <h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{plan.price}</> : plan.price}</h3>
       <p>{plan.description}</p>
+      {plan.perk && <span className="price-perk"><Gift size={16} /><span>{plan.perk}</span></span>}
       <div className="price-divider" />
       {plan.features.map((feature, index) => <span className="price-feature" key={index}><Check size={15} />{feature}</span>)}
       {plan.revisions && <span className="price-revisions"><PenLine size={13} />{plan.revisions}</span>}
@@ -174,9 +175,10 @@ function PolicyPanel({ pricing, terms }: { pricing: Plan[]; terms: Terms }) {
 
         {tab === 'hosting' && (
           <div className="policy-hosting">
-            {pricing.filter((plan) => plan.hosting.length > 0).map((plan) => (
+            {pricing.filter((plan) => plan.hosting.length > 0 || plan.perk).map((plan) => (
               <div key={plan.name}>
                 <span className="care-list-title">{plan.name}</span>
+                {plan.perk && <span className="price-perk policy-perk"><Gift size={15} /><span>{plan.perk}</span></span>}
                 <CheckList items={plan.hosting} />
               </div>
             ))}
@@ -235,7 +237,7 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
           />
         </div>
       )}
-      <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.</p>
+      <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements. Free domain &amp; hosting covers the first year; renewals are charged separately.</p>
       {care.enabled && <CareBlock care={care} whatsapp={whatsapp} onChoose={onChoose} />}
       <PolicyPanel pricing={pricing} terms={terms} />
     </section>
