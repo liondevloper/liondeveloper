@@ -1,0 +1,178 @@
+/* Lion Developer light theme + extra 3D depth.
+   Loaded last (from scene.tsx, after theme.css), and every rule starts with ":root .site-shell" so it
+   outranks the older dark rules in index.css, motion.css, showcase.css, upgrades.css and pricing.css. */
+
+body:has(.site-shell) { background: #faf6ee; }
+
+:root .site-shell {
+  --ink: #17140f; --muted: #6a6357; --line: rgba(70,48,15,.12);
+  --gold: #ef6a28; --gold-bright: #f5953a; --cyan: #0a96b6; --violet: #6b4dff;
+  --black: #faf6ee; --panel: #ffffff;
+  --glass: linear-gradient(155deg, rgba(255,255,255,.96), rgba(255,250,242,.86));
+  --glass-border: rgba(120,85,40,.16);
+  --soft-shadow: 0 24px 50px -24px rgba(140,80,20,.28), inset 0 1px 0 #fff;
+  color: var(--ink);
+}
+
+/* ---------- Sections: ivory paper with warm colour washes ---------- */
+:root .site-shell .hero { background: radial-gradient(circle at 75% 40%, rgba(255,140,70,.16), transparent 34%), radial-gradient(circle at 12% 85%, rgba(10,150,182,.09), transparent 30%); }
+:root .site-shell .section-dark { background: linear-gradient(180deg, rgba(255,236,214,.55), rgba(255,248,238,.25)); }
+:root .site-shell .pricing-section { background: radial-gradient(circle at 50% 0%, rgba(255,140,70,.14), transparent 45%); }
+:root .site-shell .process-section { background: radial-gradient(circle at 85% 30%, rgba(107,77,255,.08), transparent 40%); }
+:root .site-shell .tech-section { background: radial-gradient(circle at 50% 100%, rgba(10,150,182,.08), transparent 45%); }
+:root .site-shell .contact-section { background: radial-gradient(circle at 0 100%, rgba(255,140,70,.14), transparent 40%); }
+:root .site-shell .hero-grid { background-image: linear-gradient(rgba(70,48,15,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(70,48,15,.07) 1px, transparent 1px); }
+:root .site-shell .scroll-cue { border-color: rgba(23,20,15,.25); }
+:root .site-shell .hero-services, :root .site-shell .stat span { color: #7a7266; }
+
+/* ---------- Header + navigation ---------- */
+:root .site-shell .nav-links { color: #5b5448; }
+:root .site-shell .site-header.is-scrolled { background: rgba(255,251,244,.84); box-shadow: 0 14px 30px -18px rgba(120,70,20,.35); }
+:root .site-shell .site-header.is-scrolled .nav-links { color: #3b352b; }
+:root .site-shell .menu-toggle { color: var(--ink); }
+
+/* ---------- Buttons ---------- */
+:root .site-shell .button-outline { border-color: rgba(23,20,15,.2); color: var(--ink); background: rgba(255,255,255,.6); }
+:root .site-shell .button-outline:hover { border-color: var(--gold); color: var(--gold); }
+:root .site-shell .button-gold { box-shadow: 0 10px 26px -10px rgba(239,106,40,.6); }
+/* Deeper headline gradient so the accent word stays readable on the light background. */
+:root .site-shell .hero h1 em { background: linear-gradient(100deg, #e0531a, #ef7a28 35%, #0a8fb0 70%, #6b4dff); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---------- Cards: solid white (no blur, so the 3D pop below can work) ---------- */
+:root .site-shell :is(.service-card, .why-card, .project-card, .price-card, .testimonial-card, .process-card, .form-card, .care-block, .care-strip, .policy-panel, .stats-inner) {
+  background: var(--glass); border: 1px solid var(--glass-border); color: var(--ink);
+  -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: var(--soft-shadow);
+}
+:root .site-shell .why-card:hover, :root .site-shell .service-card:hover { background-color: #fff; border-color: rgba(239,106,40,.45); }
+:root .site-shell :is(.why-card, .process-card, .price-card, .care-block) p { color: var(--muted); }
+
+/* ---------- Hero mock browser + floating cards ---------- */
+:root .site-shell .browser { background: #fff; border-color: var(--glass-border); box-shadow: 0 30px 70px -30px rgba(120,70,20,.4); }
+:root .site-shell .browser-bar { background: #f4eee3; border-bottom-color: var(--line); color: #8a8275; }
+:root .site-shell .browser-bar > span { background: #d8cfbf; }
+:root .site-shell .float-card, :root .site-shell .feature-tag { background: rgba(255,255,255,.92); border-color: var(--glass-border); color: var(--ink); box-shadow: 0 18px 36px -16px rgba(120,70,20,.35); }
+:root .site-shell .float-card small, :root .site-shell .feature-tag { color: var(--muted); }
+:root .site-shell .feature-tag b { color: var(--ink); }
+
+/* ---------- Feature section mock site ---------- */
+:root .site-shell .feature-site { background: linear-gradient(135deg, rgba(255,140,70,.16), transparent 55%), #fff6ea; color: var(--ink); }
+:root .site-shell .feature-site-footer { color: #8a8275; }
+:root .site-shell .feature-site-footer b { color: var(--ink); }
+:root .site-shell .feature-list span { color: #4d463b; }
+:root .site-shell .feature-copy > p { color: var(--muted); }
+
+/* ---------- Swipe decks (services + process) ---------- */
+:root .site-shell .process-card { background: linear-gradient(150deg, #fff, #fff7ec 60%); }
+:root .site-shell .deck-card[data-pos="active"] .process-card { border-color: rgba(239,106,40,.5); }
+:root .site-shell .deck-card:is([data-pos="side"], [data-pos="next"]) { filter: saturate(.7) blur(.4px); }
+:root .site-shell .process-list button { border-left-color: var(--line); color: #8a8275; }
+:root .site-shell .process-list button:hover, :root .site-shell .process-list button.is-active { color: var(--ink); }
+:root .site-shell .process-list button.is-done { color: #6a6357; }
+:root .site-shell .deck-arrow { background: #fff; border-color: var(--glass-border); color: var(--ink); box-shadow: 0 8px 20px -10px rgba(120,70,20,.35); }
+:root .site-shell .deck-dots button { background: rgba(23,20,15,.16); }
+:root .site-shell .deck-timer { background: rgba(23,20,15,.08); }
+
+/* ---------- Pricing + care plan ---------- */
+:root .site-shell .price-card, :root .site-shell .price-card.popular { color: var(--ink); }
+:root .site-shell .price-card.popular { background: linear-gradient(160deg, rgba(255,140,70,.2), #fff 55%); border-color: rgba(239,106,40,.65); }
+:root .site-shell .price-feature, :root .site-shell .popular .price-feature, :root .site-shell .policy-list li { color: #4d463b; }
+:root .site-shell .price-divider, :root .site-shell .popular .price-divider { background: var(--line); }
+:root .site-shell .price-revisions { border-top-color: var(--line); color: var(--gold); }
+:root .site-shell .price-perk { color: #065d70; }
+:root .site-shell .care-offer { color: var(--gold); }
+:root .site-shell .care-price-option { background: #fffaf3; border-color: var(--glass-border); }
+:root .site-shell .care-price-option.is-annual { background: rgba(255,140,70,.08); }
+:root .site-shell .care-saving { color: #2f8a3c; }
+:root .site-shell .care-chat { color: #1d8f45; }
+:root .site-shell :is(.care-foot, .policy-faqs) { border-top-color: var(--line); }
+:root .site-shell .policy-tabs button { border-color: var(--glass-border); }
+:root .site-shell .policy-example { border-bottom-color: var(--line); }
+:root .site-shell .pricing-note { color: #7a7266; }
+
+/* ---------- Chips, marquee, FAQ ---------- */
+:root .site-shell .tech-cloud span, :root .site-shell .tech-row small { background: #fff; border-color: var(--glass-border); color: #5b5448; }
+:root .site-shell .tech-cloud .tech-highlight { background: rgba(10,150,182,.08); border-color: rgba(10,150,182,.45); color: var(--cyan); }
+:root .site-shell .marquee-band { box-shadow: 0 18px 40px -16px rgba(239,106,40,.55); }
+:root .site-shell .marquee-outline .marquee-item { -webkit-text-stroke-color: rgba(23,20,15,.2); }
+:root .site-shell .faq-item { background: #fff; border-color: var(--glass-border); box-shadow: 0 10px 24px -18px rgba(120,70,20,.35); }
+:root .site-shell .faq-item button { color: var(--ink); }
+:root .site-shell .faq-item p { color: var(--muted); }
+
+/* ---------- Contact form ---------- */
+:root .site-shell .form-card label { color: var(--muted); }
+:root .site-shell .form-card :is(input, select, textarea) { background: #fffdf9; border: 1px solid var(--glass-border); color: var(--ink); }
+:root .site-shell .form-card :is(input, textarea)::placeholder { color: #a59d8f; }
+:root .site-shell .form-card option { background: #fff; color: var(--ink); }
+:root .site-shell .contact-links a { color: #4d463b; }
+
+/* ---------- Live templates + preview modal ---------- */
+:root .site-shell .template-frame-outer { background: rgba(23,20,15,.06); box-shadow: 0 30px 60px -28px rgba(120,70,20,.45); }
+:root .site-shell .template-browser { background: #fff; }
+:root .site-shell .template-screen { background: #efe9dd; }
+:root .site-shell .template-placeholder { background: linear-gradient(110deg, #efe9dd 30%, #fbf7f0 50%, #efe9dd 70%); background-size: 250% 100%; }
+:root .site-shell .template-info h3 { color: var(--ink); }
+:root .site-shell .modal-backdrop { background: rgba(40,28,12,.45); }
+:root .site-shell .template-modal { background: #fff; border-color: var(--glass-border); color: var(--ink); box-shadow: 0 40px 100px -30px rgba(60,35,10,.5); }
+:root .site-shell .template-modal-bar { border-bottom-color: var(--line); }
+:root .site-shell .template-devices { background: #f4eee3; }
+:root .site-shell .template-close { border-color: var(--glass-border); color: var(--ink); }
+:root .site-shell .template-frame-wrap { background: radial-gradient(circle at 50% 0%, rgba(255,140,70,.1), transparent 50%), #f4efe6; }
+:root .site-shell .template-frame { background: #fff; }
+
+/* ---------- Footer, preloader ---------- */
+:root .site-shell .footer-bottom { border-top-color: var(--line); color: #7a7266; }
+:root .site-shell .footer-top > p { color: var(--muted); }
+:root .site-shell .preloader { background: radial-gradient(circle at 50% 45%, #fffaf1 0%, #f3e8d6 70%); }
+:root .site-shell .preloader-ring circle { stroke: rgba(23,20,15,.1); }
+:root .site-shell .preloader-word { color: #8a8275; }
+
+/* =====================================================================
+   3D motion
+   ===================================================================== */
+
+/* Tilting cards: lean toward the mouse, lift with a warm shadow, and show a moving light glare.
+   (data-tilt comes from App.tsx and from depth.tsx, which tags the extra cards.) */
+:root .site-shell [data-tilt] { position: relative; transform-style: preserve-3d; }
+:root .site-shell [data-tilt]:not([data-reveal]) { transition: transform .4s cubic-bezier(.2, .8, .2, 1), box-shadow .4s ease, border-color .3s ease; }
+:root .site-shell [data-tilt][data-tilting],
+:root .site-shell .pricing-grid-wide .price-card[data-tilt][data-tilting] {
+  transform: perspective(900px) rotateX(var(--trx, 0deg)) rotateY(var(--try, 0deg)) translateY(-8px) scale(1.02);
+  box-shadow: 0 40px 70px -30px rgba(220,95,25,.5), inset 0 1px 0 #fff;
+  z-index: 3;
+}
+:root .site-shell [data-tilt]:not(.template-card)::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; z-index: 2;
+  background: radial-gradient(340px circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.7), rgba(255,170,100,.16) 38%, transparent 65%);
+  transition: opacity .35s ease;
+}
+:root .site-shell [data-tilt][data-tilting]::after { opacity: 1; }
+
+/* Inner layers float above the card surface while it tilts. */
+:root .site-shell [data-tilt] > :is(svg, h3, strong, .process-card-top, .price-name, .popular-tag, .stars) { transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+:root .site-shell [data-tilt][data-tilting] > :is(h3, strong, .price-name, .stars, .popular-tag) { transform: translateZ(28px); }
+:root .site-shell [data-tilt][data-tilting] > :is(svg, .process-card-top) { transform: translateZ(48px) rotate(-8deg) scale(1.12); }
+
+/* Cards flip up into place in 3D as they scroll in. */
+:root .site-shell :is(.why-cards, .stats-inner, .testimonial-grid, .template-grid) { perspective: 1400px; }
+.motion-ready .site-shell :is(.why-card, .stat, .testimonial-card, .template-card)[data-reveal] {
+  rotate: x 60deg;
+  transition:
+    opacity .9s cubic-bezier(.2, .8, .2, 1) calc(var(--i, 0) * 90ms),
+    translate .9s cubic-bezier(.2, .8, .2, 1) calc(var(--i, 0) * 90ms),
+    scale .9s cubic-bezier(.2, .8, .2, 1) calc(var(--i, 0) * 90ms),
+    rotate 1.1s cubic-bezier(.2, .9, .2, 1) calc(var(--i, 0) * 90ms),
+    transform .4s cubic-bezier(.2, .8, .2, 1), background-color .3s ease, border-color .3s ease, box-shadow .4s ease;
+}
+.motion-ready .site-shell :is(.why-card, .stat, .testimonial-card, .template-card)[data-reveal][data-shown] { rotate: x 0deg; }
+
+/* The hero mock browser gently floats in 3D on top of its mouse tilt. */
+.motion-ready .site-shell .hero-browser { animation: ld-float 8s ease-in-out infinite; }
+
+@media (max-width: 680px) {
+  :root .site-shell .nav-links { background: rgba(255,251,244,.98); border-color: var(--glass-border); box-shadow: 0 20px 40px -20px rgba(120,70,20,.4); }
+  :root .site-shell .nav-links a { color: var(--ink); }
+  :root .site-shell .process-list button { border-top-color: var(--line); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .site-shell [data-tilt]::after { display: none; }
+}

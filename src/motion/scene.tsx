@@ -1,6 +1,9 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { MOTION_ENABLED } from './effects';
+import { useDepthCards } from './depth';
 import './theme.css';
+// Light theme + 3D card depth. Loaded last so it wins over every older stylesheet.
+import './light.css';
 
 /* Real-time 3D backdrop drawn on one full-screen canvas behind the whole site:
    - a star field the visitor flies through; scrolling fast turns it into warp streaks
@@ -8,7 +11,8 @@ import './theme.css';
    - particles scatter away from the cursor or finger
    Plain canvas maths (no extra library) with a capped pixel ratio so phones stay smooth. */
 
-const PALETTE = ['255,138,61', '255,198,92', '62,230,255', '139,108,255'] as const;
+// Deeper tones so the particles read clearly on the light ivory background.
+const PALETTE = ['239,106,40', '214,140,30', '10,150,182', '107,77,255'] as const;
 const DEPTH = 1800;
 const FOV = 560;
 const SPREAD_X = 2600;
@@ -168,9 +172,9 @@ function Scene3D() {
       pointer.x += (pointer.targetX - pointer.x) * Math.min(0.05 * dt, 1);
       pointer.y += (pointer.targetY - pointer.y) * Math.min(0.05 * dt, 1);
 
+      // Normal blending: additive "lighter" blending turns every particle white on a light background.
       ctx.globalCompositeOperation = 'source-over';
       ctx.clearRect(0, 0, width, height);
-      ctx.globalCompositeOperation = 'lighter';
       drawStars(dt);
       drawGlobe();
 
@@ -210,6 +214,7 @@ function Scene3D() {
 
 // Puts the live 3D backdrop behind the public site (the admin panel stays plain).
 export function WithScene({ children }: { children: ReactNode }) {
+  useDepthCards();
   return (
     <>
       <Scene3D />
