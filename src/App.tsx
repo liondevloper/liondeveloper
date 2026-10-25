@@ -10,6 +10,7 @@ import lionLogo from '@/assets/images/lion-logo.png';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
 import { AUTO_SWIPE_MS, DotPreloader, DotsMenuButton, FloatingWhatsApp, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
+import { ScrollBallet, useScrollScenes } from '@/motion/scenes';
 import PricingSection from '@/pricing/PricingSection';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
@@ -145,6 +146,7 @@ function App() {
   useMotionEffects();
   useTiltEffect();
   useAnchorScroll();
+  useScrollScenes();
   const scrolled = useScrolled();
 
   // Only website packages; care plans are confirmed separately on WhatsApp.
@@ -237,7 +239,7 @@ function App() {
 
         <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker" data-reveal>What I do</span><h2 data-reveal="clip">What I can build<br /><em>for you.</em></h2></div><p data-reveal style={stagger(2)}>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion. Swipe up or down to explore.</p></div><div data-reveal><ServiceDeck services={services} resolveIcon={(name) => iconMap[name as keyof typeof iconMap] ?? Globe} /></div></section>
 
-        <section className="feature-section section-pad"><div className="feature-visual" data-reveal="left"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>liondeveloper.in/projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / developer</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div></div><div className="feature-copy"><span className="section-kicker" data-reveal>The difference</span><h2 data-reveal="clip">More than just<br /><em>a website.</em></h2><p data-reveal style={stagger(2)}>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Ready in 1–3 Days (depending on website)', 'Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item, index) => <span key={item} data-reveal style={stagger(index)}><CircleCheck size={17} />{item}</span>)}</div></div></section>
+        <section className="feature-section section-pad"><div className="feature-visual" data-reveal="left"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>liondeveloper.in/projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / developer</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div><ScrollBallet /></div><div className="feature-copy"><span className="section-kicker" data-reveal>The difference</span><h2 data-reveal="clip">More than just<br /><em>a website.</em></h2><p data-reveal style={stagger(2)}>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Ready in 1–3 Days (depending on website)', 'Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item, index) => <span key={item} data-reveal style={stagger(index)}><CircleCheck size={17} />{item}</span>)}</div></div></section>
 
         {templates.length > 0 && (
           <section className="templates-section section-pad" id="templates">
@@ -301,8 +303,8 @@ function App() {
         <Marquee items={OUTRO_WORDS} />
       </main>
 
-      {/* Footer bottom shows only the centred copyright line; the quick links were removed on request. */}
-      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p><a className="button button-outline" href="#contact">Have a project in mind? Let’s talk <ArrowUpRight size={16} /></a></div><div className="footer-bottom" style={{ justifyContent: 'center', textAlign: 'center' }}><span>© {new Date().getFullYear()} Lion Developer. All rights reserved.</span></div></footer>
+      {/* Footer bottom shows only the centred copyright line; the quick links and the "Let's talk" button were removed on request. */}
+      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p></div><div className="footer-bottom" style={{ justifyContent: 'center', textAlign: 'center' }}><span>© {new Date().getFullYear()} Lion Developer. All rights reserved.</span></div></footer>
 
       <FloatingWhatsApp href={whatsappHref} />
 
