@@ -15,11 +15,18 @@
 :root body .site-shell .form-card :is(input, select, textarea) { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; }
 :root body .site-shell .form-card select { text-overflow: ellipsis; }
 :root body .site-shell .contact-links a { min-width: 0; overflow-wrap: anywhere; }
+/* No big outer box around the form: the fields sit directly on the page, each keeping its own input box. */
+:root body .site-shell .contact-section .form-card {
+  background: none; border: 0; box-shadow: none; padding: 0; border-radius: 0;
+  backdrop-filter: none; -webkit-backdrop-filter: none; overflow: visible;
+}
+:root body .site-shell .contact-section .form-card::before,
+:root body .site-shell .contact-section .form-card::after { display: none; content: none; }
 @media (max-width: 980px) {
   :root body .site-shell .contact-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 680px) {
-  :root body .site-shell .form-card { width: 100%; max-width: 100%; padding: 22px 16px; }
+  :root body .site-shell .contact-section .form-card { width: 100%; max-width: 100%; padding: 0; }
   :root body .site-shell .form-row { grid-template-columns: minmax(0, 1fr); }
   html.motion-ready body .site-shell .contact-section [data-reveal="right"] { translate: 0 40px; }
   html.motion-ready body .site-shell .contact-section [data-reveal="right"][data-shown] { translate: 0 0; }
