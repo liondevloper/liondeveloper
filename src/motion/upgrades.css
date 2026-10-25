@@ -4,6 +4,9 @@
 .preloader-dots i { width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(180deg, #fff1c4, var(--gold)); box-shadow: 0 0 18px rgba(234,185,75,.55); }
 .preloader-slow .preloader-logo { animation-duration: 1s; }
 .preloader-slow { transition-duration: 1s; }
+/* Only the round ring shows: no square glass box behind it (any glow stays circular). */
+.preloader.preloader-slow .preloader-glass,
+.preloader.preloader-slow.is-reveal .preloader-glass { background: none; border: 0; border-radius: 50%; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
 
 /* ---------- Hero: no "Available for new projects" badge (hidden even if saved in the admin panel) ---------- */
 .site-shell .hero .eyebrow { display: none; }
