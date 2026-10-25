@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, type LucideIcon } from 'lucide-react';
-import { MOTION_ENABLED, stagger } from './effects';
+import { MOTION_ENABLED } from './effects';
 import { Deck } from './showcase';
 import './upgrades.css';
 import './premium.css';
@@ -16,24 +16,52 @@ const DOTS_FROM = 3;
 const DOT_STEP = 1000;
 const REVEAL_AT = DOTS_FROM * DOT_STEP;
 const LEAVE_AT = REVEAL_AT + 1100;
-// The 3D portal (premium.css) needs about two seconds: warp rings, logo fly-through, then the gates open.
-const DONE_AT = LEAVE_AT + 2000;
-const PORTAL_RINGS = 6;
+// The 3D shatter (premium.css) lasts ~2.3s: cracks glow, a shockwave hits, then the tiles fly apart.
+const DONE_AT = LEAVE_AT + 2400;
+
+const TILE_ROWS = 8;
+const STREAKS = 12;
 
 type PreloaderPhase = 'count' | 'reveal' | 'leave' | 'done';
+type VarStyle = CSSProperties & Record<`--${string}`, string>;
 
-// After the splash: the logo flies through a tunnel of glowing rings, a light flash hits,
-// and two 3D gates swing open onto the site while the hero rises into place.
-function IntroPortal({ logo }: { logo: string }) {
+// Repeatable pseudo-random numbers so every tile always breaks the same way.
+const rand = (index: number, seed: number) => {
+  const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+// Tiles near the centre break first and every tile flies outward, tumbling in 3D and falling with gravity.
+function tileStyle(index: number, cols: number): VarStyle {
+  const nx = ((index % cols) + 0.5) / cols - 0.5;
+  const ny = (Math.floor(index / cols) + 0.5) / TILE_ROWS - 0.5;
+  return {
+    '--d': `${(Math.hypot(nx, ny) * 0.7).toFixed(3)}s`,
+    '--dx': `${(nx * 150 + (rand(index, 1) - 0.5) * 30).toFixed(1)}vw`,
+    '--dy': `${(ny * 120 + 45 + rand(index, 2) * 35).toFixed(1)}vh`,
+    '--dz': `${(250 + rand(index, 3) * 750).toFixed(0)}px`,
+    '--rx': `${((rand(index, 4) - 0.5) * 540).toFixed(0)}deg`,
+    '--ry': `${((rand(index, 5) - 0.5) * 540).toFixed(0)}deg`,
+    '--rz': `${((rand(index, 6) - 0.5) * 200).toFixed(0)}deg`,
+  };
+}
+
+// After the splash: the logo spins and charges up, a shockwave cracks the screen like glass,
+// and the pieces explode toward the viewer in 3D, revealing the site behind them.
+function ShatterIntro({ logo }: { logo: string }) {
+  const [cols] = useState(() => (window.innerWidth < 680 ? 5 : 8));
   return (
-    <div className="intro-portal" aria-hidden="true">
-      <div className="intro-door intro-door-left" />
-      <div className="intro-door intro-door-right" />
-      <span className="intro-seam" />
-      <div className="intro-stage">
-        <span className="intro-rays" />
-        {Array.from({ length: PORTAL_RINGS }, (_, ring) => <i className="intro-ring" key={ring} style={stagger(ring)} />)}
-        <span className="intro-flash" />
+    <div className="intro-shatter" aria-hidden="true">
+      <div className="intro-tiles" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${TILE_ROWS}, 1fr)` }}>
+        {Array.from({ length: cols * TILE_ROWS }, (_, index) => <i className="intro-tile" key={index} style={tileStyle(index, cols)} />)}
+      </div>
+      <div className="intro-center">
+        {Array.from({ length: STREAKS }, (_, index) => (
+          <i className="intro-streak" key={index} style={{ '--a': `${(360 / STREAKS) * index}deg` } as VarStyle} />
+        ))}
+        <span className="intro-wave" />
+        <span className="intro-wave intro-wave-2" />
+        <span className="intro-core" />
         <img className="intro-logo" src={logo} alt="" width={454} height={480} />
       </div>
     </div>
@@ -66,7 +94,7 @@ export function DotPreloader({ logo }: { logo: string }) {
   }, []);
 
   if (phase === 'done') return null;
-  if (phase === 'leave') return <IntroPortal logo={logo} />;
+  if (phase === 'leave') return <ShatterIntro logo={logo} />;
   const counting = phase === 'count';
   return (
     <div className={`preloader preloader-slow is-${phase}`} aria-hidden="true">
