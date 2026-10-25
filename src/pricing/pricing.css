@@ -6,6 +6,11 @@
 .site-shell .price-feature svg { margin-top: 1px; }
 .site-shell .price-revisions { display: flex; align-items: center; gap: 8px; margin: 6px 0 18px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,.14); color: var(--gold-bright); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; }
 
+/* Free domain + hosting offer: a gold box on the card so it is impossible to miss. */
+.site-shell .price-perk { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0 4px; padding: 12px 14px; border: 1px solid rgba(234,185,75,.55); background: linear-gradient(120deg, rgba(234,185,75,.22), rgba(234,185,75,.06)); color: #fff1c4; font-size: 13px; font-weight: 800; line-height: 1.4; letter-spacing: -.01em; }
+.site-shell .price-perk svg { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+.site-shell .policy-perk { margin: 0 0 14px; font-size: 12px; }
+
 /* ---------- Care plan ---------- */
 .site-shell .care-block { max-width: 1120px; margin: 56px auto 0; padding: 34px; display: grid; gap: 30px; border: 1px solid rgba(234,185,75,.42); background: linear-gradient(130deg, rgba(234,185,75,.13), rgba(255,255,255,.02) 50%), #141412; box-shadow: 0 30px 60px rgba(0,0,0,.32); }
 .site-shell .care-block-head { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
@@ -68,4 +73,5 @@
   .site-shell .policy-panel { padding: 22px 16px; }
   .site-shell .policy-tabs button { flex: 1 1 auto; justify-content: center; }
   .site-shell .policy-list li { font-size: 12px; }
+  .site-shell .price-perk { font-size: 12px; padding: 10px 12px; }
 }
