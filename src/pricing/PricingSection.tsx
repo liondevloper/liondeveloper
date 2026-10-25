@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, CalendarDays, CalendarRange, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
+import { ArrowUpRight, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
 import {
   annualSaving,
   formatRupees,
@@ -25,9 +25,6 @@ const WIDE_SCREEN = '(min-width: 1000px)';
 const TIER_FX = ['orbit', 'holo', 'ember'] as const;
 type TierFx = (typeof TIER_FX)[number];
 const FX_LAYERS: Record<TierFx, number> = { orbit: 4, holo: 3, ember: 8 };
-
-// Monthly / Yearly on care cards are information only: they are not links, so they never fill the contact form.
-const STATIC_LABEL = { cursor: 'default', pointerEvents: 'none' } as const;
 
 const POLICY_TABS = [
   { id: 'payment', label: 'Payment terms', icon: CreditCard },
@@ -73,6 +70,7 @@ function CheckList({ items, excluded = false }: { items: string[]; excluded?: bo
   );
 }
 
+// Care cards show price info only; plans are confirmed on WhatsApp, so there are no buttons on the card.
 function CareTierCard({ care, tier, index }: { care: CarePlan; tier: CareTier; index: number }) {
   const fx: TierFx = TIER_FX[index % TIER_FX.length] ?? 'orbit';
   const saving = annualSaving(tier);
@@ -89,10 +87,6 @@ function CareTierCard({ care, tier, index }: { care: CarePlan; tier: CareTier; i
       </small>
       {tier.description && <p>{tier.description}</p>}
       <CheckList items={tier.features} />
-      <div className="care-tier-actions">
-        <span className="button button-gold" style={STATIC_LABEL}><CalendarDays size={15} /> Monthly</span>
-        <span className="button button-outline" style={STATIC_LABEL}><CalendarRange size={15} /> Yearly</span>
-      </div>
     </article>
   );
 }
