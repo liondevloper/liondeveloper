@@ -8,6 +8,7 @@ const TILT_TARGETS: ReadonlyArray<readonly [string, number]> = [
   ['.price-card', 8],
   ['.process-card', 7],
   ['.care-price-option', 8],
+  ['.care-tier', 9],
   ['.tech-cloud span', 20],
   ['.feature-browser', 7],
 ];

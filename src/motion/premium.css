@@ -1,0 +1,205 @@
+/* Premium layer: care plan tiers (each with its own 3D/VFX), why-card VFX, the 3D portal intro that plays
+   after the splash screen, the mobile contact form fix and equal toolkit chips.
+   Every rule starts with ":root body .site-shell" so it outranks light.css no matter the load order. */
+
+@property --ld-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+/* ---------- Toolkit: every chip the same colour (no highlighted chips) ---------- */
+:root body .site-shell .tech-cloud .tech-highlight { background: #fff; border-color: var(--glass-border); color: #5b5448; }
+
+/* ---------- Contact: the form box fits phone screens (long package names no longer push it off the right) ---------- */
+:root body .site-shell .contact-grid > *,
+:root body .site-shell .form-card form,
+:root body .site-shell .form-card label,
+:root body .site-shell .form-row > * { min-width: 0; }
+:root body .site-shell .form-card :is(input, select, textarea) { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; }
+:root body .site-shell .form-card select { text-overflow: ellipsis; }
+:root body .site-shell .contact-links a { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 980px) {
+  :root body .site-shell .contact-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 680px) {
+  :root body .site-shell .form-card { width: 100%; max-width: 100%; padding: 22px 16px; }
+  :root body .site-shell .form-row { grid-template-columns: minmax(0, 1fr); }
+  html.motion-ready body .site-shell .contact-section [data-reveal="right"] { translate: 0 40px; }
+  html.motion-ready body .site-shell .contact-section [data-reveal="right"][data-shown] { translate: 0 0; }
+}
+
+/* =====================================================================
+   Why Lion Developer cards: shine sweep, orbiting border light, floating icon
+   ===================================================================== */
+@media (min-width: 681px) {
+  :root body .site-shell .why-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+:root body .site-shell .why-card { overflow: hidden; isolation: isolate; }
+:root body .site-shell .why-card > :not(.why-fx) { position: relative; z-index: 1; }
+:root body .site-shell .why-card > svg { filter: drop-shadow(0 0 8px rgba(239,106,40,.45)); }
+:root body .site-shell .why-fx { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+:root body .site-shell .why-fx i { position: absolute; display: block; }
+:root body .site-shell .why-fx i:nth-child(1) { inset: -10%; background: linear-gradient(115deg, transparent 35%, rgba(255,180,110,.38) 47%, rgba(10,150,182,.2) 55%, transparent 66%); translate: -130% 0; }
+:root body .site-shell .why-fx i:nth-child(2) {
+  inset: 0; border-radius: inherit; padding: 1.5px; opacity: .5; transition: opacity .35s ease;
+  background: conic-gradient(from var(--ld-angle), transparent 0 62%, #ef6a28 78%, #0a96b6 90%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+}
+:root body .site-shell .why-card:hover .why-fx i:nth-child(2) { opacity: 1; }
+
+/* =====================================================================
+   Care plan tiers
+   ===================================================================== */
+:root body .site-shell .care-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; perspective: 1400px; align-items: stretch; }
+:root body .site-shell .care-tier {
+  position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; gap: 12px; min-width: 0;
+  padding: 28px 22px 22px; border-radius: 22px; border: 1px solid var(--glass-border); color: var(--ink);
+  background: linear-gradient(160deg, #fff, #fffaf2); box-shadow: var(--soft-shadow);
+}
+:root body .site-shell .care-tier > :not(.care-fx) { position: relative; z-index: 2; }
+:root body .site-shell .care-tier > .care-tier-tag {
+  position: absolute; top: 16px; right: 16px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px;
+  background: linear-gradient(120deg, #ef6a28, #f5953a); color: #1a0d05; font: 600 9px 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase;
+  box-shadow: 0 8px 20px -8px rgba(239,106,40,.7);
+}
+:root body .site-shell .care-tier .price-name { color: var(--muted); }
+:root body .site-shell .care-tier .care-price { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+:root body .site-shell .care-tier .care-price b { font-size: 42px; font-weight: 800; letter-spacing: -.05em; line-height: 1; -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 220% 100%; }
+:root body .site-shell .care-tier .care-price span { color: var(--muted); font-size: 13px; }
+:root body .site-shell .care-tier .care-saving { min-height: 0; margin-top: -4px; color: #2f8a3c; font-size: 12px; font-weight: 700; }
+:root body .site-shell .care-tier > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+:root body .site-shell .care-tier .policy-list { gap: 9px; padding-top: 12px; border-top: 1px dashed var(--line); }
+:root body .site-shell .care-tier .policy-list li { color: #4d463b; font-size: 12.5px; }
+:root body .site-shell .care-tier-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; padding-top: 10px; }
+:root body .site-shell .care-tier-actions .button { justify-content: center; padding: 12px 10px; }
+
+:root body .site-shell .care-tier.fx-orbit .care-price b { background-image: linear-gradient(100deg, #0a8fb0, #6b4dff 60%, #0a8fb0); }
+:root body .site-shell .care-tier.fx-holo .care-price b { background-image: linear-gradient(100deg, #e0531a, #f5953a 35%, #0a8fb0 65%, #e0531a); }
+:root body .site-shell .care-tier.fx-ember .care-price b { background-image: linear-gradient(100deg, #b8760b, #ef6a28 45%, #6b4dff 80%, #b8760b); }
+:root body .site-shell .care-tier.fx-holo { border-color: rgba(239,106,40,.45); background: linear-gradient(160deg, #fff4e8, #fff 55%); }
+:root body .site-shell .care-tier.fx-ember { background: radial-gradient(ellipse at 50% 115%, rgba(239,106,40,.18), transparent 60%), linear-gradient(160deg, #fff, #fff7ee); }
+
+:root body .site-shell .care-fx { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; pointer-events: none; perspective: 600px; }
+:root body .site-shell .care-fx i { position: absolute; display: block; }
+/* Animated border ring shared by all three, each with its own colours. */
+:root body .site-shell .care-fx i:first-child {
+  inset: 0; border-radius: inherit; padding: 2px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+}
+
+/* Starter: orbit. Light races around the border while two 3D gyroscope rings spin in the corner. */
+:root body .site-shell .fx-orbit .care-fx i:nth-child(1) { background: conic-gradient(from var(--ld-angle), rgba(10,150,182,.12) 0 55%, #0a96b6 72%, #6b4dff 86%, rgba(10,150,182,.12) 100%); }
+:root body .site-shell .fx-orbit .care-fx :is(i:nth-child(2), i:nth-child(3)) { top: -56px; right: -56px; width: 180px; height: 180px; border-radius: 50%; border: 1.5px solid rgba(10,150,182,.22); border-top-color: #0a96b6; box-shadow: 0 0 18px rgba(10,150,182,.16); transform: rotateX(68deg); }
+:root body .site-shell .fx-orbit .care-fx i:nth-child(3) { border-color: rgba(239,106,40,.2); border-right-color: #ef6a28; transform: rotateY(64deg); }
+:root body .site-shell .fx-orbit .care-fx i:nth-child(4) { top: -1px; right: -1px; width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle, rgba(10,150,182,.4), rgba(107,77,255,.12) 45%, transparent 70%); }
+
+/* Business: hologram. A rainbow foil border, a light sweep and a slowly turning colour wash; the card floats. */
+:root body .site-shell .fx-holo .care-fx i:nth-child(1) { background: linear-gradient(120deg, #ef6a28, #f5c33a, #0a96b6, #6b4dff, #ef6a28); background-size: 300% 300%; }
+:root body .site-shell .fx-holo .care-fx i:nth-child(2) { top: -20%; bottom: -20%; left: -50%; width: 42%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.95), transparent); transform: skewX(-18deg); }
+:root body .site-shell .fx-holo .care-fx i:nth-child(3) { inset: -35%; background: radial-gradient(circle at 30% 30%, rgba(239,106,40,.16), transparent 40%), radial-gradient(circle at 70% 70%, rgba(10,150,182,.16), transparent 42%), radial-gradient(circle at 72% 25%, rgba(107,77,255,.12), transparent 38%); }
+
+/* Professional: embers. A gold-violet orbit border, glowing sparks rising from the bottom and a pulsing halo. */
+:root body .site-shell .fx-ember .care-fx i:nth-child(1) { background: conic-gradient(from var(--ld-angle), rgba(184,118,11,.2) 0 50%, #ef6a28 68%, #6b4dff 84%, rgba(184,118,11,.2) 100%); }
+:root body .site-shell .fx-ember .care-fx i:nth-child(n+2) { bottom: -12px; width: 6px; height: 6px; border-radius: 50%; opacity: 0; background: radial-gradient(circle, #ffe0a0, #ef6a28 60%, transparent 72%); box-shadow: 0 0 10px rgba(239,106,40,.75); }
+:root body .site-shell .fx-ember .care-fx i:nth-child(2) { left: 12%; }
+:root body .site-shell .fx-ember .care-fx i:nth-child(3) { left: 26%; width: 4px; height: 4px; }
+:root body .site-shell .fx-ember .care-fx i:nth-child(4) { left: 41%; }
+:root body .site-shell .fx-ember .care-fx i:nth-child(5) { left: 57%; width: 5px; height: 5px; background: radial-gradient(circle, #e4dcff, #6b4dff 60%, transparent 72%); box-shadow: 0 0 10px rgba(107,77,255,.7); }
+:root body .site-shell .fx-ember .care-fx i:nth-child(6) { left: 70%; }
+:root body .site-shell .fx-ember .care-fx i:nth-child(7) { left: 84%; width: 4px; height: 4px; }
+:root body .site-shell .fx-ember .care-fx i:nth-child(8) { left: 48%; width: 5px; height: 5px; background: radial-gradient(circle, #e4dcff, #6b4dff 60%, transparent 72%); box-shadow: 0 0 10px rgba(107,77,255,.7); }
+
+:root body .site-shell .care-block .care-lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px 28px; }
+
+/* Each tier flies in on its own 3D axis. */
+html.motion-ready body .site-shell .care-tier[data-reveal] {
+  transition:
+    opacity .9s cubic-bezier(.2, .8, .2, 1) calc(var(--i, 0) * 140ms),
+    translate .9s cubic-bezier(.2, .8, .2, 1) calc(var(--i, 0) * 140ms),
+    rotate 1.3s cubic-bezier(.2, .9, .2, 1) calc(var(--i, 0) * 140ms),
+    transform .4s cubic-bezier(.2, .8, .2, 1), box-shadow .4s ease, border-color .3s ease;
+}
+html.motion-ready body .site-shell .care-tier.fx-orbit[data-reveal] { rotate: y -70deg; }
+html.motion-ready body .site-shell .care-tier.fx-holo[data-reveal] { rotate: x 75deg; }
+html.motion-ready body .site-shell .care-tier.fx-ember[data-reveal] { rotate: y 70deg; }
+html.motion-ready body .site-shell .care-tier[class*="fx-"][data-reveal][data-shown] { rotate: none; }
+
+@media (max-width: 900px) {
+  :root body .site-shell .care-tiers { grid-template-columns: minmax(0, 1fr); max-width: 460px; margin: 0 auto; width: 100%; }
+}
+
+/* =====================================================================
+   3D portal intro (plays right after the splash screen)
+   ===================================================================== */
+:root body .site-shell .intro-portal { position: fixed; inset: 0; z-index: 101; pointer-events: none; overflow: hidden; perspective: 1400px; }
+:root body .site-shell .intro-door { position: absolute; top: 0; bottom: 0; width: 50.5%; backface-visibility: hidden; }
+:root body .site-shell .intro-door-left { left: 0; transform-origin: left center; background: radial-gradient(circle at 100% 45%, #fffaf1 0%, #f3e8d6 75%); box-shadow: inset -1px 0 0 rgba(239,106,40,.45); }
+:root body .site-shell .intro-door-right { right: 0; transform-origin: right center; background: radial-gradient(circle at 0% 45%, #fffaf1 0%, #f3e8d6 75%); box-shadow: inset 1px 0 0 rgba(10,150,182,.45); }
+:root body .site-shell .intro-seam { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; z-index: 1; background: linear-gradient(180deg, transparent, #ef6a28 30%, #0a96b6 70%, transparent); box-shadow: 0 0 22px rgba(239,106,40,.6); transform: scaleY(0); }
+:root body .site-shell .intro-stage { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; transform-style: preserve-3d; }
+:root body .site-shell .intro-stage > * { grid-area: 1 / 1; }
+:root body .site-shell .intro-ring { display: block; width: 220px; height: 220px; border-radius: 50%; border: 2px solid rgba(239,106,40,.8); box-shadow: 0 0 26px rgba(239,106,40,.35), inset 0 0 18px rgba(239,106,40,.2); opacity: 0; }
+:root body .site-shell .intro-ring:nth-child(odd) { border-color: rgba(10,150,182,.8); box-shadow: 0 0 26px rgba(10,150,182,.35), inset 0 0 18px rgba(10,150,182,.2); }
+:root body .site-shell .intro-rays { width: 170vmax; height: 170vmax; border-radius: 50%; opacity: 0; background: repeating-conic-gradient(from 0deg, transparent 0deg 7deg, rgba(239,106,40,.2) 8deg 9deg, transparent 10deg 16deg, rgba(10,150,182,.16) 17deg 18deg); -webkit-mask: radial-gradient(circle, transparent 6%, #000 22%, transparent 62%); mask: radial-gradient(circle, transparent 6%, #000 22%, transparent 62%); }
+:root body .site-shell .intro-flash { width: 40vmax; height: 40vmax; border-radius: 50%; opacity: 0; background: radial-gradient(circle, #fff 0%, rgba(255,214,170,.85) 22%, rgba(255,214,170,0) 62%); }
+:root body .site-shell .intro-logo { width: 64px; height: auto; filter: drop-shadow(0 10px 24px rgba(239,106,40,.45)); }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell .why-fx i:nth-child(1) { animation: ld-why-sweep 5.2s ease-in-out infinite; animation-delay: calc(var(--i, 0) * .45s); }
+  :root body .site-shell .why-fx i:nth-child(2) { animation: ld-angle 4.5s linear infinite; animation-delay: calc(var(--i, 0) * -.6s); }
+  :root body .site-shell .why-card > svg { animation: ld-icon-bob 3.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * .3s); }
+
+  :root body .site-shell .care-tier .care-price b { animation: ld-price-shimmer 6s ease-in-out infinite; }
+  :root body .site-shell .fx-orbit .care-fx i:nth-child(1) { animation: ld-angle 3.2s linear infinite; }
+  :root body .site-shell .fx-orbit .care-fx i:nth-child(2) { animation: ld-gyro-x 5s linear infinite; }
+  :root body .site-shell .fx-orbit .care-fx i:nth-child(3) { animation: ld-gyro-y 7s linear infinite; }
+  :root body .site-shell .fx-orbit .care-fx i:nth-child(4) { animation: ld-core 2.8s ease-in-out infinite; }
+  :root body .site-shell .fx-holo .care-fx i:nth-child(1) { animation: ld-holo-shift 4s ease-in-out infinite alternate; }
+  :root body .site-shell .fx-holo .care-fx i:nth-child(2) { animation: ld-tier-sweep 3.6s ease-in-out infinite; }
+  :root body .site-shell .fx-holo .care-fx i:nth-child(3) { animation: ld-wash 10s linear infinite; }
+  :root body .site-shell .care-tier.fx-holo { animation: ld-tier-float 5s ease-in-out 1.6s infinite; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(1) { animation: ld-angle 6s linear infinite; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(even) { animation: ld-ember 4.2s ease-in infinite; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(odd):not(:first-child) { animation: ld-ember-b 4.8s ease-in infinite; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(3) { animation-delay: 1.1s; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(4) { animation-delay: .5s; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(5) { animation-delay: 1.8s; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(6) { animation-delay: 2.6s; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(7) { animation-delay: 2.2s; }
+  :root body .site-shell .fx-ember .care-fx i:nth-child(8) { animation-delay: 3.2s; }
+  :root body .site-shell .care-tier.fx-ember { animation: ld-tier-pulse 3.2s ease-in-out infinite; }
+
+  :root body .site-shell .intro-seam { animation: ld-seam 1.2s cubic-bezier(.6, 0, .3, 1) both; }
+  :root body .site-shell .intro-door-left { animation: ld-door-left 1.15s cubic-bezier(.7, 0, .2, 1) .7s both; }
+  :root body .site-shell .intro-door-right { animation: ld-door-right 1.15s cubic-bezier(.7, 0, .2, 1) .7s both; }
+  :root body .site-shell .intro-ring { animation: ld-ring-warp 1.15s cubic-bezier(.5, 0, .25, 1) both; animation-delay: calc(var(--i, 0) * 85ms); }
+  :root body .site-shell .intro-rays { animation: ld-rays 1.4s ease-out .15s both; }
+  :root body .site-shell .intro-flash { animation: ld-flash .85s ease-out .5s both; }
+  :root body .site-shell .intro-logo { animation: ld-logo-fly 1s cubic-bezier(.6, 0, .3, 1) both; }
+  html.motion-ready.is-loaded body .site-shell .hero-copy { animation: ld-hero-copy 1.5s cubic-bezier(.2, .8, .2, 1) .55s both; }
+  html.motion-ready.is-loaded body .site-shell .hero-visual { animation: ld-hero-visual 1.8s cubic-bezier(.2, .8, .2, 1) .65s both; }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes ld-angle { to { --ld-angle: 360deg; } }
+@keyframes ld-why-sweep { 0% { translate: -130% 0; } 40%, 100% { translate: 130% 0; } }
+@keyframes ld-icon-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+@keyframes ld-price-shimmer { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+@keyframes ld-gyro-x { from { transform: rotateX(68deg) rotateZ(0deg); } to { transform: rotateX(68deg) rotateZ(360deg); } }
+@keyframes ld-gyro-y { from { transform: rotateY(64deg) rotateZ(0deg); } to { transform: rotateY(64deg) rotateZ(-360deg); } }
+@keyframes ld-core { 0%, 100% { scale: .85; opacity: .6; } 50% { scale: 1.15; opacity: 1; } }
+@keyframes ld-holo-shift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+@keyframes ld-tier-sweep { 0% { translate: 0 0; } 55%, 100% { translate: 420% 0; } }
+@keyframes ld-wash { to { rotate: 360deg; } }
+@keyframes ld-tier-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes ld-ember { 0% { translate: 0 0; opacity: 0; scale: .6; } 15% { opacity: 1; } 100% { translate: 18px -460px; opacity: 0; scale: 1.2; } }
+@keyframes ld-ember-b { 0% { translate: 0 0; opacity: 0; scale: .6; } 15% { opacity: 1; } 100% { translate: -22px -440px; opacity: 0; scale: 1.1; } }
+@keyframes ld-tier-pulse { 0%, 100% { box-shadow: var(--soft-shadow), 0 0 0 0 rgba(239,106,40,0); } 50% { box-shadow: var(--soft-shadow), 0 0 40px 2px rgba(239,106,40,.28); } }
+@keyframes ld-seam { 0% { transform: scaleY(0); opacity: 1; } 45% { transform: scaleY(1); opacity: 1; } 65% { transform: scaleY(1) scaleX(1); opacity: 1; } 100% { transform: scaleY(1) scaleX(30); opacity: 0; } }
+@keyframes ld-door-left { 0% { transform: rotateY(0deg); opacity: 1; } 85% { opacity: 1; } 100% { transform: rotateY(100deg); opacity: 0; } }
+@keyframes ld-door-right { 0% { transform: rotateY(0deg); opacity: 1; } 85% { opacity: 1; } 100% { transform: rotateY(-100deg); opacity: 0; } }
+@keyframes ld-ring-warp { 0% { transform: translateZ(-1400px) rotate(0deg); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateZ(900px) rotate(120deg); opacity: 0; } }
+@keyframes ld-rays { 0% { transform: scale(.2) rotate(0deg); opacity: 0; } 35% { opacity: 1; } 100% { transform: scale(1.4) rotate(40deg); opacity: 0; } }
+@keyframes ld-flash { 0% { transform: scale(0); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
+@keyframes ld-logo-fly { 0% { transform: translateZ(0) rotateY(0deg); opacity: 1; filter: drop-shadow(0 10px 24px rgba(239,106,40,.45)) blur(0); } 55% { opacity: 1; } 100% { transform: translateZ(1100px) rotateY(180deg); opacity: 0; filter: drop-shadow(0 10px 24px rgba(239,106,40,.45)) blur(6px); } }
+@keyframes ld-hero-copy { from { transform: perspective(1000px) rotateY(22deg) translateZ(-180px); filter: blur(6px); } to { transform: none; filter: none; } }
+@keyframes ld-hero-visual { from { transform: perspective(1000px) rotateY(-40deg) rotateX(14deg) translateZ(-320px); } to { transform: none; } }

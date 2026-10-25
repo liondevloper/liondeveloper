@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, type LucideIcon } from 'lucide-react';
-import { MOTION_ENABLED } from './effects';
+import { MOTION_ENABLED, stagger } from './effects';
 import { Deck } from './showcase';
 import './upgrades.css';
+import './premium.css';
 
 // "What I do" and "How it works" both auto-swipe on this beat, and keep going after a manual swipe.
 export const AUTO_SWIPE_MS = 3000;
@@ -15,9 +16,29 @@ const DOTS_FROM = 3;
 const DOT_STEP = 1000;
 const REVEAL_AT = DOTS_FROM * DOT_STEP;
 const LEAVE_AT = REVEAL_AT + 1100;
-const DONE_AT = LEAVE_AT + 1000;
+// The 3D portal (premium.css) needs about two seconds: warp rings, logo fly-through, then the gates open.
+const DONE_AT = LEAVE_AT + 2000;
+const PORTAL_RINGS = 6;
 
 type PreloaderPhase = 'count' | 'reveal' | 'leave' | 'done';
+
+// After the splash: the logo flies through a tunnel of glowing rings, a light flash hits,
+// and two 3D gates swing open onto the site while the hero rises into place.
+function IntroPortal({ logo }: { logo: string }) {
+  return (
+    <div className="intro-portal" aria-hidden="true">
+      <div className="intro-door intro-door-left" />
+      <div className="intro-door intro-door-right" />
+      <span className="intro-seam" />
+      <div className="intro-stage">
+        <span className="intro-rays" />
+        {Array.from({ length: PORTAL_RINGS }, (_, ring) => <i className="intro-ring" key={ring} style={stagger(ring)} />)}
+        <span className="intro-flash" />
+        <img className="intro-logo" src={logo} alt="" width={454} height={480} />
+      </div>
+    </div>
+  );
+}
 
 export function DotPreloader({ logo }: { logo: string }) {
   const [phase, setPhase] = useState<PreloaderPhase>(MOTION_ENABLED ? 'count' : 'done');
@@ -45,6 +66,7 @@ export function DotPreloader({ logo }: { logo: string }) {
   }, []);
 
   if (phase === 'done') return null;
+  if (phase === 'leave') return <IntroPortal logo={logo} />;
   const counting = phase === 'count';
   return (
     <div className={`preloader preloader-slow is-${phase}`} aria-hidden="true">

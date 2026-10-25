@@ -8,6 +8,7 @@ import {
   paymentSplit,
   whatsappLink,
   type CarePlan,
+  type CareTier,
   type Plan,
   type Terms,
 } from '@/data/site';
@@ -20,6 +21,11 @@ type Choose = (name: string) => void;
 // Long enough to read a full feature list before the next package slides in.
 const PRICING_SWIPE_MS = 9000;
 const WIDE_SCREEN = '(min-width: 1000px)';
+
+// Every care tier gets its own 3D effect (see premium.css): orbit, hologram, embers.
+const TIER_FX = ['orbit', 'holo', 'ember'] as const;
+type TierFx = (typeof TIER_FX)[number];
+const FX_LAYERS: Record<TierFx, number> = { orbit: 4, holo: 3, ember: 8 };
 
 const POLICY_TABS = [
   { id: 'payment', label: 'Payment terms', icon: CreditCard },
@@ -65,9 +71,32 @@ function CheckList({ items, excluded = false }: { items: string[]; excluded?: bo
   );
 }
 
+function CareTierCard({ care, tier, index, onChoose }: { care: CarePlan; tier: CareTier; index: number; onChoose: Choose }) {
+  const fx: TierFx = TIER_FX[index % TIER_FX.length] ?? 'orbit';
+  const saving = annualSaving(tier);
+  return (
+    <article className={`care-tier fx-${fx} ${tier.popular ? 'is-popular' : ''}`} data-reveal style={stagger(index)}>
+      <div className="care-fx" aria-hidden="true">
+        {Array.from({ length: FX_LAYERS[fx] }, (_, layer) => <i key={layer} />)}
+      </div>
+      {tier.popular && <span className="care-tier-tag"><Sparkles size={11} />Most popular</span>}
+      <span className="price-name">{tier.name}</span>
+      <div className="care-price"><b>{tier.price}</b><span>{care.period}</span></div>
+      <small className="care-saving">
+        or {tier.yearlyPrice}{care.yearlyPeriod}{saving && saving.months > 0 ? ` · ${saving.months} months free` : ''}
+      </small>
+      {tier.description && <p>{tier.description}</p>}
+      <CheckList items={tier.features} />
+      <div className="care-tier-actions">
+        <a className="button button-gold" href="#contact" onClick={() => onChoose(careOption(care, tier, 'monthly'))}>Monthly <ArrowUpRight size={15} /></a>
+        <a className="button button-outline" href="#contact" onClick={() => onChoose(careOption(care, tier, 'annual'))}>Yearly <ArrowUpRight size={15} /></a>
+      </div>
+    </article>
+  );
+}
+
 function CareBlock({ care, whatsapp, onChoose }: { care: CarePlan; whatsapp: string; onChoose: Choose }) {
-  const saving = annualSaving(care);
-  const chatHref = whatsappLink(whatsapp, `Hi Lion Developer, I would like to confirm the ${care.name}. Please share the details.`);
+  const chatHref = whatsappLink(whatsapp, `Hi Lion Developer, I would like to confirm a ${care.name}. Please share the details.`);
   return (
     <div className="care-block" data-reveal>
       <div className="care-block-head">
@@ -80,37 +109,23 @@ function CareBlock({ care, whatsapp, onChoose }: { care: CarePlan; whatsapp: str
         {care.offer && <span className="care-offer"><Sparkles size={13} />{care.offer}</span>}
       </div>
 
-      <div className="care-block-body">
-        <div className="care-prices">
-          <div className="care-price-option">
-            <span className="care-list-title">Monthly</span>
-            <div className="care-price"><b>{care.price}</b><span>{care.period}</span></div>
-            <small className="care-saving-muted">Pay month by month</small>
-            <a className="button button-gold" href="#contact" onClick={() => onChoose(careOption(care, 'monthly'))}>Choose Monthly <ArrowUpRight size={16} /></a>
-          </div>
-          <div className="care-price-option is-annual">
-            <span className="care-list-title">Annual · paid upfront</span>
-            <div className="care-price"><b>{care.yearlyPrice}</b><span>{care.yearlyPeriod}</span></div>
-            {saving ? (
-              <small className="care-saving">
-                Save {formatRupees(saving.saving)} vs monthly{saving.months > 0 && ` (about ${saving.months} month${saving.months === 1 ? '' : 's'} free)`}
-              </small>
-            ) : <small className="care-saving-muted">One payment for the year</small>}
-            <a className="button button-outline" href="#contact" onClick={() => onChoose(careOption(care, 'annual'))}>Choose Annual <ArrowUpRight size={16} /></a>
-          </div>
+      {care.tiers.length > 0 && (
+        <div className="care-tiers">
+          {care.tiers.map((tier, index) => <CareTierCard key={index} care={care} tier={tier} index={index} onChoose={onChoose} />)}
         </div>
-        <div className="care-lists">
+      )}
+
+      <div className="care-lists">
+        <div>
+          <span className="care-list-title">Included in every plan</span>
+          <CheckList items={care.included} />
+        </div>
+        {care.excluded.length > 0 && (
           <div>
-            <span className="care-list-title">Included</span>
-            <CheckList items={care.included} />
+            <span className="care-list-title">Not included</span>
+            <CheckList items={care.excluded} excluded />
           </div>
-          {care.excluded.length > 0 && (
-            <div>
-              <span className="care-list-title">Not included</span>
-              <CheckList items={care.excluded} excluded />
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       <div className="care-foot">
