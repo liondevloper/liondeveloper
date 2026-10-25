@@ -216,6 +216,22 @@ export const defaultContent: SiteContent = {
       ],
       cta: 'Request Quote',
     },
+    {
+      name: 'Custom Project',
+      price: "Let's Discuss",
+      description: 'For ambitious products and systems that need a tailored approach.',
+      popular: false,
+      perk: FREE_DOMAIN_PERK,
+      features: ['SaaS products', 'Custom web applications', 'Advanced dashboards', 'E-commerce systems', 'Business management systems', 'Complex integrations', 'Dedicated support'],
+      revisions: 'Revisions defined in your quotation',
+      hosting: [
+        'FREE .in or .com domain and standard hosting for the first year.',
+        'Larger hosting, database, cloud, email and API services are quoted separately based on project requirements.',
+        'Domain, hosting and cloud services are preferably registered under your own account.',
+        'Renewals from the second year and any recurring third-party charges are disclosed upfront.',
+      ],
+      cta: 'Talk To Me',
+    },
   ],
   care: {
     enabled: true,
@@ -268,7 +284,7 @@ export const defaultContent: SiteContent = {
       {
         question: 'Is domain and hosting included?',
         answer:
-          'Business and Professional include a FREE .in or .com domain and hosting for the first year. Starter: the domain is charged separately and free-tier hosting is used where suitable. Renewals from the second year are charged separately for every package.',
+          'Business, Professional and Custom Project include a FREE .in or .com domain and hosting for the first year. Starter: the domain is charged separately and free-tier hosting is used where suitable. Renewals from the second year are charged separately for every package.',
       },
       {
         question: 'How does the 50% advance payment work?',
@@ -278,7 +294,7 @@ export const defaultContent: SiteContent = {
       {
         question: 'What is included in a revision round?',
         answer:
-          'One consolidated list of changes to the agreed design or content, such as text, colour, spacing or image adjustments. Starter includes 2 rounds, Business includes 3, and Professional follows your quotation.',
+          'One consolidated list of changes to the agreed design or content, such as text, colour, spacing or image adjustments. Starter includes 2 rounds, Business includes 3, and Professional and Custom Project follow your quotation.',
       },
       {
         question: 'Are domain and hosting renewals included?',
@@ -300,7 +316,7 @@ export const defaultContent: SiteContent = {
   faqs: [
     { question: 'How much does a website cost?', answer: 'Website packages start from ₹8,000. Final pricing depends on pages, features and integrations.' },
     { question: 'How long does a website take?', answer: 'Timeline depends on the project scope and required functionality. A clear timeline is shared before work begins.' },
-    { question: 'Do you provide domain and hosting?', answer: 'Yes. Business (₹18,000+) and Professional (₹30,000+) include a FREE .in or .com domain and hosting for the first year. Renewals from the second year are charged separately.' },
+    { question: 'Do you provide domain and hosting?', answer: 'Yes. Business (₹18,000+), Professional (₹30,000+) and Custom Project include a FREE .in or .com domain and hosting for the first year. Renewals from the second year are charged separately.' },
     { question: 'Can you build an admin panel?', answer: 'Yes. Custom admin panels can be developed when required.' },
     { question: 'Can you integrate WhatsApp?', answer: 'Yes. WhatsApp enquiry and booking functionality can be integrated.' },
     { question: 'Do you provide maintenance?', answer: 'Yes. The optional Website Care Plan is ₹799/month or ₹7,999/year, and the first month is free with every website.' },
