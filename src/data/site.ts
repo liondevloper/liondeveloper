@@ -35,16 +35,24 @@ export type Plan = {
   hosting: string[];
   cta: string;
 };
-// The single optional after-launch plan, shown as its own block under the pricing cards.
+// One level of the after-launch care plan, shown as its own animated card.
+export type CareTier = {
+  name: string;
+  price: string;
+  yearlyPrice: string;
+  description: string;
+  features: string[];
+  popular: boolean;
+};
+// The optional after-launch plan, shown as its own block under the pricing cards.
 export type CarePlan = {
   enabled: boolean;
   name: string;
-  price: string;
   period: string;
-  yearlyPrice: string;
   yearlyPeriod: string;
   description: string;
   offer: string;
+  tiers: CareTier[];
   included: string[];
   excluded: string[];
   smallChange: string;
@@ -89,6 +97,8 @@ export const SERVICE_ICONS = [
 export const PROJECT_ACCENTS: ProjectAccent[] = ['gold', 'blue', 'dark'];
 
 export const BLANK_PLAN: Plan = { name: '', price: '', description: '', popular: false, perk: '', features: [], revisions: '', hosting: [], cta: 'Get Started' };
+
+export const BLANK_CARE_TIER: CareTier = { name: '', price: '', yearlyPrice: '', description: '', features: [], popular: false };
 
 export const FREE_DOMAIN_PERK = 'FREE .in / .com domain + hosting for 1 year';
 
@@ -236,14 +246,37 @@ export const defaultContent: SiteContent = {
   care: {
     enabled: true,
     name: 'Website Care Plan',
-    price: '₹799',
     period: '/month',
-    yearlyPrice: '₹7,999',
     yearlyPeriod: '/year',
-    description: 'Optional after-launch support to keep your website updated and running smoothly.',
+    description: 'Optional after-launch support to keep your website updated and running smoothly. Pay yearly and get 2 months free.',
     offer: 'First month free with every website',
+    tiers: [
+      {
+        name: 'Starter',
+        price: '₹999',
+        yearlyPrice: '₹9,990',
+        description: 'Essential care for small websites.',
+        features: ['Up to 3 small text/photo changes per month', 'Minor bug fixes', 'Monthly backup where supported', 'WhatsApp support'],
+        popular: false,
+      },
+      {
+        name: 'Business',
+        price: '₹1,499',
+        yearlyPrice: '₹14,990',
+        description: 'Regular updates for growing businesses.',
+        features: ['Up to 6 small changes per month', 'Bug fixes & speed checks', 'Weekly backup where supported', 'Uptime troubleshooting', 'Priority WhatsApp support'],
+        popular: true,
+      },
+      {
+        name: 'Professional',
+        price: '₹2,499',
+        yearlyPrice: '₹24,990',
+        description: 'Hands-on care for busy, high-traffic websites.',
+        features: ['Up to 12 small changes per month', 'Monthly SEO & performance report', 'Security & plugin updates', 'Fastest response on WhatsApp', '1 new section or banner per month'],
+        popular: false,
+      },
+    ],
     included: [
-      'Up to 3 small text/photo changes per month',
       'Minor bug fixes',
       'Regular backups where supported by your hosting',
       'Troubleshooting if the website goes down',
@@ -261,7 +294,7 @@ export const defaultContent: SiteContent = {
     conditions: [
       'The Care Plan is optional.',
       'The free first month applies once, to the first care period after launch. It does not apply to renewals.',
-      'Annual plans are paid upfront.',
+      'Annual plans are paid upfront and include 2 months free.',
       'Support is provided over WhatsApp. 24/7 support and guaranteed uptime are not included.',
     ],
   },
@@ -302,7 +335,7 @@ export const defaultContent: SiteContent = {
       },
       {
         question: 'Is the Website Care Plan compulsory?',
-        answer: 'No, it is optional. Every website gets the first month of care free. After that you can choose ₹799/month or ₹7,999/year, or skip it.',
+        answer: 'No, it is optional. Every website gets the first month of care free. After that you can choose Starter (₹999/month), Business (₹1,499/month) or Professional (₹2,499/month). Paying yearly gives you 2 months free.',
       },
       {
         question: 'What happens if I need additional features?',
@@ -319,7 +352,7 @@ export const defaultContent: SiteContent = {
     { question: 'Do you provide domain and hosting?', answer: 'Yes. Business (₹18,000+), Professional (₹30,000+) and Custom Project include a FREE .in or .com domain and hosting for the first year. Renewals from the second year are charged separately.' },
     { question: 'Can you build an admin panel?', answer: 'Yes. Custom admin panels can be developed when required.' },
     { question: 'Can you integrate WhatsApp?', answer: 'Yes. WhatsApp enquiry and booking functionality can be integrated.' },
-    { question: 'Do you provide maintenance?', answer: 'Yes. The optional Website Care Plan is ₹799/month or ₹7,999/year, and the first month is free with every website.' },
+    { question: 'Do you provide maintenance?', answer: 'Yes. The optional Website Care Plan starts at ₹999/month (Starter), with Business at ₹1,499 and Professional at ₹2,499. Yearly plans get 2 months free, and the first month is free with every website.' },
   ],
 };
 
@@ -342,6 +375,19 @@ function upgradePlan(stored: Plan): Plan {
 const refreshFaqs = (faqs: Faq[], defaults: Faq[]) =>
   faqs.map((faq) => defaults.find((item) => item.question === faq.question) ?? faq);
 
+// Care plans saved before the 3 tiers existed carry only one price; they get the default tiers.
+function mergeCare(stored: unknown): CarePlan {
+  const raw = stored && typeof stored === 'object' ? (stored as Partial<CarePlan>) : {};
+  const care = { ...defaultContent.care, ...raw };
+  return {
+    ...care,
+    tiers: list<CareTier>(raw.tiers, defaultContent.care.tiers).map((tier) => ({ ...BLANK_CARE_TIER, ...tier })),
+    included: list(care.included, defaultContent.care.included),
+    excluded: list(care.excluded, defaultContent.care.excluded),
+    conditions: list(care.conditions, defaultContent.care.conditions),
+  };
+}
+
 // Stored content only holds what the admin saved; anything missing falls back to the defaults above.
 export function mergeContent(stored: unknown): SiteContent {
   if (!stored || typeof stored !== 'object') return defaultContent;
@@ -352,8 +398,6 @@ export function mergeContent(stored: unknown): SiteContent {
   const missingPerk = isCurrentPlans(raw.pricing) && raw.pricing.some((plan) => typeof (plan as Partial<Plan>).perk !== 'string');
   const refresh = legacyPricing || missingPerk;
   const pricing = isCurrentPlans(raw.pricing) ? raw.pricing.map(upgradePlan) : defaultContent.pricing;
-  const storedCare = raw.care && typeof raw.care.yearlyPrice === 'string' ? raw.care : {};
-  const care = { ...defaultContent.care, ...storedCare };
   const terms = { ...defaultContent.terms, ...(raw.terms ?? {}) };
   const termFaqs = list<Faq>(terms.faqs, defaultContent.terms.faqs);
   const faqs = list<Faq>(raw.faqs, defaultContent.faqs);
@@ -365,12 +409,7 @@ export function mergeContent(stored: unknown): SiteContent {
     projects: list(raw.projects, defaultContent.projects),
     templates: list(raw.templates, defaultContent.templates),
     pricing,
-    care: {
-      ...care,
-      included: list(care.included, defaultContent.care.included),
-      excluded: list(care.excluded, defaultContent.care.excluded),
-      conditions: list(care.conditions, defaultContent.care.conditions),
-    },
+    care: mergeCare(raw.care),
     terms: {
       ...terms,
       payment: list(terms.payment, defaultContent.terms.payment),
@@ -402,9 +441,9 @@ export function paymentSplit(amount: number) {
 }
 
 // Compares the annual price with twelve monthly payments.
-export function annualSaving(care: CarePlan) {
-  const monthly = parseAmount(care.price);
-  const yearly = parseAmount(care.yearlyPrice);
+export function annualSaving(tier: Pick<CareTier, 'price' | 'yearlyPrice'>) {
+  const monthly = parseAmount(tier.price);
+  const yearly = parseAmount(tier.yearlyPrice);
   if (!monthly || !yearly) return null;
   const saving = monthly * 12 - yearly;
   if (saving <= 0) return null;
@@ -412,10 +451,10 @@ export function annualSaving(care: CarePlan) {
 }
 
 // The label used in the contact form "Package" field and the WhatsApp message.
-export function careOption(care: CarePlan, billing: 'monthly' | 'annual') {
+export function careOption(care: CarePlan, tier: CareTier, billing: 'monthly' | 'annual') {
   return billing === 'monthly'
-    ? `${care.name} – Monthly (${care.price}${care.period})`
-    : `${care.name} – Annual (${care.yearlyPrice}${care.yearlyPeriod})`;
+    ? `${care.name} ${tier.name} – Monthly (${tier.price}${care.period})`
+    : `${care.name} ${tier.name} – Yearly (${tier.yearlyPrice}${care.yearlyPeriod})`;
 }
 
 /* ------------------------------------------------------------------ loading */
