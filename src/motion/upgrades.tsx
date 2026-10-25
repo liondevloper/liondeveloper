@@ -4,6 +4,8 @@ import { MOTION_ENABLED } from './effects';
 import { Deck } from './showcase';
 import './upgrades.css';
 import './premium.css';
+// Loaded after premium.css so its hero entrance timing wins.
+import './warp.css';
 
 // "What I do" and "How it works" both auto-swipe on this beat, and keep going after a manual swipe.
 export const AUTO_SWIPE_MS = 3000;
@@ -16,54 +18,45 @@ const DOTS_FROM = 3;
 const DOT_STEP = 1000;
 const REVEAL_AT = DOTS_FROM * DOT_STEP;
 const LEAVE_AT = REVEAL_AT + 1100;
-// The 3D shatter (premium.css) lasts ~2.3s: cracks glow, a shockwave hits, then the tiles fly apart.
+// The 3D warp (warp.css) lasts ~2.3s: the logo dives into a tunnel, streaks rush past, then a portal opens.
 const DONE_AT = LEAVE_AT + 2400;
 
-const TILE_ROWS = 8;
-const STREAKS = 12;
+const RINGS = 12;
+const STARS = 48;
 
 type PreloaderPhase = 'count' | 'reveal' | 'leave' | 'done';
 type VarStyle = CSSProperties & Record<`--${string}`, string>;
 
-// Repeatable pseudo-random numbers so every tile always breaks the same way.
+// Repeatable pseudo-random numbers so the warp field always looks the same.
 const rand = (index: number, seed: number) => {
   const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
   return x - Math.floor(x);
 };
 
-// Tiles near the centre break first and every tile flies outward, tumbling in 3D and falling with gravity.
-function tileStyle(index: number, cols: number): VarStyle {
-  const nx = ((index % cols) + 0.5) / cols - 0.5;
-  const ny = (Math.floor(index / cols) + 0.5) / TILE_ROWS - 0.5;
-  return {
-    '--d': `${(Math.hypot(nx, ny) * 0.7).toFixed(3)}s`,
-    '--dx': `${(nx * 150 + (rand(index, 1) - 0.5) * 30).toFixed(1)}vw`,
-    '--dy': `${(ny * 120 + 45 + rand(index, 2) * 35).toFixed(1)}vh`,
-    '--dz': `${(250 + rand(index, 3) * 750).toFixed(0)}px`,
-    '--rx': `${((rand(index, 4) - 0.5) * 540).toFixed(0)}deg`,
-    '--ry': `${((rand(index, 5) - 0.5) * 540).toFixed(0)}deg`,
-    '--rz': `${((rand(index, 6) - 0.5) * 200).toFixed(0)}deg`,
-  };
-}
+// Each tunnel ring is twisted a little more than the last, so the tunnel spirals as it rushes forward.
+const ringStyle = (index: number): VarStyle => ({ '--i': String(index), '--tw': `${index * 15}deg` });
 
-// After the splash: the logo spins and charges up, a shockwave cracks the screen like glass,
-// and the pieces explode toward the viewer in 3D, revealing the site behind them.
-function ShatterIntro({ logo }: { logo: string }) {
-  const [cols] = useState(() => (window.innerWidth < 680 ? 5 : 8));
+// Streaks spread around the centre at random angles, distances, speeds and start times.
+const starStyle = (index: number): VarStyle => ({
+  '--a': `${(rand(index, 1) * 360).toFixed(1)}deg`,
+  '--r': `${(4 + rand(index, 2) * 22).toFixed(1)}vmin`,
+  '--t': `${(0.55 + rand(index, 3) * 0.5).toFixed(2)}s`,
+  '--d': `${(0.15 + rand(index, 4) * 0.85).toFixed(2)}s`,
+});
+
+// After the splash: the logo charges and dives into a spiralling 3D tunnel, light streaks rush past
+// at warp speed, a flash fires and a glowing portal opens from the centre to reveal the site.
+function WarpIntro({ logo }: { logo: string }) {
   return (
-    <div className="intro-shatter" aria-hidden="true">
-      <div className="intro-tiles" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${TILE_ROWS}, 1fr)` }}>
-        {Array.from({ length: cols * TILE_ROWS }, (_, index) => <i className="intro-tile" key={index} style={tileStyle(index, cols)} />)}
+    <div className="intro-warp" aria-hidden="true">
+      <div className="intro-warp-cover">
+        {Array.from({ length: RINGS }, (_, index) => <i className="intro-ring" key={`r${index}`} style={ringStyle(index)} />)}
+        {Array.from({ length: STARS }, (_, index) => <b className="intro-star" key={`s${index}`} style={starStyle(index)} />)}
+        <span className="intro-warp-core" />
+        <img className="intro-warp-logo" src={logo} alt="" width={454} height={480} />
+        <span className="intro-warp-flash" />
       </div>
-      <div className="intro-center">
-        {Array.from({ length: STREAKS }, (_, index) => (
-          <i className="intro-streak" key={index} style={{ '--a': `${(360 / STREAKS) * index}deg` } as VarStyle} />
-        ))}
-        <span className="intro-wave" />
-        <span className="intro-wave intro-wave-2" />
-        <span className="intro-core" />
-        <img className="intro-logo" src={logo} alt="" width={454} height={480} />
-      </div>
+      <span className="intro-warp-rim" />
     </div>
   );
 }
@@ -94,7 +87,7 @@ export function DotPreloader({ logo }: { logo: string }) {
   }, []);
 
   if (phase === 'done') return null;
-  if (phase === 'leave') return <ShatterIntro logo={logo} />;
+  if (phase === 'leave') return <WarpIntro logo={logo} />;
   const counting = phase === 'count';
   return (
     <div className={`preloader preloader-slow is-${phase}`} aria-hidden="true">
