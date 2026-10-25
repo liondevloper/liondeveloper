@@ -13,6 +13,7 @@ import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Eye, M
 import type { Template } from '@/data/site';
 import { MOTION_ENABLED, stagger } from './effects';
 import './showcase.css';
+import './popup.css';
 
 /* ---------------------------------------------------------- screenshots */
 
@@ -351,6 +352,8 @@ const VIEWPORTS: Record<Device, { width: number; height: number }> = {
 };
 // Room for the phone bezel drawn around the mobile view.
 const BEZEL = 8;
+// Keep in sync with the .42s ld-pop-out animation in popup.css.
+const POPUP_CLOSE_MS = 420;
 
 function useBoxSize(ref: RefObject<HTMLElement | null>) {
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -380,14 +383,36 @@ function fitFrame(device: Device, box: { width: number; height: number }) {
 function TemplatePreview({ template, onClose }: { template: Template; onClose: () => void }) {
   const [device, setDevice] = useState<Device>('desktop');
   const [loaded, setLoaded] = useState(false);
+  const [closing, setClosing] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const box = useBoxSize(wrapRef);
   const frame = fitFrame(device, box);
   const ready = box.width > 0 && frame.scale > 0;
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+
+  // Plays the 3D drop-away before the popup unmounts.
+  const requestClose = () => {
+    if (closing) return;
+    if (!MOTION_ENABLED) {
+      onClose();
+      return;
+    }
+    setClosing(true);
+  };
+
+  useEffect(() => {
+    if (!closing) return;
+    const timer = window.setTimeout(() => closeRef.current(), POPUP_CLOSE_MS);
+    return () => window.clearTimeout(timer);
+  }, [closing]);
+
+  const requestCloseRef = useRef(requestClose);
+  requestCloseRef.current = requestClose;
 
   useEffect(() => {
     const onKey = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') requestCloseRef.current();
     };
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -396,11 +421,13 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
       document.body.style.overflow = previous;
       window.removeEventListener('keydown', onKey);
     };
-  }, [onClose]);
+  }, []);
 
   return (
-    <div className="modal-backdrop template-modal-backdrop" onClick={onClose}>
+    <div className={`modal-backdrop template-modal-backdrop ${closing ? 'is-closing' : ''}`} onClick={requestClose}>
+      <div className="popup-fx" aria-hidden="true"><b /><i /><i /><i /></div>
       <div className="template-modal" role="dialog" aria-modal="true" aria-label={`${template.title} live preview`} onClick={(event) => event.stopPropagation()}>
+        <span className="popup-sweep" aria-hidden="true" />
         <div className="template-modal-bar">
           <div className="template-modal-title">
             <span className="section-kicker">{template.category}</span>
@@ -417,7 +444,7 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
           <a className="button button-small button-gold" href={template.url} target="_blank" rel="noreferrer">
             Open site <ArrowUpRight size={14} />
           </a>
-          <button type="button" className="template-close" onClick={onClose} aria-label="Close preview">
+          <button type="button" className="template-close" onClick={requestClose} aria-label="Close preview">
             <X size={18} />
           </button>
         </div>
