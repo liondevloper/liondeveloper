@@ -1,0 +1,71 @@
+/* Pricing policies and the single Website Care Plan. Prefixed with .site-shell so these rules win over
+   index.css, which loads later. Card base styles live in motion/showcase.css. */
+
+.site-shell .pricing-grid-wide { max-width: 1120px; margin: 0 auto; }
+.site-shell .price-feature { align-items: flex-start; line-height: 1.45; }
+.site-shell .price-feature svg { margin-top: 1px; }
+.site-shell .price-revisions { display: flex; align-items: center; gap: 8px; margin: 6px 0 18px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,.14); color: var(--gold-bright); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; }
+
+/* ---------- Care plan ---------- */
+.site-shell .care-block { max-width: 1120px; margin: 56px auto 0; padding: 34px; display: grid; gap: 30px; border: 1px solid rgba(234,185,75,.42); background: linear-gradient(130deg, rgba(234,185,75,.13), rgba(255,255,255,.02) 50%), #141412; box-shadow: 0 30px 60px rgba(0,0,0,.32); }
+.site-shell .care-block-head { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+.site-shell .care-block-head > div { flex: 1; min-width: 220px; }
+.site-shell .care-block-head .care-icon { margin: 0; }
+.site-shell .care-block-head h3 { font-size: 30px; letter-spacing: -.05em; margin: 8px 0 6px; }
+.site-shell .care-block-head p { color: var(--muted); font-size: 13px; line-height: 1.7; margin: 0; max-width: 480px; }
+.site-shell .care-block-head .care-offer { margin-top: 0; }
+.site-shell .care-block-body { display: grid; grid-template-columns: .95fr 1.05fr; gap: 30px; align-items: start; }
+.site-shell .care-prices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.site-shell .care-price-option { display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.03); min-width: 0; }
+.site-shell .care-price-option.is-annual { border-color: rgba(234,185,75,.5); background: rgba(234,185,75,.06); }
+.site-shell .care-price-option .care-list-title { margin-bottom: 0; }
+.site-shell .care-price-option .care-price b { font-size: 34px; }
+.site-shell .care-price-option .button { justify-content: center; margin-top: auto; }
+.site-shell .care-saving { color: #9bd192; font-size: 11px; line-height: 1.5; min-height: 33px; }
+.site-shell .care-saving-muted { color: #8e8d86; font-size: 11px; line-height: 1.5; min-height: 33px; }
+.site-shell .care-block .care-lists { gap: 20px 28px; }
+.site-shell .care-foot { display: grid; gap: 12px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.1); color: var(--muted); font-size: 12px; line-height: 1.7; }
+.site-shell .care-foot p { margin: 0; }
+.site-shell .care-foot b { color: var(--ink); }
+.site-shell .care-foot ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.site-shell .care-chat { display: inline-flex; align-items: center; gap: 8px; width: fit-content; color: #9bd192; font-weight: 700; }
+.site-shell .care-chat:hover { color: #b0e8a7; }
+
+/* ---------- Shared check list ---------- */
+.site-shell .policy-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 11px; }
+.site-shell .policy-list li { display: flex; gap: 10px; color: #b1b0a9; font-size: 13px; line-height: 1.6; }
+.site-shell .policy-list svg { color: var(--gold); flex-shrink: 0; margin-top: 3px; }
+.site-shell .policy-list.is-excluded li { color: #85847d; }
+.site-shell .policy-list.is-excluded svg { color: #a06a5d; }
+
+/* ---------- Policies ---------- */
+.site-shell .policy-panel { max-width: 1120px; margin: 40px auto 0; padding: 28px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.025); }
+.site-shell .policy-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.site-shell .policy-tabs button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid rgba(255,255,255,.14); background: transparent; color: var(--muted); font-size: 12px; font-weight: 700; transition: color .25s ease, border-color .25s ease, background-color .25s ease; }
+.site-shell .policy-tabs button:hover { color: var(--ink); border-color: rgba(234,185,75,.5); }
+.site-shell .policy-tabs button.is-active { background: var(--gold); border-color: var(--gold); color: #16130c; }
+.site-shell .policy-split { display: grid; grid-template-columns: 1.2fr .8fr; gap: 28px; align-items: start; }
+.site-shell .policy-examples { display: grid; gap: 10px; padding: 20px; border: 1px solid rgba(234,185,75,.3); background: rgba(234,185,75,.05); }
+.site-shell .policy-examples .care-list-title { margin-bottom: 4px; }
+.site-shell .policy-example { display: grid; gap: 3px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.site-shell .policy-example b { font-size: 14px; }
+.site-shell .policy-example span { color: var(--muted); font-size: 12px; }
+.site-shell .policy-examples small { color: #8e8d86; font-size: 11px; line-height: 1.6; }
+.site-shell .policy-hosting { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.site-shell .policy-hosting .care-list-title { display: block; }
+.site-shell .policy-faqs { margin-top: 34px; padding-top: 26px; border-top: 1px solid rgba(255,255,255,.1); }
+.site-shell .policy-faqs h3 { font-size: 20px; letter-spacing: -.03em; margin: 0 0 10px; }
+.site-shell .policy-faqs .faq-list { max-width: none; }
+
+@media (max-width: 980px) {
+  .site-shell .care-block-body, .site-shell .policy-split { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .site-shell .care-block { padding: 24px 18px; margin-top: 40px; gap: 24px; }
+  .site-shell .care-block-head h3 { font-size: 25px; }
+  .site-shell .care-prices, .site-shell .care-block .care-lists { grid-template-columns: 1fr; }
+  .site-shell .care-saving, .site-shell .care-saving-muted { min-height: 0; }
+  .site-shell .policy-panel { padding: 22px 16px; }
+  .site-shell .policy-tabs button { flex: 1 1 auto; justify-content: center; }
+  .site-shell .policy-list li { font-size: 12px; }
+}
