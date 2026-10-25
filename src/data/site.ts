@@ -27,23 +27,35 @@ export type Plan = {
   description: string;
   popular: boolean;
   features: string[];
+  // Short line shown on the card, e.g. "2 revision rounds".
+  revisions: string;
+  // Domain and hosting conditions for this package, shown in the policy panel.
+  hosting: string[];
   cta: string;
 };
-// Monthly after-launch plan, shown as its own strip under the pricing cards.
+// The single optional after-launch plan, shown as its own block under the pricing cards.
 export type CarePlan = {
   enabled: boolean;
   name: string;
   price: string;
   period: string;
-  yearly: string;
+  yearlyPrice: string;
+  yearlyPeriod: string;
   description: string;
+  offer: string;
   included: string[];
   excluded: string[];
-  offer: string;
-  cta: string;
+  smallChange: string;
+  conditions: string[];
 };
 export type Testimonial = { quote: string; author: string; role: string; rating: number };
 export type Faq = { question: string; answer: string };
+export type Terms = {
+  payment: string[];
+  paymentNote: string;
+  revisions: string[];
+  faqs: Faq[];
+};
 
 export type SiteContent = {
   contact: { email: string; whatsapp: string; whatsappMessage: string; instagram: string; instagramUrl: string };
@@ -54,6 +66,7 @@ export type SiteContent = {
   templates: Template[];
   pricing: Plan[];
   care: CarePlan;
+  terms: Terms;
   budgets: string[];
   technologies: string[];
   testimonials: Testimonial[];
@@ -72,6 +85,8 @@ export const SERVICE_ICONS = [
 ] as const;
 
 export const PROJECT_ACCENTS: ProjectAccent[] = ['gold', 'blue', 'dark'];
+
+export const BLANK_PLAN: Plan = { name: '', price: '', description: '', popular: false, features: [], revisions: '', hosting: [], cta: 'Get Started' };
 
 export const siteConfig = {
   brand: 'LION DEVELOPER',
@@ -152,35 +167,47 @@ export const defaultContent: SiteContent = {
   pricing: [
     {
       name: 'Starter',
-      price: '₹8,000',
+      price: '₹8,000+',
       description: 'A polished launchpad for a focused online presence.',
       popular: false,
-      features: ['1–5 pages', 'Mobile-friendly modern design', 'WhatsApp button', 'Contact form', 'Basic SEO', 'Free deployment', '1 month free care'],
+      features: ['1–5 pages', 'Responsive design', 'Modern UI', 'WhatsApp button', 'Contact form', 'Basic SEO', 'Mobile optimization', 'Deployment'],
+      revisions: '2 revision rounds',
+      hosting: [
+        'Custom domain registration is charged separately.',
+        'Eligible free-tier hosting may be used when suitable for the project.',
+        'Paid hosting and third-party services are not included unless stated in your quotation.',
+      ],
       cta: 'Get Started',
     },
     {
       name: 'Business',
-      price: '₹12,000',
+      price: '₹18,000+',
       description: 'A premium website built to support your next stage of growth.',
       popular: true,
-      features: ['Up to 10 pages', 'Premium UI/UX', 'WhatsApp integration', 'Booking / enquiry form', 'On-page SEO', 'Speed optimization', 'Free deployment', '1 month free care'],
+      features: ['Up to 10 pages', 'Premium UI/UX', 'WhatsApp integration', 'Booking / enquiry form', 'Basic SEO', 'Performance optimization', 'Deployment', 'Basic support'],
+      revisions: '3 revision rounds',
+      hosting: [
+        'Custom domain and first-year hosting are included only when stated in your approved quotation.',
+        'Recommended first-year allowance: up to ₹3,000 combined for domain and hosting.',
+        'If the actual cost is higher, the difference is shared with you and approved before purchase.',
+        'Renewals after the first year are charged separately.',
+      ],
       cta: 'Get Started',
     },
     {
       name: 'Professional',
-      price: '₹18,000',
-      description: 'Advanced functionality for businesses with bigger requirements.',
+      price: '₹30,000+',
+      description: 'Advanced functionality and custom solutions for businesses with bigger requirements.',
       popular: false,
-      features: ['Everything in Business', 'Custom UI/UX', 'Admin panel', 'Database & login', 'API integrations', 'Advanced SEO', 'Free deployment', '2 months free care'],
+      features: ['Custom UI/UX', 'Advanced functionality', 'Admin panel', 'Database', 'Authentication', 'API integrations', 'Custom features', 'Technical support'],
+      revisions: 'Revisions defined in your quotation',
+      hosting: [
+        'Domain and hosting are quoted separately based on project requirements.',
+        'Domain, hosting and cloud services are preferably registered under your own account.',
+        'Recurring infrastructure, database, email, API and third-party charges are disclosed upfront.',
+        'Every project receives a custom quotation before work begins.',
+      ],
       cta: 'Request Quote',
-    },
-    {
-      name: 'Custom Project',
-      price: "Let's Discuss",
-      description: 'For ambitious products and systems that need a tailored approach.',
-      popular: false,
-      features: ['SaaS products', 'Custom web applications', 'Advanced dashboards', 'E-commerce systems', 'Business management systems', 'Complex integrations', 'Dedicated support'],
-      cta: 'Talk To Me',
     },
   ],
   care: {
@@ -188,40 +215,109 @@ export const defaultContent: SiteContent = {
     name: 'Website Care Plan',
     price: '₹799',
     period: '/month',
-    yearly: 'or ₹7,999/year (2 months free)',
-    description: 'Keep your website safe, updated and running smoothly after launch.',
+    yearlyPrice: '₹7,999',
+    yearlyPeriod: '/year',
+    description: 'Optional after-launch support to keep your website updated and running smoothly.',
+    offer: 'First month free with every website',
     included: [
       'Up to 3 small text/photo changes per month',
-      'Bug fixes',
-      'Regular backups',
-      'Quick fix if the site goes down',
+      'Minor bug fixes',
+      'Regular backups where supported by your hosting',
+      'Troubleshooting if the website goes down',
       'Domain & hosting renewal reminders',
       'WhatsApp support',
     ],
-    excluded: ['New pages', 'New features (quoted separately)'],
-    offer: 'First month free with every website',
-    cta: 'Add Care Plan',
+    excluded: [
+      'New pages',
+      'New features or major redesigns',
+      'Paid hosting, domain renewals, premium plugins and third-party charges',
+      'Major development work or substantial functionality changes',
+    ],
+    smallChange:
+      'A small change is a quick edit to existing content, such as replacing text, a phone number, a price or a photo on an existing page. Anything that adds pages, sections or new functionality is new development and is quoted separately.',
+    conditions: [
+      'The Care Plan is optional.',
+      'The free first month applies once, to the first care period after launch. It does not apply to renewals.',
+      'Annual plans are paid upfront.',
+      'Support is provided over WhatsApp. 24/7 support and guaranteed uptime are not included.',
+    ],
   },
-  budgets: ['₹8,000 – ₹12,000', '₹12,000 – ₹20,000', '₹20,000 – ₹50,000', '₹50,000+', 'Not sure'],
+  terms: {
+    payment: [
+      '50% advance payment is required before project work begins.',
+      'The remaining 50% is payable after you review and approve the completed website, before final handover and launch.',
+      'Domain, hosting, premium tools or third-party costs that must be paid upfront are disclosed and approved separately.',
+      'Work outside the agreed project scope is quoted separately.',
+      'Project timelines begin after the advance payment and all required materials are received.',
+      'Payment milestones are confirmed with you before the project starts.',
+    ],
+    paymentNote: 'For projects above ₹30,000, the 50% advance and remaining balance are calculated from the final agreed quotation.',
+    revisions: [
+      'A revision round is one consolidated list of changes you send for the agreed design or content.',
+      'Minor text, colour, spacing and image adjustments within the agreed scope count as revisions.',
+      'New pages, major redesigns, new functionality and changes to already approved requirements may be charged extra, only after your approval.',
+    ],
+    faqs: [
+      {
+        question: 'Is domain and hosting included?',
+        answer:
+          'It depends on the package. Starter: domain is charged separately and free-tier hosting is used where suitable. Business: first-year domain and hosting can be included when stated in your quotation, within an allowance of up to ₹3,000. Professional: quoted separately based on your requirements.',
+      },
+      {
+        question: 'How does the 50% advance payment work?',
+        answer:
+          'You pay 50% of the agreed price before work begins. The remaining 50% is due after you review and approve the completed website, before final handover and launch. For example, a ₹18,000 Business website is ₹9,000 advance + ₹9,000 final payment.',
+      },
+      {
+        question: 'What is included in a revision round?',
+        answer:
+          'One consolidated list of changes to the agreed design or content, such as text, colour, spacing or image adjustments. Starter includes 2 rounds, Business includes 3, and Professional follows your quotation.',
+      },
+      {
+        question: 'Are domain and hosting renewals included?',
+        answer: 'No. Domain and hosting renewals after the first year are charged separately. Care Plan clients receive renewal reminders.',
+      },
+      {
+        question: 'Is the Website Care Plan compulsory?',
+        answer: 'No, it is optional. Every website gets the first month of care free. After that you can choose ₹799/month or ₹7,999/year, or skip it.',
+      },
+      {
+        question: 'What happens if I need additional features?',
+        answer: 'Work outside the agreed scope is quoted separately and starts only after you approve the quote.',
+      },
+    ],
+  },
+  budgets: ['₹8,000 – ₹18,000', '₹18,000 – ₹30,000', '₹30,000 – ₹50,000', '₹50,000+', 'Not sure'],
   technologies: ['HTML5', 'CSS3', 'JavaScript', 'React', 'Node.js', 'PHP', 'Laravel', 'Firebase', 'Supabase', 'REST APIs', 'Cloudflare', 'Vercel', 'GitHub'],
   testimonials: [],
   faqs: [
     { question: 'How much does a website cost?', answer: 'Website packages start from ₹8,000. Final pricing depends on pages, features and integrations.' },
     { question: 'How long does a website take?', answer: 'Timeline depends on the project scope and required functionality. A clear timeline is shared before work begins.' },
-    { question: 'Do you provide domain and hosting?', answer: 'Yes. Assistance with domain, hosting and deployment is available.' },
+    { question: 'Do you provide domain and hosting?', answer: 'It depends on the package. See "Domain & hosting" in the pricing section. Renewals after the first year are charged separately.' },
     { question: 'Can you build an admin panel?', answer: 'Yes. Custom admin panels can be developed when required.' },
     { question: 'Can you integrate WhatsApp?', answer: 'Yes. WhatsApp enquiry and booking functionality can be integrated.' },
-    { question: 'Do you provide maintenance?', answer: 'Yes. The Website Care Plan starts at ₹799/month and covers small updates, bug fixes, backups and support. The first month is free with every website.' },
+    { question: 'Do you provide maintenance?', answer: 'Yes. The optional Website Care Plan is ₹799/month or ₹7,999/year, and the first month is free with every website.' },
   ],
 };
 
 const list = <T,>(value: unknown, fallback: T[]): T[] => (Array.isArray(value) ? (value as T[]) : fallback);
 
+const isCurrentPlans = (value: unknown): value is Plan[] =>
+  Array.isArray(value) &&
+  value.every((plan) => typeof plan === 'object' && plan !== null && Array.isArray((plan as { hosting?: unknown }).hosting));
+
 // Stored content only holds what the admin saved; anything missing falls back to the defaults above.
 export function mergeContent(stored: unknown): SiteContent {
   if (!stored || typeof stored !== 'object') return defaultContent;
   const raw = stored as Partial<SiteContent>;
-  const care = { ...defaultContent.care, ...(raw.care ?? {}) };
+  // Content saved before the pricing policy update has no hosting terms; it switches to the new defaults
+  // so the site never shows the old prices or the old care plan claims.
+  const legacyPricing = raw.pricing !== undefined && !isCurrentPlans(raw.pricing);
+  const pricing = isCurrentPlans(raw.pricing) ? raw.pricing.map((plan) => ({ ...BLANK_PLAN, ...plan })) : defaultContent.pricing;
+  const storedCare = raw.care && typeof raw.care.yearlyPrice === 'string' ? raw.care : {};
+  const care = { ...defaultContent.care, ...storedCare };
+  const terms = { ...defaultContent.terms, ...(raw.terms ?? {}) };
+  const faqs = list<Faq>(raw.faqs, defaultContent.faqs);
   return {
     contact: { ...defaultContent.contact, ...(raw.contact ?? {}) },
     hero: { ...defaultContent.hero, ...(raw.hero ?? {}) },
@@ -229,14 +325,61 @@ export function mergeContent(stored: unknown): SiteContent {
     services: list(raw.services, defaultContent.services),
     projects: list(raw.projects, defaultContent.projects),
     templates: list(raw.templates, defaultContent.templates),
-    pricing: list(raw.pricing, defaultContent.pricing),
-    care: { ...care, included: list(care.included, defaultContent.care.included), excluded: list(care.excluded, defaultContent.care.excluded) },
-    budgets: list(raw.budgets, defaultContent.budgets),
+    pricing,
+    care: {
+      ...care,
+      included: list(care.included, defaultContent.care.included),
+      excluded: list(care.excluded, defaultContent.care.excluded),
+      conditions: list(care.conditions, defaultContent.care.conditions),
+    },
+    terms: {
+      ...terms,
+      payment: list(terms.payment, defaultContent.terms.payment),
+      revisions: list(terms.revisions, defaultContent.terms.revisions),
+      faqs: list(terms.faqs, defaultContent.terms.faqs),
+    },
+    budgets: legacyPricing ? defaultContent.budgets : list(raw.budgets, defaultContent.budgets),
     technologies: list(raw.technologies, defaultContent.technologies),
     testimonials: list(raw.testimonials, defaultContent.testimonials),
-    faqs: list(raw.faqs, defaultContent.faqs),
+    // Old answers about domains and maintenance no longer match the policy, so they are refreshed too.
+    faqs: legacyPricing ? faqs.map((faq) => defaultContent.faqs.find((item) => item.question === faq.question) ?? faq) : faqs,
   };
 }
+
+/* ------------------------------------------------------------- pricing maths */
+
+// "₹30,000+" -> 30000. Returns null for prices without a number, like "Let's Discuss".
+export function parseAmount(price: string): number | null {
+  const digits = price.replace(/[^\d]/g, '');
+  return digits ? Number(digits) : null;
+}
+
+export const formatRupees = (amount: number) => `₹${amount.toLocaleString('en-IN')}`;
+
+// 50% advance, the rest on approval. Odd amounts round the advance up so both parts are whole rupees.
+export function paymentSplit(amount: number) {
+  const advance = Math.ceil(amount / 2);
+  return { advance, final: amount - advance };
+}
+
+// Compares the annual price with twelve monthly payments.
+export function annualSaving(care: CarePlan) {
+  const monthly = parseAmount(care.price);
+  const yearly = parseAmount(care.yearlyPrice);
+  if (!monthly || !yearly) return null;
+  const saving = monthly * 12 - yearly;
+  if (saving <= 0) return null;
+  return { saving, months: Math.round(saving / monthly) };
+}
+
+// The label used in the contact form "Package" field and the WhatsApp message.
+export function careOption(care: CarePlan, billing: 'monthly' | 'annual') {
+  return billing === 'monthly'
+    ? `${care.name} – Monthly (${care.price}${care.period})`
+    : `${care.name} – Annual (${care.yearlyPrice}${care.yearlyPeriod})`;
+}
+
+/* ------------------------------------------------------------------ loading */
 
 export async function fetchContent(): Promise<SiteContent> {
   const response = await fetch('/api/content');
