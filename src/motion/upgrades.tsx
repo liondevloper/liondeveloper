@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, type LucideIcon } from 'lucide-react';
 import { MOTION_ENABLED } from './effects';
 import { Deck } from './showcase';
@@ -6,30 +6,34 @@ import './upgrades.css';
 import './premium.css';
 // Loaded after premium.css so its hero entrance timing wins.
 import './intro.css';
+import './splash.css';
 
 // "What I do" and "How it works" both auto-swipe on this beat, and keep going after a manual swipe.
 export const AUTO_SWIPE_MS = 3000;
 
 /* ------------------------------------------------------------- preloader */
 
-// Slower intro: each beat lasts a full second and shows dots (3, 2, 1) instead of numbers.
-// Keep DOT_STEP in sync with the 1s .preloader-dots / ring-fill durations in upgrades.css.
-const DOTS_FROM = 3;
-const DOT_STEP = 1000;
-const REVEAL_AT = DOTS_FROM * DOT_STEP;
-const LEAVE_AT = REVEAL_AT + 1100;
+// Premium 3D splash (splash.css): a metallic lion medallion spins in 3D while the brand name flips up
+// and the progress bar fills. Keep SPLASH_MS in sync with the 3.15s exit fades in splash.css.
+const SPLASH_MS = 3600;
+const PROGRESS_START = 400;
+const PROGRESS_MS = 2900;
 // The 3D blinds intro (intro.css): logo spins + sparks, a light beam sweeps, panels turn open (~2.2s).
-const DONE_AT = LEAVE_AT + 2300;
+const DONE_AT = SPLASH_MS + 2300;
 
 const SPARKS = 16;
+const DUST = 18;
+const COIN_LAYERS = 9;
+const BRAND = 'LION DEVELOPER';
+const ACCENT_LETTERS = 4;
 // Panels open left to right, each a little after the one before, following the light beam.
 const SLAT_START = 0.62;
 const SLAT_STEP = 0.075;
 
-type PreloaderPhase = 'count' | 'reveal' | 'leave' | 'done';
+type PreloaderPhase = 'splash' | 'leave' | 'done';
 type VarStyle = CSSProperties & Record<`--${string}`, string>;
 
-// Repeatable pseudo-random numbers so the sparks always burst the same way.
+// Repeatable pseudo-random numbers so the sparks and dust always look the same.
 const rand = (index: number, seed: number) => {
   const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
   return x - Math.floor(x);
@@ -46,6 +50,81 @@ const sparkStyle = (index: number): VarStyle => ({
   '--r': `${(22 + rand(index, 2) * 26).toFixed(1)}vmin`,
   '--d': `${(0.42 + rand(index, 3) * 0.12).toFixed(2)}s`,
 });
+
+const dustStyle = (index: number): VarStyle => ({
+  '--x': `${(4 + rand(index, 5) * 92).toFixed(1)}%`,
+  '--s': `${(3 + rand(index, 6) * 5).toFixed(1)}px`,
+  '--t': `${(2.4 + rand(index, 7) * 2).toFixed(2)}s`,
+  '--d': `${(rand(index, 8) * 2.4).toFixed(2)}s`,
+});
+
+// Stacked discs give the medallion a real metal edge while it spins.
+const layerStyle = (index: number): VarStyle => ({ '--z': String(index - (COIN_LAYERS - 1) / 2) });
+const letterStyle = (index: number): VarStyle => ({ '--i': String(index) });
+
+// Counts the percent next to the bar in step with its fill. Writes straight to the DOM so React does not re-render every frame.
+function useSplashPercent() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    let frame = 0;
+    const start = performance.now() + PROGRESS_START;
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const tick = (now: number) => {
+      const progress = Math.min(Math.max((now - start) / PROGRESS_MS, 0), 1);
+      if (ref.current) ref.current.textContent = `${Math.round(ease(progress) * 100)}%`;
+      if (progress < 1) frame = window.requestAnimationFrame(tick);
+    };
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+  return ref;
+}
+
+function Splash3D({ logo }: { logo: string }) {
+  const percentRef = useSplashPercent();
+  return (
+    <div className="splash3d" aria-hidden="true">
+      <div className="splash-floor"><i /></div>
+      <span className="splash-glow" />
+      {Array.from({ length: DUST }, (_, index) => <i className="splash-dust" key={index} style={dustStyle(index)} />)}
+      <div className="splash-scene">
+        <div className="splash-core">
+          <span className="splash-ring" />
+          <span className="splash-ring splash-ring-2" />
+          <span className="splash-shadow" />
+          <div className="splash-coin-wrap">
+            <div className="splash-coin">
+              {Array.from({ length: COIN_LAYERS }, (_, index) => <i className="splash-layer" key={index} style={layerStyle(index)} />)}
+              <span className="splash-face">
+                <img src={logo} alt="" width={454} height={480} />
+                <i className="splash-shine" />
+              </span>
+              <span className="splash-face splash-face-back">
+                <img src={logo} alt="" width={454} height={480} />
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="splash-meta">
+          <span className="splash-brand">
+            {Array.from(BRAND).map((letter, index) =>
+              letter === ' ' ? (
+                <span className="splash-gap" key={index} />
+              ) : (
+                <span className={index < ACCENT_LETTERS ? 'is-accent' : undefined} key={index} style={letterStyle(index)}>{letter}</span>
+              ),
+            )}
+          </span>
+          <span className="splash-tag">WEBSITES THAT ROAR</span>
+          <span className="splash-progress">
+            <span className="splash-bar"><i /></span>
+            <span className="splash-percent" ref={percentRef}>0%</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // After the splash: the lion spins inside two 3D gyroscope rings and bursts into sparks,
 // a beam of light sweeps across, and the screen turns open in tall 3D panels to reveal the site.
@@ -74,8 +153,7 @@ function BlindsIntro({ logo }: { logo: string }) {
 }
 
 export function DotPreloader({ logo }: { logo: string }) {
-  const [phase, setPhase] = useState<PreloaderPhase>(MOTION_ENABLED ? 'count' : 'done');
-  const [count, setCount] = useState(DOTS_FROM);
+  const [phase, setPhase] = useState<PreloaderPhase>(MOTION_ENABLED ? 'splash' : 'done');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -83,16 +161,11 @@ export function DotPreloader({ logo }: { logo: string }) {
       root.classList.add('is-loaded');
       return;
     }
-    const ticks = Array.from({ length: DOTS_FROM - 1 }, (_, step) =>
-      window.setTimeout(() => setCount(DOTS_FROM - 1 - step), DOT_STEP * (step + 1)),
-    );
     const timers = [
-      ...ticks,
-      window.setTimeout(() => setPhase('reveal'), REVEAL_AT),
       window.setTimeout(() => {
         setPhase('leave');
         root.classList.add('is-loaded');
-      }, LEAVE_AT),
+      }, SPLASH_MS),
       window.setTimeout(() => setPhase('done'), DONE_AT),
     ];
     return () => timers.forEach(window.clearTimeout);
@@ -100,31 +173,7 @@ export function DotPreloader({ logo }: { logo: string }) {
 
   if (phase === 'done') return null;
   if (phase === 'leave') return <BlindsIntro logo={logo} />;
-  const counting = phase === 'count';
-  return (
-    <div className={`preloader preloader-slow is-${phase}`} aria-hidden="true">
-      <div className="preloader-orb orb-a" />
-      <div className="preloader-orb orb-b" />
-      <div className="preloader-inner">
-        <div className="preloader-glass">
-          <svg className="preloader-ring" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="56" />
-            <circle key={counting ? count : 'full'} className="ring-fill" cx="60" cy="60" r="56" pathLength={1} />
-          </svg>
-          {counting ? (
-            <span className="preloader-dots" key={count}>
-              {Array.from({ length: count }, (_, index) => <i key={index} />)}
-            </span>
-          ) : (
-            <img className="preloader-logo" src={logo} alt="" width={454} height={480} />
-          )}
-        </div>
-        <span className="preloader-word" key={counting ? 'count' : 'brand'}>
-          {counting ? 'GET READY' : 'LION DEVELOPER'}
-        </span>
-      </div>
-    </div>
-  );
+  return <Splash3D logo={logo} />;
 }
 
 /* ---------------------------------------------------------------- header */
