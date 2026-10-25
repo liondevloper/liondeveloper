@@ -1,0 +1,74 @@
+/* Custom dropdown (FancySelect.tsx) for the contact form.
+   The panel flips open in 3D, a colour glow line draws across its top, a ripple bursts from the
+   trigger and the options cascade in one after another. */
+
+:root body .site-shell .fancy-select { position: relative; width: 100%; min-width: 0; text-transform: none; letter-spacing: 0; }
+:root body .site-shell .fancy-select.is-open { z-index: 40; }
+
+:root body .site-shell .fancy-trigger {
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; min-width: 0; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--glass-border);
+  background: #fffdf9; color: var(--ink); font: 500 14px/1.4 'Sora', 'Manrope', sans-serif; text-align: left; cursor: pointer;
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+:root body .site-shell .fancy-trigger:focus-visible,
+:root body .site-shell .fancy-select.is-open .fancy-trigger { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(239,106,40,.15); }
+:root body .site-shell .fancy-value { position: relative; z-index: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root body .site-shell .fancy-value.is-placeholder { color: #a59d8f; }
+:root body .site-shell .fancy-chevron { position: relative; z-index: 1; flex: none; color: var(--muted); transition: rotate .35s cubic-bezier(.16, 1, .3, 1), color .25s ease; }
+:root body .site-shell .fancy-select.is-open .fancy-chevron { rotate: 180deg; color: var(--gold); }
+:root body .site-shell .fancy-ripple {
+  position: absolute; left: calc(100% - 22px); top: 50%; width: 12px; height: 12px; border-radius: 50%; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle, rgba(239,106,40,.35), rgba(10,150,182,.16) 60%, transparent 72%);
+  transform: translate(-50%, -50%) scale(0);
+}
+
+:root body .site-shell .fancy-panel {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 40; display: grid; gap: 2px;
+  max-height: min(300px, 55vh); overflow-y: auto; overscroll-behavior: contain; padding: 8px;
+  border-radius: 16px; border: 1px solid rgba(239,106,40,.3); background: rgba(255,253,249,.98);
+  box-shadow: 0 30px 60px -20px rgba(120,70,20,.45), inset 0 1px 0 #fff;
+  transform-origin: 50% 0; scrollbar-width: thin; scrollbar-color: rgba(239,106,40,.4) transparent;
+}
+:root body .site-shell .fancy-glow {
+  position: absolute; top: 0; left: 14px; right: 14px; height: 2px; border-radius: 2px; pointer-events: none;
+  background: linear-gradient(90deg, #ef6a28, #0a96b6 55%, #6b4dff); box-shadow: 0 0 12px rgba(239,106,40,.55);
+  transform-origin: 0 50%;
+}
+:root body .site-shell .fancy-option {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-width: 0;
+  padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; color: #3b352b;
+  font: 500 14px/1.35 'Sora', 'Manrope', sans-serif; text-align: left; cursor: pointer;
+  transition: background-color .2s ease, color .2s ease, translate .25s cubic-bezier(.16, 1, .3, 1);
+}
+:root body .site-shell .fancy-option > span { min-width: 0; overflow-wrap: anywhere; }
+:root body .site-shell .fancy-option.is-active { background: linear-gradient(90deg, rgba(239,106,40,.13), rgba(10,150,182,.06)); color: var(--ink); translate: 4px 0; }
+:root body .site-shell .fancy-option[aria-selected="true"] { color: #e0531a; font-weight: 700; }
+:root body .site-shell .fancy-option svg { flex: none; color: var(--gold); }
+
+@media (max-width: 680px) {
+  :root body .site-shell .fancy-option { padding: 12px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell .fancy-panel { animation: ld-sel-in .45s cubic-bezier(.16, 1, .3, 1) both; }
+  :root body .site-shell .fancy-panel.is-closing { animation: ld-sel-out .22s cubic-bezier(.7, 0, .84, 0) forwards; pointer-events: none; }
+  :root body .site-shell .fancy-option { animation: ld-opt-in .4s cubic-bezier(.16, 1, .3, 1) calc(.06s + var(--i, 0) * 28ms) both; }
+  :root body .site-shell .fancy-glow { animation: ld-sel-glow .6s cubic-bezier(.16, 1, .3, 1) both; }
+  :root body .site-shell .fancy-ripple { animation: ld-sel-ripple .7s ease-out both; }
+}
+
+@keyframes ld-sel-in {
+  from { opacity: 0; transform: perspective(900px) rotateX(-38deg) translateY(-12px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ld-sel-out { to { opacity: 0; transform: perspective(900px) rotateX(-24deg) translateY(-8px) scale(.96); } }
+@keyframes ld-opt-in {
+  from { opacity: 0; transform: perspective(600px) rotateX(-70deg) translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ld-sel-glow { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: scaleX(1); } }
+@keyframes ld-sel-ripple {
+  from { opacity: .8; transform: translate(-50%, -50%) scale(0); }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(32); }
+}
