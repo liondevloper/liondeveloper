@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, CalendarRange, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
 import {
   annualSaving,
-  careOption,
   formatRupees,
   parseAmount,
   paymentSplit,
@@ -26,6 +25,9 @@ const WIDE_SCREEN = '(min-width: 1000px)';
 const TIER_FX = ['orbit', 'holo', 'ember'] as const;
 type TierFx = (typeof TIER_FX)[number];
 const FX_LAYERS: Record<TierFx, number> = { orbit: 4, holo: 3, ember: 8 };
+
+// Monthly / Yearly on care cards are information only: they are not links, so they never fill the contact form.
+const STATIC_LABEL = { cursor: 'default', pointerEvents: 'none' } as const;
 
 const POLICY_TABS = [
   { id: 'payment', label: 'Payment terms', icon: CreditCard },
@@ -71,7 +73,7 @@ function CheckList({ items, excluded = false }: { items: string[]; excluded?: bo
   );
 }
 
-function CareTierCard({ care, tier, index, onChoose }: { care: CarePlan; tier: CareTier; index: number; onChoose: Choose }) {
+function CareTierCard({ care, tier, index }: { care: CarePlan; tier: CareTier; index: number }) {
   const fx: TierFx = TIER_FX[index % TIER_FX.length] ?? 'orbit';
   const saving = annualSaving(tier);
   return (
@@ -88,14 +90,14 @@ function CareTierCard({ care, tier, index, onChoose }: { care: CarePlan; tier: C
       {tier.description && <p>{tier.description}</p>}
       <CheckList items={tier.features} />
       <div className="care-tier-actions">
-        <a className="button button-gold" href="#contact" onClick={() => onChoose(careOption(care, tier, 'monthly'))}>Monthly <ArrowUpRight size={15} /></a>
-        <a className="button button-outline" href="#contact" onClick={() => onChoose(careOption(care, tier, 'annual'))}>Yearly <ArrowUpRight size={15} /></a>
+        <span className="button button-gold" style={STATIC_LABEL}><CalendarDays size={15} /> Monthly</span>
+        <span className="button button-outline" style={STATIC_LABEL}><CalendarRange size={15} /> Yearly</span>
       </div>
     </article>
   );
 }
 
-function CareBlock({ care, whatsapp, onChoose }: { care: CarePlan; whatsapp: string; onChoose: Choose }) {
+function CareBlock({ care, whatsapp }: { care: CarePlan; whatsapp: string }) {
   const chatHref = whatsappLink(whatsapp, `Hi Lion Developer, I would like to confirm a ${care.name}. Please share the details.`);
   return (
     <div className="care-block" data-reveal>
@@ -111,7 +113,7 @@ function CareBlock({ care, whatsapp, onChoose }: { care: CarePlan; whatsapp: str
 
       {care.tiers.length > 0 && (
         <div className="care-tiers">
-          {care.tiers.map((tier, index) => <CareTierCard key={index} care={care} tier={tier} index={index} onChoose={onChoose} />)}
+          {care.tiers.map((tier, index) => <CareTierCard key={index} care={care} tier={tier} index={index} />)}
         </div>
       )}
 
@@ -258,7 +260,7 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
         </div>
       )}
       <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.{perkNote}</p>
-      {care.enabled && <CareBlock care={care} whatsapp={whatsapp} onChoose={onChoose} />}
+      {care.enabled && <CareBlock care={care} whatsapp={whatsapp} />}
       <PolicyPanel pricing={pricing} terms={terms} />
     </section>
   );

@@ -5,7 +5,7 @@ import {
   Sparkles, Star, Wrench, MessageCircle, Mail, Smartphone, Zap, ShieldCheck, Target,
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
-import { careOption, phoneLink, useSiteContent, whatsappLink } from '@/data/site';
+import { phoneLink, useSiteContent, whatsappLink } from '@/data/site';
 import lionLogo from '@/assets/images/lion-logo.png';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
@@ -19,7 +19,33 @@ type EnquiryFields = Record<string, FormDataEntryValue>;
 const BAND_WORDS = ['Business Websites', 'Ready in 1–3 Days', 'Landing Pages', 'E-Commerce', 'Web Apps', 'Admin Panels', 'Booking Systems', 'UI/UX Design'];
 const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Developer'];
 const NAV_ITEMS = ['Home', 'Services', 'Templates', 'Pricing', 'About', 'Contact'];
-const WEBSITE_TYPES = ['Business website', 'Landing page', 'E-commerce website', 'Custom web application'];
+const WEBSITE_TYPES = [
+  'Salon',
+  'Gym / Fitness centre',
+  'Beauty parlour',
+  'Nail studio',
+  'Barber shop',
+  'Spa / Wellness',
+  'Cafe',
+  'Restaurant',
+  'Hotel / Resort',
+  'Bakery / Sweet shop',
+  'Clinic / Doctor',
+  'Dental clinic',
+  'Clothing / Boutique',
+  'Jewellery shop',
+  'Real estate',
+  'Coaching / Tuition classes',
+  'School / College',
+  'Photography studio',
+  'Event / Wedding planner',
+  'Travel agency',
+  'Business / Company website',
+  'Landing page',
+  'E-commerce / Online store',
+  'Custom web application',
+  'Other',
+];
 
 const PROCESS_STEPS = [
   { title: 'Discuss', text: 'Understand your business, goals and requirements.', icon: MessagesSquare },
@@ -121,10 +147,8 @@ function App() {
   useAnchorScroll();
   const scrolled = useScrolled();
 
-  const packageOptions = [
-    ...pricing.map((plan) => plan.name),
-    ...(care.enabled ? care.tiers.flatMap((tier) => [careOption(care, tier, 'monthly'), careOption(care, tier, 'annual')]) : []),
-  ].filter(Boolean);
+  // Only website packages; care plans are confirmed separately on WhatsApp.
+  const packageOptions = pricing.map((plan) => plan.name).filter(Boolean);
   // A package picked from the pricing section prefills the form, which then confirms it by email/WhatsApp.
   const choosePackage = (name: string) => {
     setChosenPackage(name);
