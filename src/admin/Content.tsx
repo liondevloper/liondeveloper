@@ -2,7 +2,10 @@ import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
 import { ArrowDown, ArrowUp, ImagePlus, Plus, Save, Trash2 } from 'lucide-react';
 import { adminApi } from './api';
 import {
+  annualSaving,
+  BLANK_PLAN,
   defaultContent,
+  formatRupees,
   mergeContent,
   PROJECT_ACCENTS,
   SERVICE_ICONS,
@@ -14,6 +17,7 @@ import {
   type SiteContent,
   type Stat,
   type Template,
+  type Terms,
   type Testimonial,
 } from '../data/site';
 
@@ -26,6 +30,7 @@ const TABS = [
   { id: 'templates', label: 'Templates' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'care', label: 'Care plan' },
+  { id: 'terms', label: 'Policies' },
   { id: 'testimonials', label: 'Testimonials' },
   { id: 'faqs', label: 'FAQ' },
   { id: 'technologies', label: 'Tech stack' },
@@ -161,6 +166,25 @@ function Repeater<T>({ items, onChange, blank, addLabel, title, children }: Repe
   );
 }
 
+function FaqEditor({ items, onChange }: { items: Faq[]; onChange: (items: Faq[]) => void }) {
+  return (
+    <Repeater<Faq>
+      items={items}
+      onChange={onChange}
+      blank={() => ({ question: '', answer: '' })}
+      addLabel="Add question"
+      title={(faq) => faq.question}
+    >
+      {(faq, update) => (
+        <>
+          <Text label="Question" value={faq.question} onChange={(question) => update({ ...faq, question })} />
+          <Area label="Answer" value={faq.answer} onChange={(answer) => update({ ...faq, answer })} />
+        </>
+      )}
+    </Repeater>
+  );
+}
+
 /* ---------------------------------------------------------------- page */
 
 const trimList = (values: string[]) => values.map((value) => value.trim()).filter(Boolean);
@@ -172,8 +196,9 @@ function clean(content: SiteContent): SiteContent {
     budgets: trimList(content.budgets),
     projects: content.projects.map((project) => ({ ...project, url: (project.url ?? '').trim(), features: trimList(project.features), tech: trimList(project.tech) })),
     templates: content.templates.map((template) => ({ ...template, url: template.url.trim(), tags: trimList(template.tags) })),
-    pricing: content.pricing.map((plan) => ({ ...plan, features: trimList(plan.features) })),
-    care: { ...content.care, included: trimList(content.care.included), excluded: trimList(content.care.excluded) },
+    pricing: content.pricing.map((plan) => ({ ...plan, features: trimList(plan.features), hosting: trimList(plan.hosting) })),
+    care: { ...content.care, included: trimList(content.care.included), excluded: trimList(content.care.excluded), conditions: trimList(content.care.conditions) },
+    terms: { ...content.terms, payment: trimList(content.terms.payment), revisions: trimList(content.terms.revisions) },
   };
 }
 
@@ -205,6 +230,8 @@ export default function Content() {
     setMessage('');
   };
   const patchCare = (changes: Partial<CarePlan>) => patch({ care: { ...content.care, ...changes } });
+  const patchTerms = (changes: Partial<Terms>) => patch({ terms: { ...content.terms, ...changes } });
+  const saving = annualSaving(content.care);
 
   const save = async () => {
     setBusy(true);
@@ -227,6 +254,7 @@ export default function Content() {
     if (tab === 'contact') patch({ contact: defaultContent.contact });
     else if (tab === 'hero') patch({ hero: defaultContent.hero });
     else if (tab === 'care') patch({ care: defaultContent.care });
+    else if (tab === 'terms') patch({ terms: defaultContent.terms });
     else if (tab === 'pricing') patch({ pricing: defaultContent.pricing, budgets: defaultContent.budgets });
     else patch({ [tab]: defaultContent[tab] } as Partial<SiteContent>);
   };
@@ -374,11 +402,11 @@ export default function Content() {
 
       {tab === 'pricing' && (
         <>
-          <p className="admin-muted">Type prices like ₹8,000. The site adds "Starting from" above any price with a number, so no need to add a + sign.</p>
+          <p className="admin-muted">Type prices like ₹18,000+. The site shows "Starting from" above any price with a number, and the 50/50 payment examples are worked out from these prices automatically.</p>
           <Repeater<Plan>
             items={content.pricing}
             onChange={(pricing) => patch({ pricing })}
-            blank={() => ({ name: '', price: '', description: '', popular: false, features: [], cta: 'Get Started' })}
+            blank={() => ({ ...BLANK_PLAN })}
             addLabel="Add package"
             title={(plan) => plan.name}
           >
@@ -386,10 +414,12 @@ export default function Content() {
               <>
                 <div className="admin-row">
                   <Text label="Package name" value={plan.name} onChange={(name) => update({ ...plan, name })} />
-                  <Text label="Price" value={plan.price} onChange={(price) => update({ ...plan, price })} placeholder="₹8,000" />
+                  <Text label="Starting price" value={plan.price} onChange={(price) => update({ ...plan, price })} placeholder="₹8,000+" />
                 </div>
                 <Area label="Description" value={plan.description} onChange={(description) => update({ ...plan, description })} rows={2} />
                 <Lines label="Features" value={plan.features} onChange={(features) => update({ ...plan, features })} hint="One per line. Keep it to 8 or fewer so the card stays tidy on phones." />
+                <Text label="Revisions" value={plan.revisions} onChange={(revisions) => update({ ...plan, revisions })} placeholder="2 revision rounds" hint="Shown on the card and in the Revisions policy. Never write unlimited." />
+                <Lines label="Domain & hosting conditions" value={plan.hosting} onChange={(hosting) => update({ ...plan, hosting })} hint="One per line. Shown in the Domain & hosting policy." />
                 <div className="admin-row">
                   <Text label="Button text" value={plan.cta} onChange={(cta) => update({ ...plan, cta })} />
                   <label className="admin-check">
@@ -422,20 +452,39 @@ export default function Content() {
             <input type="checkbox" checked={content.care.enabled} onChange={(event) => patchCare({ enabled: event.target.checked })} />
             Show the care plan on the website
           </label>
+          <Text label="Plan name" value={content.care.name} onChange={(name) => patchCare({ name })} placeholder="Website Care Plan" />
           <div className="admin-row">
-            <Text label="Plan name" value={content.care.name} onChange={(name) => patchCare({ name })} placeholder="Website Care Plan" />
-            <Text label="Button text" value={content.care.cta} onChange={(cta) => patchCare({ cta })} placeholder="Add Care Plan" />
+            <Text label="Monthly price" value={content.care.price} onChange={(price) => patchCare({ price })} placeholder="₹799" />
+            <Text label="Monthly label" value={content.care.period} onChange={(period) => patchCare({ period })} placeholder="/month" />
           </div>
           <div className="admin-row">
-            <Text label="Price" value={content.care.price} onChange={(price) => patchCare({ price })} placeholder="₹799" />
-            <Text label="Per" value={content.care.period} onChange={(period) => patchCare({ period })} placeholder="/month" />
+            <Text label="Annual price" value={content.care.yearlyPrice} onChange={(yearlyPrice) => patchCare({ yearlyPrice })} placeholder="₹7,999" />
+            <Text label="Annual label" value={content.care.yearlyPeriod} onChange={(yearlyPeriod) => patchCare({ yearlyPeriod })} placeholder="/year" />
           </div>
-          <Text label="Yearly option" value={content.care.yearly} onChange={(yearly) => patchCare({ yearly })} placeholder="or ₹7,999/year (2 months free)" hint="Leave blank to hide." />
+          <p className="admin-muted">
+            {saving
+              ? `The site shows: Save ${formatRupees(saving.saving)} vs monthly (about ${saving.months} months free). This is calculated automatically.`
+              : 'The annual price is not lower than 12 monthly payments, so no saving is shown.'}
+          </p>
           <Area label="Short description" value={content.care.description} onChange={(description) => patchCare({ description })} rows={2} />
           <Text label="Offer badge" value={content.care.offer} onChange={(offer) => patchCare({ offer })} placeholder="First month free with every website" hint="Leave blank to hide." />
           <Lines label="Included" value={content.care.included} onChange={(included) => patchCare({ included })} />
           <Lines label="Not included" value={content.care.excluded} onChange={(excluded) => patchCare({ excluded })} hint="One per line. Leave empty to hide this list." />
+          <Area label="What counts as a small change" value={content.care.smallChange} onChange={(smallChange) => patchCare({ smallChange })} rows={3} />
+          <Lines label="Conditions" value={content.care.conditions} onChange={(conditions) => patchCare({ conditions })} />
         </div>
+      )}
+
+      {tab === 'terms' && (
+        <>
+          <div className="admin-fields">
+            <Lines label="Payment terms" value={content.terms.payment} onChange={(payment) => patchTerms({ payment })} />
+            <Area label="Note under the payment examples" value={content.terms.paymentNote} onChange={(paymentNote) => patchTerms({ paymentNote })} rows={2} />
+            <Lines label="Revision policy" value={content.terms.revisions} onChange={(revisions) => patchTerms({ revisions })} hint="One per line. Revision rounds per package are set in the Pricing tab." />
+            <p className="admin-muted">Pricing questions shown under the policies:</p>
+          </div>
+          <FaqEditor items={content.terms.faqs} onChange={(faqs) => patchTerms({ faqs })} />
+        </>
       )}
 
       {tab === 'testimonials' && (
@@ -467,22 +516,7 @@ export default function Content() {
         </>
       )}
 
-      {tab === 'faqs' && (
-        <Repeater<Faq>
-          items={content.faqs}
-          onChange={(faqs) => patch({ faqs })}
-          blank={() => ({ question: '', answer: '' })}
-          addLabel="Add question"
-          title={(faq) => faq.question}
-        >
-          {(faq, update) => (
-            <>
-              <Text label="Question" value={faq.question} onChange={(question) => update({ ...faq, question })} />
-              <Area label="Answer" value={faq.answer} onChange={(answer) => update({ ...faq, answer })} />
-            </>
-          )}
-        </Repeater>
-      )}
+      {tab === 'faqs' && <FaqEditor items={content.faqs} onChange={(faqs) => patch({ faqs })} />}
 
       {tab === 'technologies' && (
         <div className="admin-fields">
