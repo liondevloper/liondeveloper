@@ -1,0 +1,107 @@
+/* =====================================================================
+   3D warp intro (plays right after the splash screen)
+   The logo charges up and dives into a glowing 3D tunnel, light streaks rush
+   past the viewer at warp speed, a flash fires at the vanishing point and a
+   glowing portal opens from the centre to reveal the site.
+   Every rule starts with ":root body .site-shell" so it outranks light.css.
+   ===================================================================== */
+
+@property --ld-iris { syntax: '<length>'; inherits: false; initial-value: 0px; }
+
+:root body .site-shell .intro-warp { position: fixed; inset: 0; z-index: 101; pointer-events: none; overflow: hidden; }
+
+/* The cream cover that holds the tunnel; a growing circular hole in its mask is the portal. */
+:root body .site-shell .intro-warp-cover {
+  position: absolute; inset: 0; overflow: hidden; perspective: 700px; perspective-origin: 50% 50%;
+  background: radial-gradient(circle at 50% 50%, #fff 0%, #fffaf1 32%, #f3e8d6 100%);
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent var(--ld-iris), #000 calc(var(--ld-iris) + 2px));
+  mask: radial-gradient(circle at 50% 50%, transparent var(--ld-iris), #000 calc(var(--ld-iris) + 2px));
+}
+
+/* Tunnel: twisted rounded-square rings that fly from deep in the screen toward the viewer. */
+:root body .site-shell .intro-ring {
+  position: absolute; left: 50%; top: 50%; display: block;
+  width: 70vmin; height: 70vmin; margin: -35vmin 0 0 -35vmin; border-radius: 30%;
+  border: 2px solid rgba(239,106,40,.85); opacity: 0;
+  box-shadow: 0 0 26px rgba(239,106,40,.45), inset 0 0 26px rgba(239,106,40,.25);
+  transform: translateZ(-2600px) rotateZ(var(--tw, 0deg));
+  will-change: transform, opacity;
+}
+:root body .site-shell .intro-ring:nth-child(even) {
+  border-color: rgba(10,150,182,.8);
+  box-shadow: 0 0 26px rgba(10,150,182,.4), inset 0 0 26px rgba(10,150,182,.22);
+}
+
+/* Warp streaks: thin radial light lines rushing outward past the viewer. */
+:root body .site-shell .intro-star {
+  position: absolute; left: 50%; top: 50%; display: block; width: 90px; height: 2px; margin-top: -1px;
+  transform-origin: 0 50%; opacity: 0; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #ef6a28 55%, #fff);
+  transform: rotate(var(--a)) translateX(var(--r)) translateZ(-1800px);
+  will-change: transform, opacity;
+}
+:root body .site-shell .intro-star:nth-of-type(3n) { background: linear-gradient(90deg, transparent, #0a96b6 55%, #fff); }
+:root body .site-shell .intro-star:nth-of-type(5n) { background: linear-gradient(90deg, transparent, #6b4dff 55%, #fff); }
+
+:root body .site-shell .intro-warp-core {
+  position: absolute; left: 50%; top: 50%; display: block; width: 46vmin; height: 46vmin; margin: -23vmin 0 0 -23vmin;
+  border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0%, rgba(255,214,170,.95) 22%, rgba(239,106,40,.35) 48%, rgba(10,150,182,.12) 62%, transparent 72%);
+}
+
+:root body .site-shell .intro-warp-logo {
+  position: absolute; left: 50%; top: 50%; width: 72px; height: auto; margin: -38px 0 0 -36px;
+  filter: drop-shadow(0 10px 24px rgba(239,106,40,.5));
+}
+
+/* Glowing rim that rides the edge of the portal as it opens (same timing as the mask). */
+:root body .site-shell .intro-warp-rim {
+  position: absolute; left: 50%; top: 50%; display: block; width: 300vmax; height: 300vmax; margin: -150vmax 0 0 -150vmax;
+  border-radius: 50%; transform: scale(0); opacity: 0;
+  box-shadow: 0 0 0 5px rgba(239,106,40,.95), 0 0 50px 18px rgba(239,106,40,.55), inset 0 0 70px 14px rgba(10,150,182,.5);
+}
+
+:root body .site-shell .intro-warp-flash {
+  position: absolute; inset: 0; display: block; opacity: 0;
+  background: radial-gradient(circle at 50% 50%, #fff 0%, rgba(255,240,220,.85) 30%, transparent 70%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell .intro-warp-logo { animation: ld-warp-logo 1.25s cubic-bezier(.6, 0, .4, 1) both; }
+  :root body .site-shell .intro-warp-core { animation: ld-warp-core 1.3s ease-out .1s both; }
+  :root body .site-shell .intro-ring { animation: ld-ring-rush 1.15s cubic-bezier(.55, 0, 1, .45) calc(.12s + var(--i, 0) * .085s) both; }
+  :root body .site-shell .intro-star { animation: ld-warp-star var(--t, .8s) cubic-bezier(.6, 0, 1, .5) var(--d, .2s) both; }
+  :root body .site-shell .intro-warp-flash { animation: ld-warp-flash .45s ease-out 1.15s both; }
+  :root body .site-shell .intro-warp-cover { animation: ld-iris 1s cubic-bezier(.7, 0, .2, 1) 1.25s both; }
+  :root body .site-shell .intro-warp-rim { animation: ld-rim 1s cubic-bezier(.7, 0, .2, 1) 1.25s both; }
+
+  /* The hero lands just as the portal opens. */
+  html.motion-ready.is-loaded body .site-shell .hero-copy { animation: ld-hero-copy 1.5s cubic-bezier(.2, .8, .2, 1) 1.3s both; }
+  html.motion-ready.is-loaded body .site-shell .hero-visual { animation: ld-hero-visual 1.8s cubic-bezier(.2, .8, .2, 1) 1.4s both; }
+}
+
+@keyframes ld-warp-logo {
+  0% { transform: translateZ(0) rotateY(0deg) scale(1); opacity: 1; }
+  32% { transform: translateZ(140px) rotateY(360deg) scale(1.2); opacity: 1; filter: drop-shadow(0 0 34px rgba(239,106,40,.95)) brightness(1.35); }
+  100% { transform: translateZ(-2400px) rotateY(720deg) rotateZ(180deg) scale(.6); opacity: 0; filter: drop-shadow(0 0 30px rgba(10,150,182,.9)) blur(2px); }
+}
+@keyframes ld-warp-core {
+  0% { transform: scale(.2); opacity: 0; }
+  30% { transform: scale(.6); opacity: .7; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes ld-ring-rush {
+  0% { transform: translateZ(-2600px) rotateZ(var(--tw, 0deg)); opacity: 0; }
+  18% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateZ(650px) rotateZ(calc(var(--tw, 0deg) + 90deg)); opacity: 0; }
+}
+@keyframes ld-warp-star {
+  0% { transform: rotate(var(--a)) translateX(var(--r)) translateZ(-1800px) scaleX(.4); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: rotate(var(--a)) translateX(var(--r)) translateZ(600px) scaleX(2.2); opacity: 0; }
+}
+@keyframes ld-warp-flash { 0% { opacity: 0; } 35% { opacity: .9; } 100% { opacity: 0; } }
+@keyframes ld-iris { from { --ld-iris: 0px; } to { --ld-iris: 150vmax; } }
+@keyframes ld-rim { 0% { transform: scale(0); opacity: 1; } 75% { opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
