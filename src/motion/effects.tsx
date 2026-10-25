@@ -12,23 +12,31 @@ export const stagger = (index: number) => ({ '--i': index }) as CSSProperties;
 
 const SPOTLIGHT_TARGETS = '.service-card, .why-card, .price-card, .project-card';
 const HOVER_TARGETS = 'a, button, .project-card, input, select, textarea, label';
+// Visible share of an element before it animates in.
+const REVEAL_RATIO = 0.1;
 
-// Reveals [data-reveal] elements as they scroll in. A data attribute is used instead of a class
-// because React rewrites className on re-render, which would hide already revealed elements.
+// Reveals [data-reveal] elements as they scroll in, and hides them again once they are fully off screen,
+// so every animation replays whether the visitor scrolls down or back up. A data attribute is used
+// instead of a class because React rewrites className on re-render, which would reset the state.
 function useScrollReveal() {
   useEffect(() => {
     if (!MOTION_ENABLED) return;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.setAttribute('data-shown', '');
-          observer.unobserve(entry.target);
+          if (entry.isIntersecting && entry.intersectionRatio >= REVEAL_RATIO) entry.target.setAttribute('data-shown', '');
+          else if (!entry.isIntersecting) entry.target.removeAttribute('data-shown');
         });
       },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' },
+      { threshold: [0, REVEAL_RATIO] },
     );
-    const scan = () => document.querySelectorAll('[data-reveal]:not([data-shown])').forEach((el) => observer.observe(el));
+    const watched = new WeakSet<Element>();
+    const scan = () =>
+      document.querySelectorAll('[data-reveal]').forEach((el) => {
+        if (watched.has(el)) return;
+        watched.add(el);
+        observer.observe(el);
+      });
     scan();
     // Content saved in the admin panel arrives after first paint, so newly mounted cards need observing too.
     const mutations = new MutationObserver(scan);
@@ -248,7 +256,7 @@ export function Marquee({ items, variant = 'outline' }: { items: string[]; varia
   );
 }
 
-// Counts the leading number of a stat ("50+", "100%", "24/7") up from zero once it scrolls into view.
+// Counts the leading number of a stat ("50+", "100%", "24/7") up from zero every time it scrolls into view.
 export function CountUp({ value }: { value: string }) {
   const ref = useRef<HTMLElement>(null);
   const [display, setDisplay] = useState(() => (MOTION_ENABLED ? value.replace(/\d+/, '0') : value));
@@ -267,8 +275,13 @@ export function CountUp({ value }: { value: string }) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        observer.disconnect();
+        if (!entry) return;
+        window.cancelAnimationFrame(frame);
+        // Off screen: reset to zero so it counts up again next time.
+        if (!entry.isIntersecting) {
+          setDisplay(`${prefix}0${suffix}`);
+          return;
+        }
         const start = performance.now();
         const tick = (now: number) => {
           const progress = Math.min((now - start) / 1600, 1);
