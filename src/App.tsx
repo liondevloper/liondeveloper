@@ -28,6 +28,17 @@ const PROCESS_STEPS = [
   { title: 'Launch', text: 'Your website goes live in 1–3 days, depending on the website.', icon: Rocket },
 ];
 
+const WHY_CARDS = [
+  { title: 'Quick Delivery', text: 'Your website ready in 1–3 days, depending on the website.', icon: Rocket },
+  { title: 'Modern Design', text: 'Professional interfaces designed for modern businesses.', icon: Sparkles },
+  { title: 'Responsive', text: 'Perfect experience on mobile, tablet and desktop.', icon: Smartphone },
+  { title: 'Fast Performance', text: 'Optimized websites that load quickly.', icon: Gauge },
+  { title: 'Business Focused', text: 'Websites designed around business goals and conversion.', icon: Target },
+  { title: 'Custom Development', text: 'Custom functionality based on actual requirements.', icon: Code2 },
+  { title: 'Support', text: 'Technical assistance after launch.', icon: MessageCircle },
+  { title: 'Secure & SEO Ready', text: 'HTTPS, clean code and SEO basics so Google can find you.', icon: ShieldCheck },
+];
+
 function ProcessCard({ step }: { step: (typeof PROCESS_STEPS)[number] }) {
   const Icon = step.icon;
   return (
@@ -111,7 +122,7 @@ function App() {
 
   const packageOptions = [
     ...pricing.map((plan) => plan.name),
-    ...(care.enabled ? [careOption(care, 'monthly'), careOption(care, 'annual')] : []),
+    ...(care.enabled ? care.tiers.flatMap((tier) => [careOption(care, tier, 'monthly'), careOption(care, tier, 'annual')]) : []),
   ].filter(Boolean);
   // A package picked from the pricing section prefills the form, which then confirms it by email/WhatsApp.
   const choosePackage = (name: string) => {
@@ -251,9 +262,9 @@ function App() {
           </div>
         </section>
 
-        <section className="why-section section-pad section-dark" id="about"><div className="about-grid"><div className="about-copy"><span className="section-kicker" data-reveal>Why Lion Developer</span><h2 data-reveal="clip">Digital experiences<br />that <em>matter.</em></h2><p data-reveal style={stagger(2)}>Lion Developer is focused on creating modern, responsive and business-oriented websites and web applications. I help businesses, brands and professionals turn their ideas into fast, functional and professional digital experiences.</p><a className="button button-gold" href="#contact" data-reveal style={stagger(3)}>Let’s work together <ArrowUpRight size={18} /></a></div><div className="why-cards">{[['Quick Delivery', 'Your website ready in 1–3 days, depending on the website.', Rocket], ['Modern Design', 'Professional interfaces designed for modern businesses.', Sparkles], ['Responsive', 'Perfect experience on mobile, tablet and desktop.', Smartphone], ['Fast Performance', 'Optimized websites that load quickly.', Gauge], ['Business Focused', 'Websites designed around business goals and conversion.', Target], ['Custom Development', 'Custom functionality based on actual requirements.', Code2], ['Support', 'Technical assistance after launch.', MessageCircle]].map(([title, text, Icon], index) => <div className="why-card" key={title as string} data-reveal data-tilt="10" style={stagger(index)}><Icon size={20} /><h3>{title as string}</h3><p>{text as string}</p></div>)}</div></div></section>
+        <section className="why-section section-pad section-dark" id="about"><div className="about-grid"><div className="about-copy"><span className="section-kicker" data-reveal>Why Lion Developer</span><h2 data-reveal="clip">Digital experiences<br />that <em>matter.</em></h2><p data-reveal style={stagger(2)}>Lion Developer is focused on creating modern, responsive and business-oriented websites and web applications. I help businesses, brands and professionals turn their ideas into fast, functional and professional digital experiences.</p><a className="button button-gold" href="#contact" data-reveal style={stagger(3)}>Let’s work together <ArrowUpRight size={18} /></a></div><div className="why-cards">{WHY_CARDS.map(({ title, text, icon: Icon }, index) => <div className="why-card" key={title} data-reveal data-tilt="10" style={stagger(index)}><span className="why-fx" aria-hidden="true"><i /><i /></span><Icon size={20} /><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
 
-        <section className="tech-section section-pad"><div className="center-heading"><span className="section-kicker" data-reveal>The toolkit</span><h2 data-reveal="clip">Technologies I<br /><em>work with.</em></h2></div><div className="tech-cloud">{technologies.map((tech, index) => <span key={index} className={index % 4 === 0 ? 'tech-highlight' : ''} data-reveal="scale" style={stagger(index)}><Code2 size={14} />{tech}</span>)}</div></section>
+        <section className="tech-section section-pad"><div className="center-heading"><span className="section-kicker" data-reveal>The toolkit</span><h2 data-reveal="clip">Technologies I<br /><em>work with.</em></h2></div><div className="tech-cloud">{technologies.map((tech, index) => <span key={index} data-reveal="scale" style={stagger(index)}><Code2 size={14} />{tech}</span>)}</div></section>
 
         {/* No real testimonials saved yet means no section at all — a filler review card would read as fake. */}
         {testimonials.length > 0 && <section className="testimonial-section section-pad"><div className="center-heading"><span className="section-kicker" data-reveal>Client feedback</span><h2 data-reveal="clip">Good work speaks<br /><em>for itself.</em></h2></div><div className={`testimonial-grid ${testimonials.length === 1 ? 'is-single' : ''}`}>{testimonials.map((testimonial, index) => <div className="testimonial-card" key={index} data-reveal data-tilt="6" style={stagger(index)}><div className="stars">{Array.from({ length: Math.min(Math.max(testimonial.rating || 5, 1), 5) }, (_, star) => <Star key={star} size={17} fill="currentColor" />)}</div><p>“{testimonial.quote}”</p><span>{[testimonial.author, testimonial.role].filter(Boolean).join(', ')}</span></div>)}</div></section>}

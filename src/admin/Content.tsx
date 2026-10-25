@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, ImagePlus, Plus, Save, Trash2 } from 'lucide-react'
 import { adminApi } from './api';
 import {
   annualSaving,
+  BLANK_CARE_TIER,
   BLANK_PLAN,
   defaultContent,
   formatRupees,
@@ -10,6 +11,7 @@ import {
   PROJECT_ACCENTS,
   SERVICE_ICONS,
   type CarePlan,
+  type CareTier,
   type Faq,
   type Plan,
   type Project,
@@ -185,6 +187,13 @@ function FaqEditor({ items, onChange }: { items: Faq[]; onChange: (items: Faq[])
   );
 }
 
+function savingNote(tier: CareTier) {
+  const saving = annualSaving(tier);
+  return saving
+    ? `The site shows: ${saving.months} months free (save ${formatRupees(saving.saving)}). Tip: yearly = monthly x 10 gives 2 months free.`
+    : 'Yearly price is not lower than 12 monthly payments, so no saving is shown.';
+}
+
 /* ---------------------------------------------------------------- page */
 
 const trimList = (values: string[]) => values.map((value) => value.trim()).filter(Boolean);
@@ -197,7 +206,13 @@ function clean(content: SiteContent): SiteContent {
     projects: content.projects.map((project) => ({ ...project, url: (project.url ?? '').trim(), features: trimList(project.features), tech: trimList(project.tech) })),
     templates: content.templates.map((template) => ({ ...template, url: template.url.trim(), tags: trimList(template.tags) })),
     pricing: content.pricing.map((plan) => ({ ...plan, features: trimList(plan.features), hosting: trimList(plan.hosting) })),
-    care: { ...content.care, included: trimList(content.care.included), excluded: trimList(content.care.excluded), conditions: trimList(content.care.conditions) },
+    care: {
+      ...content.care,
+      tiers: content.care.tiers.map((tier) => ({ ...tier, features: trimList(tier.features) })),
+      included: trimList(content.care.included),
+      excluded: trimList(content.care.excluded),
+      conditions: trimList(content.care.conditions),
+    },
     terms: { ...content.terms, payment: trimList(content.terms.payment), revisions: trimList(content.terms.revisions) },
   };
 }
@@ -231,7 +246,6 @@ export default function Content() {
   };
   const patchCare = (changes: Partial<CarePlan>) => patch({ care: { ...content.care, ...changes } });
   const patchTerms = (changes: Partial<Terms>) => patch({ terms: { ...content.terms, ...changes } });
-  const saving = annualSaving(content.care);
 
   const save = async () => {
     setBusy(true);
@@ -447,32 +461,62 @@ export default function Content() {
       )}
 
       {tab === 'care' && (
-        <div className="admin-fields">
-          <label className="admin-check">
-            <input type="checkbox" checked={content.care.enabled} onChange={(event) => patchCare({ enabled: event.target.checked })} />
-            Show the care plan on the website
-          </label>
-          <Text label="Plan name" value={content.care.name} onChange={(name) => patchCare({ name })} placeholder="Website Care Plan" />
-          <div className="admin-row">
-            <Text label="Monthly price" value={content.care.price} onChange={(price) => patchCare({ price })} placeholder="₹799" />
-            <Text label="Monthly label" value={content.care.period} onChange={(period) => patchCare({ period })} placeholder="/month" />
+        <>
+          <div className="admin-fields">
+            <label className="admin-check">
+              <input type="checkbox" checked={content.care.enabled} onChange={(event) => patchCare({ enabled: event.target.checked })} />
+              Show the care plan on the website
+            </label>
+            <Text label="Plan name" value={content.care.name} onChange={(name) => patchCare({ name })} placeholder="Website Care Plan" />
+            <div className="admin-row">
+              <Text label="Monthly label" value={content.care.period} onChange={(period) => patchCare({ period })} placeholder="/month" />
+              <Text label="Yearly label" value={content.care.yearlyPeriod} onChange={(yearlyPeriod) => patchCare({ yearlyPeriod })} placeholder="/year" />
+            </div>
+            <Area label="Short description" value={content.care.description} onChange={(description) => patchCare({ description })} rows={2} />
+            <Text label="Offer badge" value={content.care.offer} onChange={(offer) => patchCare({ offer })} placeholder="First month free with every website" hint="Leave blank to hide." />
+            <p className="admin-muted">Care plan cards (each card gets its own animation on the website):</p>
           </div>
-          <div className="admin-row">
-            <Text label="Annual price" value={content.care.yearlyPrice} onChange={(yearlyPrice) => patchCare({ yearlyPrice })} placeholder="₹7,999" />
-            <Text label="Annual label" value={content.care.yearlyPeriod} onChange={(yearlyPeriod) => patchCare({ yearlyPeriod })} placeholder="/year" />
+          <Repeater<CareTier>
+            items={content.care.tiers}
+            onChange={(tiers) => patchCare({ tiers })}
+            blank={() => ({ ...BLANK_CARE_TIER })}
+            addLabel="Add care plan card"
+            title={(tier) => `${tier.name} ${tier.price}`.trim()}
+          >
+            {(tier, update) => (
+              <>
+                <div className="admin-row">
+                  <Text label="Name" value={tier.name} onChange={(name) => update({ ...tier, name })} placeholder="Starter" />
+                  <Text label="Monthly price" value={tier.price} onChange={(price) => update({ ...tier, price })} placeholder="₹999" />
+                  <Text label="Yearly price" value={tier.yearlyPrice} onChange={(yearlyPrice) => update({ ...tier, yearlyPrice })} placeholder="₹9,990" />
+                </div>
+                <p className="admin-muted">{savingNote(tier)}</p>
+                <Area label="Short description" value={tier.description} onChange={(description) => update({ ...tier, description })} rows={2} />
+                <Lines label="Features" value={tier.features} onChange={(features) => update({ ...tier, features })} />
+                <label className="admin-check">
+                  <input
+                    type="checkbox"
+                    checked={tier.popular}
+                    onChange={(event) =>
+                      patchCare({
+                        tiers: content.care.tiers.map((current) =>
+                          current === tier ? { ...tier, popular: event.target.checked } : { ...current, popular: false },
+                        ),
+                      })
+                    }
+                  />
+                  Mark as most popular
+                </label>
+              </>
+            )}
+          </Repeater>
+          <div className="admin-fields">
+            <Lines label="Included in every plan" value={content.care.included} onChange={(included) => patchCare({ included })} />
+            <Lines label="Not included" value={content.care.excluded} onChange={(excluded) => patchCare({ excluded })} hint="One per line. Leave empty to hide this list." />
+            <Area label="What counts as a small change" value={content.care.smallChange} onChange={(smallChange) => patchCare({ smallChange })} rows={3} />
+            <Lines label="Conditions" value={content.care.conditions} onChange={(conditions) => patchCare({ conditions })} />
           </div>
-          <p className="admin-muted">
-            {saving
-              ? `The site shows: Save ${formatRupees(saving.saving)} vs monthly (about ${saving.months} months free). This is calculated automatically.`
-              : 'The annual price is not lower than 12 monthly payments, so no saving is shown.'}
-          </p>
-          <Area label="Short description" value={content.care.description} onChange={(description) => patchCare({ description })} rows={2} />
-          <Text label="Offer badge" value={content.care.offer} onChange={(offer) => patchCare({ offer })} placeholder="First month free with every website" hint="Leave blank to hide." />
-          <Lines label="Included" value={content.care.included} onChange={(included) => patchCare({ included })} />
-          <Lines label="Not included" value={content.care.excluded} onChange={(excluded) => patchCare({ excluded })} hint="One per line. Leave empty to hide this list." />
-          <Area label="What counts as a small change" value={content.care.smallChange} onChange={(smallChange) => patchCare({ smallChange })} rows={3} />
-          <Lines label="Conditions" value={content.care.conditions} onChange={(conditions) => patchCare({ conditions })} />
-        </div>
+        </>
       )}
 
       {tab === 'terms' && (
