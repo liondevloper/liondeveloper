@@ -47,6 +47,30 @@
 :root body .site-shell .care-tier .care-price b { font-size: 36px; }
 :root body .site-shell .policy-panel { margin-top: 24px; padding: 22px; }
 
+/* ---------- Care plan cards: text stays crisp and in place ----------
+   The mouse tilt turned the card into a 3D space, so the moving effect layers (hologram wash, sweep,
+   sparks) cut through the text and letters flickered in front of / behind them, mostly on the
+   Business and Professional cards. The card now stays a flat layer: effects always sit behind the text. */
+:root body .site-shell .care-tier,
+:root body .site-shell .care-tier[data-tilt] { transform-style: flat; isolation: isolate; }
+:root body .site-shell .care-tier .care-fx { z-index: 0; perspective: none; transform: translateZ(0); }
+:root body .site-shell .care-tier > :not(.care-fx) { position: relative; z-index: 2; transform: none; backface-visibility: hidden; }
+:root body .site-shell .care-tier[data-tilt][data-tilting] > * { transform: none; }
+/* Hologram + embers: smaller, softer effects so they never wash over the price and list. */
+:root body .site-shell .fx-holo .care-fx i:nth-child(3) { opacity: .7; }
+:root body .site-shell .fx-holo .care-fx i:nth-child(2) { opacity: .55; }
+:root body .site-shell .fx-ember .care-fx i:nth-child(n+2) { max-width: 6px; max-height: 6px; }
+/* The price text keeps a solid fallback colour in case the gradient text cannot paint. */
+:root body .site-shell .care-tier .care-price b { -webkit-text-fill-color: transparent; background-repeat: no-repeat; line-height: 1.1; padding-bottom: 2px; }
+/* "Most popular" tag no longer sits on top of the plan name: it takes its own line above it. */
+:root body .site-shell .care-tier > .care-tier-tag { position: relative; top: auto; right: auto; align-self: flex-start; margin-bottom: -2px; }
+:root body .site-shell .care-tier .price-name { display: block; line-height: 1.3; }
+/* The floating Business card moves with translate only, so it never re-layers the text. */
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell .care-tier.fx-holo { animation: ld-care-float 5s ease-in-out 1.6s infinite; }
+}
+@keyframes ld-care-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+
 @media (max-width: 980px) {
   :root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 60px; padding-bottom: 60px; }
   :root body .site-shell :is(.feature-section, .about-grid, .contact-grid) { gap: 36px; }
