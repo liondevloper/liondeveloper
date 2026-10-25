@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
 import {
   annualSaving,
@@ -12,14 +12,9 @@ import {
   type Terms,
 } from '@/data/site';
 import { stagger } from '@/motion/effects';
-import { Deck } from '@/motion/showcase';
 import './pricing.css';
 
 type Choose = (name: string) => void;
-
-// Long enough to read a full feature list before the next package slides in.
-const PRICING_SWIPE_MS = 9000;
-const WIDE_SCREEN = '(min-width: 1000px)';
 
 // Every care tier gets its own 3D effect (see premium.css): orbit, hologram, embers.
 const TIER_FX = ['orbit', 'holo', 'ember'] as const;
@@ -32,19 +27,6 @@ const POLICY_TABS = [
   { id: 'hosting', label: 'Domain & hosting', icon: Server },
 ] as const;
 type PolicyTab = (typeof POLICY_TABS)[number]['id'];
-
-// Big screens show every package side by side for easy comparison; smaller screens keep the swipe deck.
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    const update = () => setMatches(media.matches);
-    update();
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, [query]);
-  return matches;
-}
 
 function PriceCard({ plan, onChoose }: { plan: Plan; onChoose: Choose }) {
   return (
@@ -219,7 +201,7 @@ function PolicyPanel({ pricing, terms }: { pricing: Plan[]; terms: Terms }) {
 type PricingSectionProps = { pricing: Plan[]; care: CarePlan; terms: Terms; whatsapp: string; onChoose: Choose };
 
 export default function PricingSection({ pricing, care, terms, whatsapp, onChoose }: PricingSectionProps) {
-  const wide = useMediaQuery(WIDE_SCREEN);
+  const rowRef = useRef<HTMLDivElement>(null);
   const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
   const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? '₹8,000';
   // Names the packages that carry the free domain offer, so the note never promises it on the Starter plan.
@@ -228,31 +210,31 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
     ? ` ${perkPlans.join(' and ')} include a FREE .in / .com domain & hosting for the first year; renewals from the second year are charged separately.`
     : '';
 
+  // On phones and tablets the row swipes sideways; start it centred on the most popular package.
+  useEffect(() => {
+    const row = rowRef.current;
+    const card = row?.children[popularPlan];
+    if (!row || !(card instanceof HTMLElement) || row.scrollWidth <= row.clientWidth) return;
+    row.scrollLeft = card.offsetLeft - (row.clientWidth - card.offsetWidth) / 2;
+  }, [popularPlan, pricing.length]);
+
   return (
     <section className="pricing-section section-pad" id="pricing">
       <div className="center-heading">
         <span className="section-kicker" data-reveal>Clear starting points</span>
         <h2 data-reveal="clip">Simple website<br /><em>pricing.</em></h2>
-        <p data-reveal style={stagger(2)}>Professional websites starting from {lowest}. {wide ? 'Compare the packages to find the right fit.' : 'Swipe through the packages to find the right fit.'}</p>
+        <p data-reveal style={stagger(2)}>Professional websites starting from {lowest}. Compare the packages to find the right fit.</p>
       </div>
-      {wide ? (
-        <div className="pricing-grid pricing-grid-wide" style={{ gridTemplateColumns: `repeat(${Math.min(Math.max(pricing.length, 1), 4)}, minmax(0, 1fr))` }}>
-          {pricing.map((plan, index) => <div key={index} data-reveal style={stagger(index)}><PriceCard plan={plan} onChoose={onChoose} /></div>)}
+      {/* All cards reveal together as one row, so none of them sit higher or lower than the others. */}
+      <div data-reveal>
+        <div
+          ref={rowRef}
+          className="pricing-row"
+          style={{ '--plans': Math.min(Math.max(pricing.length, 1), 4) } as CSSProperties}
+        >
+          {pricing.map((plan, index) => <PriceCard key={index} plan={plan} onChoose={onChoose} />)}
         </div>
-      ) : (
-        <div data-reveal="scale">
-          <Deck<Plan>
-            key={pricing.length}
-            items={pricing}
-            axis="x"
-            label="Pricing packages"
-            initial={popularPlan}
-            interval={PRICING_SWIPE_MS}
-            className="pricing-deck"
-            renderCard={(plan) => <PriceCard plan={plan} onChoose={onChoose} />}
-          />
-        </div>
-      )}
+      </div>
       <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.{perkNote}</p>
       {care.enabled && <CareBlock care={care} whatsapp={whatsapp} />}
       <PolicyPanel pricing={pricing} terms={terms} />

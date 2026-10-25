@@ -1,0 +1,107 @@
+/* Final fixes. Loaded last from main.tsx and every rule starts with ":root body .site-shell" (or html.*)
+   so it wins over every other stylesheet. */
+
+/* Opening the live preview hides the page scrollbar; reserving its space stops the whole page jumping. */
+html { scrollbar-gutter: stable; }
+
+/* =====================================================================
+   Pricing: one clean row of equal cards. Nothing moves up or down.
+   ===================================================================== */
+:root body .site-shell .pricing-row {
+  position: relative; display: grid; grid-template-columns: repeat(var(--plans, 4), minmax(0, 1fr));
+  gap: 14px; max-width: 1120px; margin: 0 auto; padding-top: 14px; align-items: stretch;
+}
+:root body .site-shell .pricing-row > .price-card {
+  display: flex; flex-direction: column; height: auto; min-height: 0; min-width: 0;
+  transform: none !important; translate: none; rotate: none; scale: none;
+}
+:root body .site-shell .pricing-row > .price-card:hover { transform: none !important; }
+:root body .site-shell .pricing-row .price-card > * { transform: none !important; }
+:root body .site-shell .pricing-row .price-card::after { display: none; }
+:root body .site-shell .pricing-row .price-card h3 { min-height: 64px; display: flex; flex-direction: column; justify-content: flex-end; }
+:root body .site-shell .pricing-row .price-card h3 small { display: block; }
+:root body .site-shell .pricing-row .price-card > p { min-height: 4.8em; }
+:root body .site-shell .pricing-row .price-button { margin-top: auto; justify-content: center; }
+:root body .site-shell .pricing-note { margin: 16px auto 0; text-align: center; }
+
+/* Tablet + phone: the same cards in a sideways swipe row, all the same height, nothing cut off. */
+@media (max-width: 999px) {
+  :root body .site-shell .pricing-row {
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(84%, 330px);
+    overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin: 0 -20px; padding: 14px 20px 10px; scroll-padding: 0 20px; scrollbar-width: none;
+  }
+  :root body .site-shell .pricing-row::-webkit-scrollbar { display: none; }
+  :root body .site-shell .pricing-row > .price-card { scroll-snap-align: center; }
+  :root body .site-shell .pricing-row .price-card > p { min-height: 0; }
+}
+
+/* =====================================================================
+   Live preview: no blinking, nothing cut off
+   ===================================================================== */
+/* Frosted blur over the live website and the animated background made it flicker: use a plain dim backdrop. */
+:root body .site-shell .template-modal-backdrop { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20,14,6,.78); }
+:root body .site-shell .popup-fx { display: none; }
+html.preview-open .scene-3d,
+html.preview-open .cursor-dot,
+html.preview-open .cursor-ring { visibility: hidden; }
+html.preview-open body .site-shell main * { animation-play-state: paused !important; }
+html.preview-open body .site-shell .template-modal,
+html.preview-open body .site-shell .template-modal * { animation-play-state: running !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-ready body .site-shell .template-modal { animation: ld-fix-in .28s ease-out both; }
+  html.motion-ready body .site-shell .is-closing .template-modal { animation: ld-fix-out .3s ease-in forwards; }
+}
+@keyframes ld-fix-in { from { opacity: 0; translate: 0 16px; } to { opacity: 1; translate: 0 0; } }
+@keyframes ld-fix-out { to { opacity: 0; translate: 0 16px; } }
+
+:root body .site-shell .template-frame-wrap { align-items: center; padding: 14px; }
+:root body .site-shell .template-frame { border-radius: 8px; isolation: isolate; }
+:root body .site-shell .template-frame.is-mobile { margin-top: 0; }
+:root body .site-shell .template-frame iframe { transition: opacity .35s ease; backface-visibility: hidden; }
+
+/* Template cards: show the whole screenshot, no zoom that crops the edges. */
+:root body .site-shell .template-grid { padding: 8px 4px 0; }
+:root body .site-shell .template-screen img,
+:root body .site-shell .template-card:hover .template-screen img { object-fit: contain; object-position: top center; scale: 1; transition: none; }
+
+/* =====================================================================
+   Less empty space everywhere
+   ===================================================================== */
+:root body .site-shell { padding-top: 92px; }
+:root body .site-shell .navbar { height: 92px; }
+:root body .site-shell .site-header.is-scrolled .navbar { height: 72px; }
+:root body .site-shell section[id] { scroll-margin-top: 70px; }
+:root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 60px; padding-bottom: 60px; }
+:root body .site-shell .hero { padding-top: 16px; padding-bottom: 40px; }
+:root body .site-shell .hero-visual { min-height: 420px; }
+:root body .site-shell :is(.section-heading, .center-heading) { margin-bottom: 28px; }
+:root body .site-shell .center-heading h2 { margin-bottom: 10px; }
+:root body .site-shell .feature-visual { padding: 20px 10px; }
+:root body .site-shell .process-deck.deck-x .deck-stage { height: 370px; }
+:root body .site-shell .care-block { margin-top: 24px; }
+:root body .site-shell .policy-panel { margin-top: 16px; }
+:root body .site-shell .marquee-outline { padding: 14px 0 0; }
+:root body .site-shell .footer { padding-top: 26px; padding-bottom: 20px; }
+:root body .site-shell .footer-top { padding-bottom: 18px; }
+
+@media (max-width: 980px) {
+  :root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 48px; padding-bottom: 48px; }
+  :root body .site-shell .hero-visual { margin-top: 0; }
+  :root body .site-shell :is(.feature-section, .about-grid, .contact-grid) { gap: 28px; }
+}
+@media (max-width: 680px) {
+  :root body .site-shell { padding-top: 80px; }
+  :root body .site-shell .navbar { height: 80px; }
+  :root body .site-shell .nav-links { top: 78px; }
+  :root body .site-shell .site-header.is-scrolled .navbar { height: 68px; }
+  :root body .site-shell .site-header.is-scrolled .nav-links { top: 66px; }
+  :root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 40px; padding-bottom: 40px; }
+  :root body .site-shell .hero { padding-top: 12px; padding-bottom: 32px; }
+  :root body .site-shell .hero-visual { min-height: 320px; }
+  :root body .site-shell :is(.section-heading, .center-heading) { margin-bottom: 22px; }
+  :root body .site-shell .process-deck.deck-x .deck-stage { height: 340px; }
+  :root body .site-shell .care-block { margin-top: 20px; }
+  :root body .site-shell .template-frame-wrap { padding: 8px; }
+}

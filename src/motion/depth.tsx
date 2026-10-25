@@ -3,9 +3,9 @@ import { MOTION_ENABLED } from './effects';
 
 // Extra cards that lean toward the mouse in 3D (value = max tilt angle in degrees).
 // Cards that already have data-tilt in App.tsx keep their own value.
+// Price cards are left out on purpose: tilting made the package cards jump up and down.
 const TILT_TARGETS: ReadonlyArray<readonly [string, number]> = [
   ['.stat', 16],
-  ['.price-card', 8],
   ['.process-card', 7],
   ['.care-price-option', 8],
   ['.care-tier', 9],
