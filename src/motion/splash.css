@@ -1,0 +1,119 @@
+/* =====================================================================
+   Premium 3D splash screen
+   A thick metallic lion medallion spins twice in 3D inside two gyroscope rings,
+   over a perspective floor grid that glides forward. Golden dust rises, the brand
+   name flips up letter by letter, and a progress bar + percent fills to 100%.
+   It ends with the medallion facing front, so the blinds intro (intro.css) picks
+   up seamlessly. Only transform and opacity are animated for smoothness.
+   Timings assume SPLASH_MS = 3600 in upgrades.tsx (exit fades start at 3.15s).
+   ===================================================================== */
+
+:root body .site-shell .splash3d {
+  position: fixed; inset: 0; z-index: 102; display: grid; place-items: center; overflow: hidden; pointer-events: none;
+  background: radial-gradient(ellipse 60% 55% at 50% 50%, #fff 0%, #fffaf1 42%, #f3e8d6 100%);
+  perspective: 1000px; color: #1c160e;
+}
+
+/* ---------- Floor grid gliding toward the viewer ---------- */
+:root body .site-shell .splash-floor {
+  position: absolute; left: -50%; right: -50%; bottom: -12%; height: 72%; overflow: hidden;
+  transform: rotateX(76deg); transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 8%, transparent 78%); mask-image: linear-gradient(to top, #000 8%, transparent 78%);
+}
+:root body .site-shell .splash-floor > i {
+  position: absolute; left: 0; right: 0; top: -60px; bottom: 0; display: block; will-change: transform;
+  background-image: linear-gradient(rgba(239,106,40,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(10,150,182,.16) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ---------- Soft glow + rising dust ---------- */
+:root body .site-shell .splash-glow { position: absolute; width: 70vmin; height: 70vmin; border-radius: 50%; will-change: transform, opacity; background: radial-gradient(circle, rgba(255,214,170,.85) 0%, rgba(239,106,40,.18) 40%, rgba(10,150,182,.06) 58%, transparent 70%); }
+:root body .site-shell .splash-dust { position: absolute; bottom: 18%; left: var(--x); display: block; width: var(--s); height: var(--s); border-radius: 50%; opacity: 0; will-change: transform, opacity; background: radial-gradient(circle, #fff 0%, #f2a24a 55%, transparent 72%); }
+:root body .site-shell .splash-dust:nth-of-type(3n) { background: radial-gradient(circle, #fff 0%, #36b6d3 55%, transparent 72%); }
+
+/* ---------- Medallion stage ---------- */
+:root body .site-shell .splash-scene { position: relative; z-index: 2; display: grid; justify-items: center; gap: 30px; }
+:root body .site-shell .splash-core { position: relative; display: grid; place-items: center; width: 240px; height: 240px; perspective: 800px; }
+:root body .site-shell .splash-core > * { grid-area: 1 / 1; }
+:root body .site-shell .splash-ring { display: block; width: 190px; height: 190px; border-radius: 50%; will-change: transform, opacity; border: 2px solid rgba(239,106,40,.2); border-top-color: #ef6a28; box-shadow: 0 0 18px rgba(239,106,40,.22); }
+:root body .site-shell .splash-ring-2 { width: 226px; height: 226px; border-color: rgba(10,150,182,.18); border-right-color: #0a96b6; box-shadow: 0 0 18px rgba(10,150,182,.2); }
+
+:root body .site-shell .splash-coin-wrap { transform-style: preserve-3d; will-change: transform, opacity; }
+:root body .site-shell .splash-coin { position: relative; width: 118px; height: 118px; transform-style: preserve-3d; will-change: transform; }
+:root body .site-shell .splash-layer {
+  position: absolute; inset: 0; display: block; border-radius: 50%;
+  transform: translateZ(calc(var(--z) * 1.3px));
+  background: linear-gradient(135deg, #f8b06a 0%, #ef6a28 45%, #a9401a 100%);
+}
+:root body .site-shell .splash-face {
+  position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; border-radius: 50%; backface-visibility: hidden;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fff6e8 45%, #f1dcc0 100%);
+  border: 3px solid #ef6a28; box-shadow: inset 0 0 0 4px rgba(255,255,255,.7), inset 0 -10px 22px rgba(169,64,26,.22);
+  transform: translateZ(7px);
+}
+:root body .site-shell .splash-face-back { transform: rotateY(180deg) translateZ(7px); }
+:root body .site-shell .splash-face img { position: relative; z-index: 1; width: 70px; height: auto; filter: drop-shadow(0 6px 10px rgba(169,64,26,.3)); }
+:root body .site-shell .splash-shine { position: absolute; inset: -20%; z-index: 2; display: block; will-change: transform; background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.9) 50%, transparent 62%); transform: translate3d(-120%, 0, 0); }
+:root body .site-shell .splash-shadow { position: absolute; z-index: -1; width: 120px; height: 22px; margin-top: 170px; border-radius: 50%; display: block; background: radial-gradient(ellipse, rgba(120,60,20,.28), transparent 70%); will-change: transform, opacity; }
+
+/* ---------- Brand, tagline, progress ---------- */
+:root body .site-shell .splash-meta { display: grid; justify-items: center; gap: 14px; will-change: opacity; }
+:root body .site-shell .splash-brand { display: flex; perspective: 420px; font-weight: 800; font-size: clamp(19px, 3.2vw, 28px); letter-spacing: .3em; padding-left: .3em; line-height: 1; }
+:root body .site-shell .splash-brand > span { display: inline-block; transform-origin: 50% 100%; will-change: transform, opacity; }
+:root body .site-shell .splash-brand .is-accent { color: #ef6a28; }
+:root body .site-shell .splash-brand .splash-gap { width: .45em; }
+:root body .site-shell .splash-tag { font: 500 10px 'DM Mono', monospace; letter-spacing: .42em; padding-left: .42em; color: #8a7a66; }
+:root body .site-shell .splash-progress { display: flex; align-items: center; gap: 12px; }
+:root body .site-shell .splash-bar { position: relative; display: block; width: 180px; height: 2px; overflow: hidden; border-radius: 2px; background: rgba(28,22,14,.1); }
+:root body .site-shell .splash-bar > i { position: absolute; inset: 0; display: block; transform: scaleX(0); transform-origin: left; will-change: transform; background: linear-gradient(90deg, #ef6a28, #f2a24a 50%, #0a96b6); }
+:root body .site-shell .splash-percent { min-width: 3.2em; font: 500 11px 'DM Mono', monospace; letter-spacing: .1em; color: #ef6a28; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell .splash-floor { animation: ld-sp-fade 1s ease .1s both, ld-sp-out .4s ease 3.15s forwards; }
+  :root body .site-shell .splash-floor > i { animation: ld-sp-floor 1.1s linear infinite; }
+  :root body .site-shell .splash-glow { animation: ld-sp-glow 3.2s cubic-bezier(.45, 0, .55, 1) both; }
+  :root body .site-shell .splash-dust { animation: ld-sp-dust var(--t) cubic-bezier(.25, .6, .4, 1) var(--d) infinite; }
+  :root body .site-shell .splash-ring { animation: ld-sp-ring-x 3.4s linear infinite, ld-sp-fade .8s ease .35s both; }
+  :root body .site-shell .splash-ring-2 { animation: ld-sp-ring-y 4.2s linear infinite, ld-sp-fade .8s ease .5s both; }
+  :root body .site-shell .splash-coin-wrap { animation: ld-sp-coin-in 1.1s cubic-bezier(.16, 1, .3, 1) both; }
+  :root body .site-shell .splash-coin { animation: ld-sp-spin 2.6s cubic-bezier(.65, 0, .35, 1) .85s both; }
+  :root body .site-shell .splash-shine { animation: ld-sp-shine 1.6s cubic-bezier(.45, 0, .55, 1) 1.6s infinite; }
+  :root body .site-shell .splash-shadow { animation: ld-sp-shadow 2.6s cubic-bezier(.65, 0, .35, 1) .85s both; }
+  :root body .site-shell .splash-brand > span { animation: ld-sp-letter .9s cubic-bezier(.16, 1, .3, 1) calc(.55s + var(--i) * 45ms) both; }
+  :root body .site-shell .splash-tag { animation: ld-sp-rise .8s cubic-bezier(.16, 1, .3, 1) 1.25s both; }
+  :root body .site-shell .splash-progress { animation: ld-sp-rise .8s cubic-bezier(.16, 1, .3, 1) .4s both; }
+  :root body .site-shell .splash-bar > i { animation: ld-sp-bar 2.9s cubic-bezier(.65, 0, .35, 1) .4s forwards; }
+  :root body .site-shell .splash-meta { animation: ld-sp-out .4s ease 3.15s forwards; }
+}
+
+@keyframes ld-sp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ld-sp-out { to { opacity: 0; } }
+@keyframes ld-sp-floor { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 60px, 0); } }
+@keyframes ld-sp-glow { 0% { transform: scale(.4); opacity: 0; } 30% { transform: scale(1); opacity: 1; } 70% { transform: scale(.88); opacity: .85; } 100% { transform: scale(1.05); opacity: .9; } }
+@keyframes ld-sp-dust { 0% { transform: translate3d(0, 0, 0) scale(.6); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate3d(0, -46vh, 0) scale(1.1); opacity: 0; } }
+@keyframes ld-sp-ring-x { from { transform: rotateX(72deg) rotateZ(0deg); } to { transform: rotateX(72deg) rotateZ(360deg); } }
+@keyframes ld-sp-ring-y { from { transform: rotateY(68deg) rotateZ(0deg); } to { transform: rotateY(68deg) rotateZ(-360deg); } }
+@keyframes ld-sp-coin-in { from { transform: translate3d(0, 40px, -400px) rotateX(40deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ld-sp-spin {
+  0% { transform: rotateX(18deg) rotateY(0deg); }
+  85% { transform: rotateX(10deg) rotateY(720deg); }
+  100% { transform: rotateX(0deg) rotateY(720deg); }
+}
+@keyframes ld-sp-shine { 0% { transform: translate3d(-120%, 0, 0); } 60%, 100% { transform: translate3d(120%, 0, 0); } }
+@keyframes ld-sp-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 25%, 75% { transform: scaleX(.35); opacity: .6; } 50% { transform: scaleX(1); opacity: 1; } }
+@keyframes ld-sp-letter { from { transform: translate3d(0, .5em, 0) rotateX(-95deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ld-sp-rise { from { transform: translate3d(0, 12px, 0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ld-sp-bar { to { transform: scaleX(1); } }
+
+@media (max-width: 680px) {
+  :root body .site-shell .splash-core { width: 210px; height: 210px; }
+  :root body .site-shell .splash-ring { width: 168px; height: 168px; }
+  :root body .site-shell .splash-ring-2 { width: 198px; height: 198px; }
+  :root body .site-shell .splash-coin { width: 104px; height: 104px; }
+  :root body .site-shell .splash-face img { width: 62px; }
+  :root body .site-shell .splash-shadow { margin-top: 150px; }
+  :root body .site-shell .splash-brand { letter-spacing: .22em; padding-left: .22em; }
+  :root body .site-shell .splash-tag { letter-spacing: .3em; padding-left: .3em; font-size: 9px; }
+  :root body .site-shell .splash-bar { width: 150px; }
+}
