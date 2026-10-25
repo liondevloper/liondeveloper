@@ -11,6 +11,7 @@ import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } f
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
 import { AUTO_SWIPE_MS, DotPreloader, DotsMenuButton, FloatingWhatsApp, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
 import { ScrollBallet, useScrollScenes } from '@/motion/scenes';
+import FancySelect, { toOption } from '@/motion/FancySelect';
 import PricingSection from '@/pricing/PricingSection';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
@@ -143,6 +144,8 @@ function App() {
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState(false);
   const [chosenPackage, setChosenPackage] = useState('');
+  const [websiteType, setWebsiteType] = useState('');
+  const [budget, setBudget] = useState('');
   useMotionEffects();
   useTiltEffect();
   useAnchorScroll();
@@ -150,7 +153,7 @@ function App() {
   const scrolled = useScrolled();
 
   // Only website packages; care plans are confirmed separately on WhatsApp.
-  const packageOptions = pricing.map((plan) => plan.name).filter(Boolean);
+  const packageOptions = [{ value: '', label: 'Not decided yet' }, ...pricing.map((plan) => plan.name).filter(Boolean).map(toOption)];
   // A package picked from the pricing section prefills the form, which then confirms it by email/WhatsApp.
   const choosePackage = (name: string) => {
     setChosenPackage(name);
@@ -175,6 +178,8 @@ function App() {
     }
     form.reset();
     setChosenPackage('');
+    setWebsiteType('');
+    setBudget('');
     setSentEnquiry(data);
     setSubmitted(true);
   };
@@ -298,7 +303,7 @@ function App() {
 
         <section className="faq-section section-pad section-dark"><div className="section-heading"><div><span className="section-kicker" data-reveal>Need to know</span><h2 data-reveal="clip">Frequently<br /><em>asked.</em></h2></div><p data-reveal style={stagger(2)}>Still curious? Here are answers to a few of the questions clients ask most often.</p></div><div className="faq-list">{faqs.map((faq, index) => <div className={`faq-item ${openFaq === index ? 'open' : ''}`} key={index} data-reveal style={stagger(index)}><button onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{String(index + 1).padStart(2, '0')}</span><b>{faq.question}</b>{openFaq === index ? <ChevronUp size={19} /> : <ChevronDown size={19} />}</button>{openFaq === index && <p>{faq.answer}</p>}</div>)}</div></section>
 
-        <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy" data-reveal="left"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and your website can be ready in 1–3 days, depending on the website. I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={phoneHref}><Phone size={19} />{contact.whatsapp || 'Call me'}</a></div></div><div className="form-card" data-reveal="right">{submitted ? <div className="success-message"><div><Check size={30} /></div><h3>Request received.</h3><p>Thanks for reaching out. I’ll confirm the plan, pricing and payment details with you before anything starts.</p>{followUpHref && <a className="button button-gold success-whatsapp" href={followUpHref} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Continue on WhatsApp</a>}<button className="button button-outline" onClick={() => setSubmitted(false)}>Send another request</button></div> : <form onSubmit={handleSubmit}><div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder="+91 00000 00000" /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Package<select name="package" value={chosenPackage} onChange={(event) => setChosenPackage(event.target.value)}><option value="">Not decided yet</option>{packageOptions.map((name) => <option key={name}>{name}</option>)}</select></label><label>Website type<select name="website_type" defaultValue=""><option value="" disabled>Select a website type</option>{WEBSITE_TYPES.map((type) => <option key={type}>{type}</option>)}</select></label><label>Budget<select name="budget" defaultValue=""><option value="" disabled>Choose your budget</option>{budgets.map((budget) => <option key={budget}>{budget}</option>)}</select></label><label>Project details<textarea required name="details" placeholder="Tell me a little about what you want to build..." rows={4} /></label><button className="button button-gold form-submit" type="submit" disabled={sending}>{sending ? 'Sending...' : <>Send project request <Send size={17} /></>}</button>{sendError && <p className="form-error">Couldn’t send that. Try again, or email {contact.email} directly.</p>}</form>}</div></div></section>
+        <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy" data-reveal="left"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and your website can be ready in 1–3 days, depending on the website. I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={phoneHref}><Phone size={19} />{contact.whatsapp || 'Call me'}</a></div></div><div className="form-card" data-reveal="right">{submitted ? <div className="success-message"><div><Check size={30} /></div><h3>Request received.</h3><p>Thanks for reaching out. I’ll confirm the plan, pricing and payment details with you before anything starts.</p>{followUpHref && <a className="button button-gold success-whatsapp" href={followUpHref} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Continue on WhatsApp</a>}<button className="button button-outline" onClick={() => setSubmitted(false)}>Send another request</button></div> : <form onSubmit={handleSubmit}><div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder="+91 00000 00000" /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Package<FancySelect name="package" value={chosenPackage} options={packageOptions} placeholder="Not decided yet" onChange={setChosenPackage} /></label><label>Website type<FancySelect name="website_type" value={websiteType} options={WEBSITE_TYPES.map(toOption)} placeholder="Select a website type" onChange={setWebsiteType} /></label><label>Budget<FancySelect name="budget" value={budget} options={budgets.map(toOption)} placeholder="Choose your budget" onChange={setBudget} /></label><label>Project details<textarea required name="details" placeholder="Tell me a little about what you want to build..." rows={4} /></label><button className="button button-gold form-submit" type="submit" disabled={sending}>{sending ? 'Sending...' : <>Send project request <Send size={17} /></>}</button>{sendError && <p className="form-error">Couldn’t send that. Try again, or email {contact.email} directly.</p>}</form>}</div></div></section>
 
         <Marquee items={OUTRO_WORDS} />
       </main>
