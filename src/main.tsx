@@ -7,6 +7,8 @@ import { ADMIN_PATH } from './admin/route.ts';
 import './index.css';
 // Imported after index.css so the theme stylesheet it carries wins over the older styles.
 import { WithScene } from './motion/scene.tsx';
+// Loaded last so its smoother easing and lighter effects apply on top of every other stylesheet.
+import './motion/smooth.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
