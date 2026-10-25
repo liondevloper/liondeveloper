@@ -1,0 +1,36 @@
+/* Smoothness pass for every animation on the site.
+   Loaded last. Softer easing everywhere, and effects that force the browser to repaint each frame
+   (animated blur, background-position, box-shadow, backdrop blur on moving cards) are removed or
+   swapped for transform/opacity versions that run on the GPU. */
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* One soft "expo-out" curve for reveals and hovers, so things glide in and settle instead of snapping. */
+html.motion-ready body [data-reveal] { transition-timing-function: cubic-bezier(.16, 1, .3, 1); }
+html.motion-ready body .button,
+html.motion-ready body .button svg,
+html.motion-ready body .why-card,
+html.motion-ready body .price-card,
+html.motion-ready body .tech-cloud span { transition-timing-function: cubic-bezier(.16, 1, .3, 1); }
+
+/* Long-running loops get their own GPU layer so they never stutter while scrolling. */
+html.motion-ready body .marquee-track { will-change: transform; }
+html.motion-ready body .orbit,
+html.motion-ready body .float-card-one,
+html.motion-ready body .float-card-two,
+html.motion-ready body .feature-tag { will-change: translate, rotate; }
+
+/* The moving background grid repainted the whole hero every frame; it now stays still. */
+html.motion-ready body .hero-grid { animation: none; }
+
+/* Splash countdown and logo: same motion, no animated blur. */
+@keyframes ld-count { 0% { opacity: 0; scale: 1.5; } 30% { opacity: 1; scale: 1; } 72% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: .7; } }
+@keyframes ld-logo-in { from { opacity: 0; scale: .75; } to { opacity: 1; scale: 1; } }
+
+/* Phones: drop the heaviest effects (glow pulses and frosted glass on moving cards). */
+@media (max-width: 680px) {
+  html.motion-ready body .site-shell .price-card.popular,
+  html.motion-ready body .site-shell .care-tier.fx-ember { animation: none; }
+  html.motion-ready body .site-shell .float-card { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  html.motion-ready body .site-shell .preloader-orb { filter: blur(50px); }
+}
