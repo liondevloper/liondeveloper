@@ -9,6 +9,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Eye, Monitor, Smartphone, X } from 'lucide-react';
 import type { Template } from '@/data/site';
 import { MOTION_ENABLED, stagger } from './effects';
@@ -285,6 +286,7 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, persiste
 
 /* ----------------------------------------------------------- templates */
 
+// Cards stay flat (no 3D tilt or flip-in): tilting pushed them past the section edge and cut their sides.
 function TemplateCard({ template, index, onOpen }: { template: Template; index: number; onOpen: () => void }) {
   // An uploaded cover wins; without one the card captures the live homepage on its own.
   const shot = useSiteShot(template.image ? undefined : template.url);
@@ -292,8 +294,8 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
   const tags = template.tags ?? [];
 
   return (
-    <article className="template-card" data-reveal="scale" data-tilt="9" style={stagger(index)}>
-      <div className="template-float" style={{ '--float-delay': `${index * -1.6}s` } as CSSProperties}>
+    <article className="template-card" data-reveal style={stagger(index)}>
+      <div className="template-float">
         <div className="template-frame-outer">
           <div className="template-ring" aria-hidden="true" />
           <div className="template-browser">
@@ -311,7 +313,6 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
                   <small>Loading preview</small>
                 </div>
               )}
-              <div className="template-glare" aria-hidden="true" />
               <div className="template-overlay">
                 <button type="button" className="button button-gold button-small" onClick={onOpen}>
                   <Eye size={15} /> Live preview
@@ -432,7 +433,7 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
     };
   }, []);
 
-  return (
+  const popup = (
     <div className={`modal-backdrop template-modal-backdrop ${closing ? 'is-closing' : ''}`} onClick={requestClose}>
       <div className="template-modal" role="dialog" aria-modal="true" aria-label={`${template.title} live preview`} onClick={(event) => event.stopPropagation()}>
         <div className="template-modal-bar">
@@ -474,6 +475,11 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
       </div>
     </div>
   );
+
+  // Rendered straight into the page shell, outside <main>, so no section animation, transform or
+  // overflow can hide or clip the popup.
+  const host = document.querySelector('.site-shell') ?? document.body;
+  return createPortal(popup, host);
 }
 
 export function TemplateShowcase({ templates }: { templates: Template[] }) {

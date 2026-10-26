@@ -37,22 +37,30 @@ html { scrollbar-gutter: stable; }
 }
 
 /* =====================================================================
-   Live preview: no blinking, nothing cut off
+   Live preview popup
+   The popup is rendered straight into .site-shell (outside <main>), so nothing on the page can hide,
+   pause or clip it. It sits above the header, the splash screen and the WhatsApp button.
    ===================================================================== */
-/* Frosted blur over the live website and the animated background made it flicker: use a plain dim backdrop. */
-:root body .site-shell .template-modal-backdrop { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20,14,6,.78); }
+:root body .site-shell .template-modal-backdrop {
+  position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
+  padding: 24px; opacity: 1; visibility: visible;
+  -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20,14,6,.78);
+}
 :root body .site-shell .popup-fx { display: none; }
+/* The animated 3D background and cursor behind the popup made it blink, so they rest while it is open. */
 html.preview-open .scene-3d,
 html.preview-open .cursor-dot,
 html.preview-open .cursor-ring { visibility: hidden; }
 html.preview-open body .site-shell main * { animation-play-state: paused !important; }
-html.preview-open body .site-shell .template-modal,
-html.preview-open body .site-shell .template-modal * { animation-play-state: running !important; }
 
 @media (prefers-reduced-motion: no-preference) {
+  html.motion-ready body .site-shell .template-modal-backdrop { animation: ld-fix-fade .25s ease-out both; }
   html.motion-ready body .site-shell .template-modal { animation: ld-fix-in .28s ease-out both; }
+  html.motion-ready body .site-shell .template-modal-backdrop.is-closing { animation: ld-fix-fade-out .3s ease-in forwards; }
   html.motion-ready body .site-shell .is-closing .template-modal { animation: ld-fix-out .3s ease-in forwards; }
 }
+@keyframes ld-fix-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ld-fix-fade-out { to { opacity: 0; } }
 @keyframes ld-fix-in { from { opacity: 0; translate: 0 16px; } to { opacity: 1; translate: 0 0; } }
 @keyframes ld-fix-out { to { opacity: 0; translate: 0 16px; } }
 
@@ -61,10 +69,23 @@ html.preview-open body .site-shell .template-modal * { animation-play-state: run
 :root body .site-shell .template-frame.is-mobile { margin-top: 0; }
 :root body .site-shell .template-frame iframe { transition: opacity .35s ease; backface-visibility: hidden; }
 
-/* Template cards: show the whole screenshot, no zoom that crops the edges. */
-:root body .site-shell .template-grid { padding: 8px 4px 0; }
+/* =====================================================================
+   Template cards: fully visible, never cut on the left or right
+   The 3D flip-in, mouse tilt, zoom and floating made the cards poke out of the section, which then
+   clipped their sides. The cards now stay flat and still; the colour blobs are clipped on their own.
+   ===================================================================== */
+:root body .site-shell .templates-section { overflow: visible; }
+:root body .site-shell .templates-aurora { overflow: hidden; }
+:root body .site-shell .template-grid { perspective: none; padding: 6px 0 0; gap: 22px; }
+:root body .site-shell .template-card,
+html.motion-ready body .site-shell .template-card[data-reveal],
+html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rotate: none; scale: none; transform: none !important; min-width: 0; width: 100%; }
+:root body .site-shell .template-card::after { display: none; }
+:root body .site-shell .template-float { animation: none !important; translate: none; }
+:root body .site-shell .template-frame-outer { width: 100%; box-sizing: border-box; }
+:root body .site-shell .template-screen { width: 100%; }
 :root body .site-shell .template-screen img,
-:root body .site-shell .template-card:hover .template-screen img { object-fit: contain; object-position: top center; scale: 1; transition: none; }
+:root body .site-shell .template-card:hover .template-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; scale: 1; transition: none; }
 
 /* =====================================================================
    Less empty space everywhere
@@ -103,5 +124,6 @@ html.preview-open body .site-shell .template-modal * { animation-play-state: run
   :root body .site-shell :is(.section-heading, .center-heading) { margin-bottom: 22px; }
   :root body .site-shell .process-deck.deck-x .deck-stage { height: 340px; }
   :root body .site-shell .care-block { margin-top: 20px; }
+  :root body .site-shell .template-modal-backdrop { padding: 10px; }
   :root body .site-shell .template-frame-wrap { padding: 8px; }
 }
