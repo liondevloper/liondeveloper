@@ -5,7 +5,7 @@
    2. Round menu dots, and one consistent corner radius for cards, inputs, buttons and chips.
    3. Off-screen sections pause their animations (data-offscreen is set in scenes.tsx).
    4. Soft section entrance: each section gently scales and fades up as it scrolls in.
-   5. Outro ticker: smaller, solid text that alternates bold sans and italic gradient serif
+   5. Outro ticker: smaller, solid text; the middle phrase is an italic gradient serif
       (Instrument Serif is loaded from index.html).
    The 3D blinds intro after the splash (intro.css) and its hero timing are left as they were.
    ===================================================================== */
@@ -58,8 +58,9 @@ html:root body .site-shell main > section[data-offscreen] *::after { animation-p
 }
 
 /* ---------- 5. Outro ticker under the contact form ---------- */
-/* Was huge, faint outlined capitals. Now smaller, solid and readable: words alternate between
-   bold dark sans and an italic serif with the brand gradient, split by a small gradient diamond. */
+/* Was huge, faint outlined capitals. Now smaller, solid and readable: bold dark sans words with
+   the middle phrase ("Something great") in an italic gradient serif, split by small gradient diamonds.
+   The list of 3 phrases is doubled for the loop, so 3n+2 styles the same phrase in both halves (no seam). */
 :root body .site-shell .marquee-outline { background: #ffffff; padding: 22px 0 14px; }
 :root body .site-shell .marquee-outline .marquee-track { animation-duration: 26s; }
 :root body .site-shell .marquee-outline .marquee-item {
@@ -73,8 +74,9 @@ html:root body .site-shell main > section[data-offscreen] *::after { animation-p
   color: #17140f;
   -webkit-text-stroke: 0;
   -webkit-text-fill-color: currentColor;
+  transition: color .3s ease;
 }
-:root body .site-shell .marquee-outline .marquee-item:nth-child(even) {
+:root body .site-shell .marquee-outline .marquee-item:nth-child(3n + 2) {
   font-family: 'Instrument Serif', Georgia, serif;
   font-style: italic;
   font-weight: 400;
@@ -87,7 +89,7 @@ html:root body .site-shell main > section[data-offscreen] *::after { animation-p
   color: transparent;
   padding: 0 .06em;
 }
-:root body .site-shell .marquee-outline .marquee-item:nth-child(odd):hover { -webkit-text-fill-color: #ef6a28; color: #ef6a28; }
+:root body .site-shell .marquee-outline .marquee-item:not(:nth-child(3n + 2)):hover { color: #ef6a28; -webkit-text-fill-color: #ef6a28; }
 :root body .site-shell .marquee-outline .marquee-item i {
   width: .28em; height: .28em; margin: 0 .7em; border-radius: 3px; rotate: 45deg; flex-shrink: 0;
   background: linear-gradient(135deg, #ef6a28, #0a96b6);
@@ -95,6 +97,6 @@ html:root body .site-shell main > section[data-offscreen] *::after { animation-p
 @media (max-width: 680px) {
   :root body .site-shell .marquee-outline { padding: 16px 0 10px; }
   :root body .site-shell .marquee-outline .marquee-item { font-size: 24px; }
-  :root body .site-shell .marquee-outline .marquee-item:nth-child(even) { font-size: 28px; }
+  :root body .site-shell .marquee-outline .marquee-item:nth-child(3n + 2) { font-size: 28px; }
   :root body .site-shell .marquee-outline .marquee-item i { margin: 0 .55em; }
 }
