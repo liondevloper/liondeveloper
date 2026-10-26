@@ -10,11 +10,13 @@ import {
   type RefObject,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Eye, Monitor, Smartphone, X } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Eye, Maximize2, Minimize2, Monitor, Smartphone, X } from 'lucide-react';
 import type { Template } from '@/data/site';
+import { invitationTemplates, TEMPLATE_CATEGORIES, type TemplateCategory } from '@/data/invitations';
 import { MOTION_ENABLED, stagger } from './effects';
 import './showcase.css';
 import './popup.css';
+import './categories.css';
 
 /* ---------------------------------------------------------- screenshots */
 
@@ -54,7 +56,7 @@ export function useSiteShot(url: string | undefined) {
 
 const hostOf = (url: string) => {
   try {
-    return new URL(url).host;
+    return new URL(url, window.location.origin).host;
   } catch {
     return url;
   }
@@ -288,6 +290,8 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, persiste
 
 /* ----------------------------------------------------------- templates */
 
+const isInvitation = (template: Template) => template.category === 'Invitation Cards';
+
 // Cards stay flat (no 3D tilt or flip-in): tilting pushed them past the section edge and cut their sides.
 function TemplateCard({ template, index, onOpen }: { template: Template; index: number; onOpen: () => void }) {
   // An uploaded cover wins; without one the card captures the live homepage on its own.
@@ -296,7 +300,7 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
   const tags = template.tags ?? [];
 
   return (
-    <article className="template-card" data-reveal style={stagger(index)}>
+    <article className={`template-card ${isInvitation(template) ? 'is-invitation' : ''}`} data-reveal style={stagger(index)}>
       <div className="template-float">
         <div className="template-frame-outer">
           <div className="template-ring" aria-hidden="true" />
@@ -308,7 +312,7 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
             </div>
             <div className="template-screen">
               {image ? (
-                <img src={image} alt={`${template.title} homepage`} loading="lazy" draggable={false} />
+                <img src={image} alt={`${template.title} preview`} loading="lazy" draggable={false} />
               ) : (
                 <div className="template-placeholder">
                   <span>{template.title}</span>
@@ -321,7 +325,7 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
                 </button>
                 {template.url && (
                   <a className="button button-outline button-small" href={template.url} target="_blank" rel="noreferrer">
-                    Open site <ArrowUpRight size={14} />
+                    {isInvitation(template) ? 'Open card' : 'Open site'} <ArrowUpRight size={14} />
                   </a>
                 )}
               </div>
@@ -377,7 +381,9 @@ function useBoxSize(ref: RefObject<HTMLElement | null>) {
 }
 
 // Both views fit fully inside the preview area, so no side of the website is ever cut off.
-function fitFrame(device: Device, box: { width: number; height: number }) {
+// In full screen the page renders at the real screen size (scale 1), edge to edge.
+function fitFrame(device: Device, box: { width: number; height: number }, fullscreen: boolean) {
+  if (fullscreen) return { scale: 1, width: box.width, height: box.height };
   const view = VIEWPORTS[device];
   if (device === 'desktop') {
     const scale = Math.min(1, box.width / view.width);
@@ -389,12 +395,14 @@ function fitFrame(device: Device, box: { width: number; height: number }) {
 }
 
 function TemplatePreview({ template, onClose }: { template: Template; onClose: () => void }) {
-  const [device, setDevice] = useState<Device>('desktop');
+  // Invitation cards are made for phones, so they open in the phone view first.
+  const [device, setDevice] = useState<Device>(isInvitation(template) ? 'mobile' : 'desktop');
+  const [fullscreen, setFullscreen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [closing, setClosing] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const box = useBoxSize(wrapRef);
-  const frame = fitFrame(device, box);
+  const frame = fitFrame(device, box, fullscreen);
   const ready = box.width > 0 && frame.scale > 0;
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -402,11 +410,23 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
   // Plays the drop-away before the popup unmounts.
   const requestClose = () => {
     if (closing) return;
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
     if (!MOTION_ENABLED) {
       onClose();
       return;
     }
     setClosing(true);
+  };
+
+  // Fills the popup to the whole window and, where the browser allows it, the whole screen too.
+  const toggleFullscreen = () => {
+    const next = !fullscreen;
+    setFullscreen(next);
+    if (next && document.fullscreenEnabled && !document.fullscreenElement) {
+      void document.documentElement.requestFullscreen?.().catch(() => {});
+    } else if (!next && document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => {});
+    }
   };
 
   useEffect(() => {
@@ -415,12 +435,21 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
     return () => window.clearTimeout(timer);
   }, [closing]);
 
+  // Leaving browser full screen with Esc also leaves the full screen layout.
+  useEffect(() => {
+    const onChange = () => {
+      if (!document.fullscreenElement) setFullscreen(false);
+    };
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
   const requestCloseRef = useRef(requestClose);
   requestCloseRef.current = requestClose;
 
   useEffect(() => {
     const onKey = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') requestCloseRef.current();
+      if (event.key === 'Escape' && !document.fullscreenElement) requestCloseRef.current();
     };
     const root = document.documentElement;
     const previous = document.body.style.overflow;
@@ -437,37 +466,52 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
 
   const popup = (
     <div className={`modal-backdrop template-modal-backdrop ${closing ? 'is-closing' : ''}`} onClick={requestClose}>
-      <div className="template-modal" role="dialog" aria-modal="true" aria-label={`${template.title} live preview`} onClick={(event) => event.stopPropagation()}>
+      <div
+        className={`template-modal ${fullscreen ? 'is-fullscreen' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${template.title} live preview`}
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="template-modal-bar">
           <div className="template-modal-title">
             <span className="section-kicker">{template.category}</span>
             <b>{template.title}</b>
           </div>
-          <div className="template-devices">
-            <button type="button" className={device === 'desktop' ? 'is-active' : ''} onClick={() => setDevice('desktop')} aria-label="Desktop view">
-              <Monitor size={15} />
+          {!fullscreen && (
+            <div className="template-devices">
+              <button type="button" className={device === 'desktop' ? 'is-active' : ''} onClick={() => setDevice('desktop')} aria-label="Desktop view">
+                <Monitor size={15} />
+              </button>
+              <button type="button" className={device === 'mobile' ? 'is-active' : ''} onClick={() => setDevice('mobile')} aria-label="Mobile view">
+                <Smartphone size={15} />
+              </button>
+            </div>
+          )}
+          <div className="template-modal-tools">
+            <button type="button" className="template-fullscreen" onClick={toggleFullscreen} aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}>
+              {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
             </button>
-            <button type="button" className={device === 'mobile' ? 'is-active' : ''} onClick={() => setDevice('mobile')} aria-label="Mobile view">
-              <Smartphone size={15} />
+            <a className="button button-small button-gold" href={template.url} target="_blank" rel="noreferrer">
+              {isInvitation(template) ? 'Open card' : 'Open site'} <ArrowUpRight size={14} />
+            </a>
+            <button type="button" className="template-close" onClick={requestClose} aria-label="Close preview">
+              <X size={18} />
             </button>
           </div>
-          <a className="button button-small button-gold" href={template.url} target="_blank" rel="noreferrer">
-            Open site <ArrowUpRight size={14} />
-          </a>
-          <button type="button" className="template-close" onClick={requestClose} aria-label="Close preview">
-            <X size={18} />
-          </button>
         </div>
         <div className="template-frame-wrap" ref={wrapRef}>
           {ready && (
             <div
-              className={`template-frame is-${device}`}
+              className={`template-frame is-${fullscreen ? 'desktop' : device}`}
               style={{ width: Math.floor(frame.width * frame.scale), height: Math.floor(frame.height * frame.scale) }}
             >
               {!loaded && <div className="template-frame-loading">Loading live preview</div>}
               <iframe
                 src={template.url}
                 title={`${template.title} live preview`}
+                allow="fullscreen"
+                allowFullScreen
                 onLoad={() => setLoaded(true)}
                 style={{ width: frame.width, height: frame.height, transform: `scale(${frame.scale})`, opacity: loaded ? 1 : 0 }}
               />
@@ -484,15 +528,43 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
   return createPortal(popup, host);
 }
 
+// Website templates come from the admin content; invitation cards are built into the site.
+// Category tabs switch between them, and both open in the same live preview popup.
 export function TemplateShowcase({ templates }: { templates: Template[] }) {
+  const [category, setCategory] = useState<TemplateCategory>('Websites');
   const [open, setOpen] = useState<number | null>(null);
-  const active = open === null ? null : templates[open] ?? null;
+  const lists: Record<TemplateCategory, Template[]> = {
+    Websites: templates.filter((template) => !isInvitation(template)),
+    'Invitation Cards': [...templates.filter(isInvitation), ...invitationTemplates],
+  };
+  const visible = lists[category];
+  const active = open === null ? null : visible[open] ?? null;
+
+  const choose = (next: TemplateCategory) => {
+    setCategory(next);
+    setOpen(null);
+  };
 
   return (
     <>
-      <div className="template-grid">
-        {templates.map((template, index) => (
-          <TemplateCard key={index} template={template} index={index} onOpen={() => setOpen(index)} />
+      <div className="template-tabs" role="tablist" aria-label="Template categories">
+        {TEMPLATE_CATEGORIES.map((name) => (
+          <button
+            key={name}
+            type="button"
+            role="tab"
+            aria-selected={category === name}
+            className={`button button-small ${category === name ? 'button-gold' : 'button-outline'}`}
+            onClick={() => choose(name)}
+          >
+            {name}
+            <span>{lists[name].length}</span>
+          </button>
+        ))}
+      </div>
+      <div className="template-grid" key={category}>
+        {visible.map((template, index) => (
+          <TemplateCard key={`${category}-${index}`} template={template} index={index} onOpen={() => setOpen(index)} />
         ))}
       </div>
       {active && <TemplatePreview template={active} onClose={() => setOpen(null)} />}
