@@ -18,10 +18,9 @@ export const AUTO_SWIPE_MS = 3000;
 const SPLASH_MS = 3600;
 const PROGRESS_START = 400;
 const PROGRESS_MS = 2900;
-// The 3D blinds intro (intro.css): logo spins + sparks, a light beam sweeps, panels turn open (~2.2s).
+// The 3D blinds intro (intro.css): a light beam sweeps and the panels turn open (~2.2s).
 const DONE_AT = SPLASH_MS + 2300;
 
-const SPARKS = 16;
 const DUST = 18;
 const COIN_LAYERS = 9;
 const BRAND = 'LION DEVELOPER';
@@ -33,7 +32,7 @@ const SLAT_STEP = 0.075;
 type PreloaderPhase = 'splash' | 'leave' | 'done';
 type VarStyle = CSSProperties & Record<`--${string}`, string>;
 
-// Repeatable pseudo-random numbers so the sparks and dust always look the same.
+// Repeatable pseudo-random numbers so the dust always looks the same.
 const rand = (index: number, seed: number) => {
   const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
   return x - Math.floor(x);
@@ -43,12 +42,6 @@ const slatStyle = (index: number, count: number): VarStyle => ({
   '--n': String(count),
   '--bx': `${count > 1 ? (index / (count - 1)) * 100 : 0}%`,
   '--d': `${(SLAT_START + index * SLAT_STEP).toFixed(3)}s`,
-});
-
-const sparkStyle = (index: number): VarStyle => ({
-  '--a': `${((360 / SPARKS) * index + rand(index, 1) * 14).toFixed(1)}deg`,
-  '--r': `${(22 + rand(index, 2) * 26).toFixed(1)}vmin`,
-  '--d': `${(0.42 + rand(index, 3) * 0.12).toFixed(2)}s`,
 });
 
 const dustStyle = (index: number): VarStyle => ({
@@ -126,9 +119,9 @@ function Splash3D({ logo }: { logo: string }) {
   );
 }
 
-// After the splash: the lion spins inside two 3D gyroscope rings and bursts into sparks,
-// a beam of light sweeps across, and the screen turns open in tall 3D panels to reveal the site.
-function BlindsIntro({ logo }: { logo: string }) {
+// After the splash a beam of light sweeps across and the screen turns open in tall 3D panels.
+// No second logo here: the splash already shows it, so the site opens straight after.
+function BlindsIntro() {
   const [slats] = useState(() => (window.innerWidth < 680 ? 6 : 10));
   return (
     <div className="intro-blinds" aria-hidden="true">
@@ -141,13 +134,6 @@ function BlindsIntro({ logo }: { logo: string }) {
         ))}
       </div>
       <span className="intro-beam" />
-      <div className="intro-stage">
-        <span className="intro-halo" />
-        <span className="intro-orbit" />
-        <span className="intro-orbit intro-orbit-2" />
-        {Array.from({ length: SPARKS }, (_, index) => <i className="intro-spark" key={index} style={sparkStyle(index)} />)}
-        <img className="intro-mark" src={logo} alt="" width={454} height={480} />
-      </div>
     </div>
   );
 }
@@ -172,7 +158,7 @@ export function DotPreloader({ logo }: { logo: string }) {
   }, []);
 
   if (phase === 'done') return null;
-  if (phase === 'leave') return <BlindsIntro logo={logo} />;
+  if (phase === 'leave') return <BlindsIntro />;
   return <Splash3D logo={logo} />;
 }
 
@@ -202,8 +188,8 @@ export function useScrolled(threshold = 24) {
   return scrolled;
 }
 
-// Header height once it has shrunk into its scrolled state (see .is-scrolled .navbar in upgrades.css).
-const scrolledHeaderHeight = () => (window.matchMedia('(max-width: 680px)').matches ? 74 : 82);
+// Header height once it has shrunk into its scrolled state (see .is-scrolled .navbar in fixes.css).
+const scrolledHeaderHeight = () => (window.matchMedia('(max-width: 680px)').matches ? 68 : 72);
 
 // Every in-page link (#contact, #services...) lands with the section top just below the pinned header.
 // The browser's own jump ignores the fixed header and lands mid-section, so the scroll is done here.
