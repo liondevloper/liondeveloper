@@ -20,8 +20,10 @@ import './popup.css';
 
 // mShots (WordPress) renders the homepage of any public URL. The first request starts the capture and
 // returns a blank frame, so a couple of retries are what actually land the finished screenshot.
+// vpw/vph set the browser size used for the capture. It has the same shape as the output image (1200x945),
+// so the page is only scaled down, never cropped on the left or right.
 const shotUrl = (url: string, attempt: number) =>
-  `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1200&h=945&retry=${attempt}`;
+  `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1200&h=945&vpw=1440&vph=1134&retry=${attempt}`;
 
 // Loads the screenshot off-screen and only swaps it in once it has decoded, so a card never flashes empty.
 export function useSiteShot(url: string | undefined) {
