@@ -1,0 +1,123 @@
+/* =====================================================================
+   Trending motion layer, loaded after fixes.css.
+   1. Kinetic headings: the coloured second line of every section heading flies up out of 3D depth,
+      un-blurs and sweeps through a colour gradient as its section scrolls in.
+   2. Liquid glass: frosted, light-catching glass on the scrolled header (a floating pill on desktop),
+      secondary buttons, chips, arrows and the phone menu.
+   3. 3D scroll zoom: each template preview starts as a big screen tilted back in 3D and zooms up flat
+      as it scrolls into view, while the website inside zooms in to fit.
+   --e comes from useScrollScenes (scenes.tsx); without motion it is never set, so the fallback (1)
+   is always the normal, finished layout.
+   ===================================================================== */
+
+/* ---------- 1. Kinetic 3D headings ---------- */
+:root body .site-shell main > section h2 em {
+  display: inline-block;
+  padding: 0 .04em .08em;
+  background-image: linear-gradient(100deg, #ef6a28 0%, #f5a23a 22%, #0a96b6 48%, #6b4dff 68%, #ef6a28 100%);
+  background-size: 250% 100%;
+  background-position: 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell main > section h2 { perspective: 700px; }
+  :root body .site-shell main > section h2 em {
+    --k: clamp(0, var(--e, 1) * 1.5 - .2, 1);
+    transform-origin: 50% 100%;
+    transform: translate3d(0, calc((1 - var(--k)) * .5em), calc((1 - var(--k)) * -240px)) rotateX(calc((1 - var(--k)) * -78deg));
+    filter: blur(calc((1 - var(--k)) * 8px));
+    opacity: calc(.12 + var(--k) * .88);
+    background-position: calc(100% - var(--k) * 100%) 0;
+    will-change: transform, filter, opacity;
+  }
+}
+
+/* ---------- 2. Liquid glass ---------- */
+:root body .site-shell .site-header.is-scrolled {
+  background: linear-gradient(135deg, rgba(255,255,255,.66), rgba(255,255,255,.4));
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(28,22,14,.06), 0 18px 40px -22px rgba(90,45,15,.35);
+}
+/* Desktop: the scrolled header turns into a floating glass pill. */
+@media (min-width: 981px) {
+  :root body .site-shell .site-header {
+    transition: top .55s cubic-bezier(.16, 1, .3, 1), left .55s cubic-bezier(.16, 1, .3, 1), right .55s cubic-bezier(.16, 1, .3, 1), border-radius .55s ease, background-color .45s ease, box-shadow .45s ease;
+  }
+  :root body .site-shell .site-header.is-scrolled {
+    top: 12px;
+    left: max(16px, calc(50% - 610px));
+    right: max(16px, calc(50% - 610px));
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.8);
+  }
+  :root body .site-shell .site-header.is-scrolled .navbar { height: 68px; padding-left: 20px; padding-right: 12px; }
+}
+/* Phone menu: frosted glass panel. */
+:root body .site-shell .nav-links.is-open {
+  background: linear-gradient(160deg, rgba(255,255,255,.82), rgba(255,255,255,.62));
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 #fff, 0 24px 48px -24px rgba(90,45,15,.35);
+}
+/* Glass buttons, arrows and chips. The light inside drifts on hover like liquid. */
+:root body .site-shell :is(.button-outline, .deck-arrow, .template-devices, .feature-tag, .tech-cloud > span) {
+  background: linear-gradient(135deg, rgba(255,255,255,.85) 0%, rgba(255,255,255,.35) 45%, rgba(255,214,170,.28) 75%, rgba(255,255,255,.7) 100%);
+  background-size: 220% 220%;
+  background-position: 0% 0%;
+  -webkit-backdrop-filter: blur(12px) saturate(170%);
+  backdrop-filter: blur(12px) saturate(170%);
+  border: 1px solid rgba(28,22,14,.1);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -10px 18px -12px rgba(239,106,40,.22), 0 10px 26px -14px rgba(90,45,15,.38);
+  transition: background-position .8s cubic-bezier(.16, 1, .3, 1), box-shadow .4s ease, transform .3s ease, color .3s ease;
+}
+:root body .site-shell :is(.button-outline, .deck-arrow, .tech-cloud > span):hover {
+  background-position: 100% 100%;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -12px 20px -12px rgba(10,150,182,.28), 0 14px 30px -14px rgba(90,45,15,.45);
+}
+/* The 3D chips around the feature browser get the glass look without the blur (they move every frame). */
+:root body .site-shell .ballet-chip {
+  background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.7));
+  border-color: rgba(255,255,255,.9);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -6px 12px -8px rgba(239,106,40,.25), 0 10px 22px -8px rgba(90,45,15,.28);
+}
+/* Main buttons and WhatsApp keep their colour and gain a glossy glass highlight. */
+:root body .site-shell .button-gold {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -10px 18px -12px rgba(120,40,0,.45), 0 14px 30px -14px rgba(239,106,40,.65);
+}
+:root body .site-shell .floating-whatsapp {
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.45), inset 0 -8px 14px -8px rgba(0,80,30,.35), 0 10px 28px rgba(37,211,102,.38);
+}
+
+/* ---------- 3. 3D scroll zoom on template previews ---------- */
+:root body .site-shell .templates-section .template-frame-outer { transform: none; transform-origin: 50% 0%; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Scaled down while tilted so the screen never gets wider than its column (no cut sides). */
+    :root body .site-shell .templates-section .template-frame-outer {
+      animation-name: ld-screen-zoom;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 42%;
+    }
+    :root body .site-shell .templates-section .template-screen img {
+      transform-origin: 50% 0%;
+      animation-name: ld-screen-inner;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 48%;
+    }
+  }
+}
+@keyframes ld-screen-zoom {
+  from { transform: perspective(1100px) rotateX(34deg) scale(.76); filter: brightness(.92) saturate(.85); }
+  to { transform: perspective(1100px) rotateX(0deg) scale(1); filter: none; }
+}
+@keyframes ld-screen-inner {
+  from { transform: scale(1.35); }
+  to { transform: scale(1); }
+}

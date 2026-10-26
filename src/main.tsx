@@ -11,8 +11,10 @@ import { WithScene } from './motion/scene.tsx';
 import './motion/smooth.css';
 // Tighter spacing, compact pricing cards and the WhatsApp entrance; also loaded last.
 import './motion/layout.css';
-// Pricing alignment, live preview and spacing fixes; must stay the very last stylesheet.
+// Pricing alignment, live preview and spacing fixes.
 import './motion/fixes.css';
+// Kinetic headings, liquid glass and 3D scroll zoom; must stay the very last stylesheet.
+import './motion/trend.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
