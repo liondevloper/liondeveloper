@@ -1,6 +1,3 @@
-/* Elegant italic serif used by the outro ticker under the contact form. */
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
-
 /* =====================================================================
    Premium polish pass. Must stay the very last stylesheet (after trend.css).
    1. Calm cards: looping card effects run only on the "Most popular" cards; every other card
@@ -8,7 +5,8 @@
    2. Round menu dots, and one consistent corner radius for cards, inputs, buttons and chips.
    3. Off-screen sections pause their animations (data-offscreen is set in scenes.tsx).
    4. Soft section entrance: each section gently scales and fades up as it scrolls in.
-   5. Outro ticker: smaller, solid text that alternates bold sans and italic gradient serif.
+   5. Outro ticker: smaller, solid text that alternates bold sans and italic gradient serif
+      (Instrument Serif is loaded from index.html).
    The 3D blinds intro after the splash (intro.css) and its hero timing are left as they were.
    ===================================================================== */
 
@@ -89,12 +87,10 @@ html:root body .site-shell main > section[data-offscreen] *::after { animation-p
   color: transparent;
   padding: 0 .06em;
 }
-:root body .site-shell .marquee-outline .marquee-item:hover { color: #ef6a28; -webkit-text-stroke: 0; }
-:root body .site-shell .marquee-outline .marquee-item:nth-child(odd):hover { -webkit-text-fill-color: #ef6a28; }
+:root body .site-shell .marquee-outline .marquee-item:nth-child(odd):hover { -webkit-text-fill-color: #ef6a28; color: #ef6a28; }
 :root body .site-shell .marquee-outline .marquee-item i {
   width: .28em; height: .28em; margin: 0 .7em; border-radius: 3px; rotate: 45deg; flex-shrink: 0;
   background: linear-gradient(135deg, #ef6a28, #0a96b6);
-  -webkit-text-fill-color: initial;
 }
 @media (max-width: 680px) {
   :root body .site-shell .marquee-outline { padding: 16px 0 10px; }
