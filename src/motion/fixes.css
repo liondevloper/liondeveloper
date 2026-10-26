@@ -168,8 +168,9 @@ html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rot
 :root body .site-shell .template-overlay { padding-left: 10px; padding-right: 10px; }
 :root body .site-shell .template-overlay .button { max-width: 100%; }
 :root body .site-shell .template-tags { flex-wrap: wrap; }
+/* The screenshot is shown whole (contain), so the left and right edges of the website are never cropped. */
 :root body .site-shell .template-screen img,
-:root body .site-shell .template-card:hover .template-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; scale: 1; transition: none; }
+:root body .site-shell .template-card:hover .template-screen img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: top center; scale: 1; transition: none; }
 
 /* =====================================================================
    Less empty space everywhere
@@ -236,7 +237,7 @@ html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rot
     opacity: 1 !important;
     backface-visibility: hidden;
     contain: paint;
-    background-color: #fffdf8 !important;
+    background-color: #ffffff !important;
     background-image: none !important;
     border: 1px solid rgba(190, 115, 53, .28);
     box-shadow: 0 12px 28px rgba(65, 44, 24, .10), inset 0 1px 0 rgba(255, 255, 255, .9);
@@ -250,6 +251,22 @@ html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rot
     display: none !important;
     animation: none !important;
   }
+}
+
+/* =====================================================================
+   "Most popular" label: it used to hang above the card's top edge, so the card (and the swipe row
+   on phones) cut it in half. It now sits inside the card, on its own line above the plan name.
+   ===================================================================== */
+:root body .site-shell .pricing-row .price-card > .popular-tag,
+:root body .site-shell .pricing-row .price-card[data-hover] > .popular-tag {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  translate: none !important;
+  align-self: flex-start;
+  width: fit-content;
+  margin: 0 0 12px;
+  white-space: nowrap;
 }
 
 /* =====================================================================
@@ -337,7 +354,7 @@ html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rot
   width: 100%;
   max-width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: top center;
 }
 
@@ -349,3 +366,33 @@ html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rot
     justify-self: stretch;
   }
 }
+
+/* =====================================================================
+   Pure white theme: the ivory / cream tones are replaced with clean white everywhere.
+   ===================================================================== */
+html body:has(.site-shell) { background: #ffffff; }
+:root body .site-shell {
+  --black: #ffffff;
+  --panel: #ffffff;
+  --glass: linear-gradient(155deg, #ffffff, #ffffff);
+}
+:root body .site-shell .section-dark { background: #ffffff; }
+:root body .site-shell .hero { background: radial-gradient(circle at 75% 40%, rgba(255,140,70,.08), transparent 34%), radial-gradient(circle at 12% 85%, rgba(10,150,182,.05), transparent 30%); }
+:root body .site-shell .pricing-section { background: radial-gradient(circle at 50% 0%, rgba(255,140,70,.06), transparent 45%); }
+:root body .site-shell .contact-section { background: radial-gradient(circle at 0 100%, rgba(255,140,70,.06), transparent 40%); }
+:root body .site-shell .templates-aurora { opacity: .45; }
+:root body .site-shell .site-header,
+:root body .site-shell .site-header.is-scrolled { background: rgba(255,255,255,.94); }
+:root body .site-shell .nav-links { background: #ffffff; }
+@media (min-width: 681px) {
+  :root body .site-shell .nav-links { background: transparent; }
+}
+:root body .site-shell :is(.process-card, .care-tier, .care-tier.fx-holo, .care-tier.fx-ember, .care-price-option, .price-card.popular) { background: #ffffff; }
+:root body .site-shell .form-card :is(input, select, textarea) { background: #ffffff; }
+:root body .site-shell .browser-bar { background: #f6f6f6; }
+:root body .site-shell .template-screen,
+:root body .site-shell .template-frame-wrap { background: #ffffff; }
+:root body .site-shell .feature-site { background: linear-gradient(135deg, rgba(255,140,70,.08), transparent 55%), #ffffff; }
+:root body .site-shell :is(.preloader, .splash3d) { background: #ffffff; }
+:root body .site-shell .splash-frame { background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(239,106,40,.82), rgba(10,150,182,.72) 52%, rgba(107,77,255,.62)) border-box; }
+:root body .site-shell .intro-tile { background: #ffffff; }
