@@ -8,7 +8,7 @@ export const invitationTemplates: Template[] = [
     title: 'Lumière',
     category: 'Invitation Cards',
     url: '/invitations/lumiere/index.html',
-    image: 'https://hercules-cdn.com/cdn-cgi/image/w=1200,quality=85,fit=scale-down,format=auto/file_W3qN6vuXE17x23aU2DIsLdzE',
+    image: 'https://hercules-cdn.com/cdn-cgi/image/w=1200,quality=85,fit=scale-down,format=auto/file_CzyIFKvKKeCLCLn0cCsAaIAV',
     tags: [],
   },
 ];
