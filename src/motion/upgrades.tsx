@@ -13,16 +13,18 @@ export const AUTO_SWIPE_MS = 3000;
 
 /* ------------------------------------------------------------- preloader */
 
-// Premium 3D splash (splash.css): a metallic lion medallion spins in 3D while the brand name flips up
-// and the progress bar fills. Keep SPLASH_MS in sync with the 3.15s exit fades in splash.css.
-const SPLASH_MS = 3600;
-const PROGRESS_START = 400;
-const PROGRESS_MS = 2900;
-// The 3D blinds intro (intro.css): a light beam sweeps and the panels turn open (~2.2s).
-const DONE_AT = SPLASH_MS + 2300;
+// Three .9s dot beats plus a .6s brand reveal; splash.css uses the same 3.3s total.
+const DOTS_FROM = 3;
+const DOT_STEP = 900;
+const BRAND_MS = 600;
+const SPLASH_MS = DOTS_FROM * DOT_STEP + BRAND_MS;
+const PROGRESS_START = 0;
+const PROGRESS_MS = SPLASH_MS;
+// The 3D blinds intro (intro.css) opens in about 2.3s.
+const INTRO_MS = 2300;
+const DONE_AT = SPLASH_MS + INTRO_MS;
 
-const DUST = 18;
-const COIN_LAYERS = 9;
+const SPARKS = 16;
 const BRAND = 'LION DEVELOPER';
 const ACCENT_LETTERS = 4;
 // Panels open left to right, each a little after the one before, following the light beam.
@@ -32,7 +34,7 @@ const SLAT_STEP = 0.075;
 type PreloaderPhase = 'splash' | 'leave' | 'done';
 type VarStyle = CSSProperties & Record<`--${string}`, string>;
 
-// Repeatable pseudo-random numbers so the dust always looks the same.
+// Repeatable pseudo-random numbers keep spark positions stable.
 const rand = (index: number, seed: number) => {
   const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
   return x - Math.floor(x);
@@ -44,18 +46,15 @@ const slatStyle = (index: number, count: number): VarStyle => ({
   '--d': `${(SLAT_START + index * SLAT_STEP).toFixed(3)}s`,
 });
 
-const dustStyle = (index: number): VarStyle => ({
-  '--x': `${(4 + rand(index, 5) * 92).toFixed(1)}%`,
-  '--s': `${(3 + rand(index, 6) * 5).toFixed(1)}px`,
-  '--t': `${(2.4 + rand(index, 7) * 2).toFixed(2)}s`,
-  '--d': `${(rand(index, 8) * 2.4).toFixed(2)}s`,
+const sparkStyle = (index: number): VarStyle => ({
+  '--a': `${((360 / SPARKS) * index + rand(index, 1) * 14).toFixed(1)}deg`,
+  '--r': `${(22 + rand(index, 2) * 26).toFixed(1)}vmin`,
+  '--d': `${(0.42 + rand(index, 3) * 0.12).toFixed(2)}s`,
 });
 
-// Stacked discs give the medallion a real metal edge while it spins.
-const layerStyle = (index: number): VarStyle => ({ '--z': String(index - (COIN_LAYERS - 1) / 2) });
-const letterStyle = (index: number): VarStyle => ({ '--i': String(index) });
+const indexStyle = (index: number): VarStyle => ({ '--i': String(index) });
 
-// Counts the percent next to the bar in step with its fill. Writes straight to the DOM so React does not re-render every frame.
+// The percent updates without rerendering the animated splash every frame.
 function useSplashPercent() {
   const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
@@ -73,55 +72,47 @@ function useSplashPercent() {
   return ref;
 }
 
-function Splash3D({ logo }: { logo: string }) {
+// 3-2-1 glossy 3D dots flying through a square prism tunnel. No ring or circle surrounds the dots.
+function Splash3D({ count }: { count: number }) {
   const percentRef = useSplashPercent();
   return (
     <div className="splash3d" aria-hidden="true">
+      <div className="splash-tunnel">
+        {Array.from({ length: 5 }, (_, index) => <i className="splash-frame" key={index} style={indexStyle(index)} />)}
+      </div>
       <div className="splash-floor"><i /></div>
-      <span className="splash-glow" />
-      {Array.from({ length: DUST }, (_, index) => <i className="splash-dust" key={index} style={dustStyle(index)} />)}
       <div className="splash-scene">
-        <div className="splash-core">
-          <span className="splash-ring" />
-          <span className="splash-ring splash-ring-2" />
-          <span className="splash-shadow" />
-          <div className="splash-coin-wrap">
-            <div className="splash-coin">
-              {Array.from({ length: COIN_LAYERS }, (_, index) => <i className="splash-layer" key={index} style={layerStyle(index)} />)}
-              <span className="splash-face">
-                <img src={logo} alt="" width={454} height={480} />
-                <i className="splash-shine" />
-              </span>
-              <span className="splash-face splash-face-back">
-                <img src={logo} alt="" width={454} height={480} />
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="splash-meta">
-          <span className="splash-brand">
-            {Array.from(BRAND).map((letter, index) =>
-              letter === ' ' ? (
-                <span className="splash-gap" key={index} />
-              ) : (
-                <span className={index < ACCENT_LETTERS ? 'is-accent' : undefined} key={index} style={letterStyle(index)}>{letter}</span>
-              ),
-            )}
-          </span>
-          <span className="splash-tag">WEBSITES THAT ROAR</span>
-          <span className="splash-progress">
-            <span className="splash-bar"><i /></span>
-            <span className="splash-percent" ref={percentRef}>0%</span>
-          </span>
-        </div>
+        {/* Re-keyed every beat so the flip-in animation replays for each number. */}
+        <span className="splash-dots" key={count}>
+          {Array.from({ length: count }, (_, index) => (
+            <i className="splash-dot" key={index} style={indexStyle(index)}>
+              <b />
+              <span className="splash-dot-shadow" />
+            </i>
+          ))}
+        </span>
+        <span className="splash-ready">
+          {Array.from('GET READY').map((letter, index) => letter === ' '
+            ? <i className="splash-gap" key={index} />
+            : <b key={index} style={indexStyle(index)}>{letter}</b>)}
+        </span>
+        <span className="splash-progress">
+          <span className="splash-bar"><i /></span>
+          <span className="splash-percent" ref={percentRef}>0%</span>
+        </span>
+        <span className="splash-brand">
+          {Array.from(BRAND).map((letter, index) => letter === ' '
+            ? <i className="splash-gap" key={index} />
+            : <b className={index < ACCENT_LETTERS ? 'is-accent' : undefined} key={index} style={indexStyle(index)}>{letter}</b>)}
+        </span>
       </div>
     </div>
   );
 }
 
-// After the splash a beam of light sweeps across and the screen turns open in tall 3D panels.
-// No second logo here: the splash already shows it, so the site opens straight after.
-function BlindsIntro() {
+// After the splash: the lion spins inside two 3D gyroscope rings and bursts into sparks,
+// a beam of light sweeps across, and the screen turns open in tall 3D panels to reveal the site.
+function BlindsIntro({ logo, showLogo = true }: { logo: string; showLogo?: boolean }) {
   const [slats] = useState(() => (window.innerWidth < 680 ? 6 : 10));
   return (
     <div className="intro-blinds" aria-hidden="true">
@@ -134,12 +125,29 @@ function BlindsIntro() {
         ))}
       </div>
       <span className="intro-beam" />
+      {showLogo && (
+        <div className="intro-stage">
+          <span className="intro-halo" />
+          <span className="intro-orbit" />
+          <span className="intro-orbit intro-orbit-2" />
+          {Array.from({ length: SPARKS }, (_, index) => <i className="intro-spark" key={index} style={sparkStyle(index)} />)}
+          <img className="intro-mark" src={logo} alt="" width={454} height={480} />
+        </div>
+      )}
     </div>
   );
 }
 
+// The installed app already shows the phone's own launch screen with the logo, so it skips ours.
+const isInstalledApp = () =>
+  window.matchMedia('(display-mode: standalone)').matches ||
+  window.matchMedia('(display-mode: fullscreen)').matches ||
+  (navigator as Navigator & { standalone?: boolean }).standalone === true;
+
 export function DotPreloader({ logo }: { logo: string }) {
-  const [phase, setPhase] = useState<PreloaderPhase>(MOTION_ENABLED ? 'splash' : 'done');
+  const [isInstalled] = useState(isInstalledApp);
+  const [phase, setPhase] = useState<PreloaderPhase>(() => (!MOTION_ENABLED ? 'done' : isInstalled ? 'leave' : 'splash'));
+  const [count, setCount] = useState(DOTS_FROM);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -147,7 +155,16 @@ export function DotPreloader({ logo }: { logo: string }) {
       root.classList.add('is-loaded');
       return;
     }
+    if (isInstalled) {
+      root.classList.add('is-loaded');
+      const timer = window.setTimeout(() => setPhase('done'), INTRO_MS);
+      return () => window.clearTimeout(timer);
+    }
+    const ticks = Array.from({ length: DOTS_FROM - 1 }, (_, step) =>
+      window.setTimeout(() => setCount(DOTS_FROM - 1 - step), DOT_STEP * (step + 1)),
+    );
     const timers = [
+      ...ticks,
       window.setTimeout(() => {
         setPhase('leave');
         root.classList.add('is-loaded');
@@ -155,11 +172,11 @@ export function DotPreloader({ logo }: { logo: string }) {
       window.setTimeout(() => setPhase('done'), DONE_AT),
     ];
     return () => timers.forEach(window.clearTimeout);
-  }, []);
+  }, [isInstalled]);
 
   if (phase === 'done') return null;
-  if (phase === 'leave') return <BlindsIntro />;
-  return <Splash3D logo={logo} />;
+  if (phase === 'leave') return <BlindsIntro logo={logo} showLogo={!isInstalled} />;
+  return <Splash3D count={count} />;
 }
 
 /* ---------------------------------------------------------------- header */

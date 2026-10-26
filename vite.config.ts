@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
+import { pwaIcons } from './pwa-icons';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  // pwaIcons builds the padded home-screen icons (dist/icons/*) from public/logo.png.
+  plugins: [react(), pwaIcons()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
