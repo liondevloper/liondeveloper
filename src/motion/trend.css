@@ -8,7 +8,11 @@
       as it scrolls into view, while the website inside zooms in to fit.
    --e comes from useScrollScenes (scenes.tsx); without motion it is never set, so the fallback (1)
    is always the normal, finished layout.
+   fixes.css locks transforms in the templates section with !important (which also blocks animations),
+   so the effects here drive custom properties and re-apply the transform with a stronger selector.
    ===================================================================== */
+
+@property --ld-zoom { syntax: '<number>'; inherits: true; initial-value: 1; }
 
 /* ---------- 1. Kinetic 3D headings ---------- */
 :root body .site-shell main > section h2 em {
@@ -23,10 +27,10 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   :root body .site-shell main > section h2 { perspective: 700px; }
-  :root body .site-shell main > section h2 em {
+  html:root body .site-shell main > section h2 em {
     --k: clamp(0, var(--e, 1) * 1.5 - .2, 1);
     transform-origin: 50% 100%;
-    transform: translate3d(0, calc((1 - var(--k)) * .5em), calc((1 - var(--k)) * -240px)) rotateX(calc((1 - var(--k)) * -78deg));
+    transform: translate3d(0, calc((1 - var(--k)) * .5em), calc((1 - var(--k)) * -240px)) rotateX(calc((1 - var(--k)) * -78deg)) !important;
     filter: blur(calc((1 - var(--k)) * 8px));
     opacity: calc(.12 + var(--k) * .88);
     background-position: calc(100% - var(--k) * 100%) 0;
@@ -92,32 +96,29 @@
 }
 
 /* ---------- 3. 3D scroll zoom on template previews ---------- */
-:root body .site-shell .templates-section .template-frame-outer { transform: none; transform-origin: 50% 0%; }
+/* --ld-zoom goes 0 -> 1 as the card scrolls in; it stays 1 (flat) on browsers without scroll timelines.
+   The screen is scaled down while tilted, so it never gets wider than its column (no cut sides). */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    /* Scaled down while tilted so the screen never gets wider than its column (no cut sides). */
-    :root body .site-shell .templates-section .template-frame-outer {
-      animation-name: ld-screen-zoom;
+    :root body .site-shell .templates-section .template-card {
+      animation-name: ld-zoom-progress;
       animation-timing-function: linear;
       animation-fill-mode: both;
       animation-timeline: view();
       animation-range: entry 0% cover 42%;
     }
-    :root body .site-shell .templates-section .template-screen img {
+    html:root body .site-shell .templates-section .template-card .template-frame-outer {
       transform-origin: 50% 0%;
-      animation-name: ld-screen-inner;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 48%;
+      transform: perspective(1100px) rotateX(calc((1 - var(--ld-zoom)) * 34deg)) scale(calc(.76 + var(--ld-zoom) * .24)) !important;
+      filter: brightness(calc(.92 + var(--ld-zoom) * .08));
+    }
+    html:root body .site-shell .templates-section .template-card .template-screen img {
+      transform-origin: 50% 0%;
+      transform: scale(calc(1.35 - var(--ld-zoom) * .35));
     }
   }
 }
-@keyframes ld-screen-zoom {
-  from { transform: perspective(1100px) rotateX(34deg) scale(.76); filter: brightness(.92) saturate(.85); }
-  to { transform: perspective(1100px) rotateX(0deg) scale(1); filter: none; }
-}
-@keyframes ld-screen-inner {
-  from { transform: scale(1.35); }
-  to { transform: scale(1); }
+@keyframes ld-zoom-progress {
+  from { --ld-zoom: 0; }
+  to { --ld-zoom: 1; }
 }
