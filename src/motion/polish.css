@@ -1,3 +1,6 @@
+/* Elegant italic serif used by the outro ticker under the contact form. */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
 /* =====================================================================
    Premium polish pass. Must stay the very last stylesheet (after trend.css).
    1. Calm cards: looping card effects run only on the "Most popular" cards; every other card
@@ -5,6 +8,7 @@
    2. Round menu dots, and one consistent corner radius for cards, inputs, buttons and chips.
    3. Off-screen sections pause their animations (data-offscreen is set in scenes.tsx).
    4. Soft section entrance: each section gently scales and fades up as it scrolls in.
+   5. Outro ticker: smaller, solid text that alternates bold sans and italic gradient serif.
    The 3D blinds intro after the splash (intro.css) and its hero timing are left as they were.
    ===================================================================== */
 
@@ -53,4 +57,48 @@ html:root body .site-shell main > section[data-offscreen] *::after { animation-p
     opacity: calc(.35 + var(--s) * .65);
     transform-origin: 50% 0%;
   }
+}
+
+/* ---------- 5. Outro ticker under the contact form ---------- */
+/* Was huge, faint outlined capitals. Now smaller, solid and readable: words alternate between
+   bold dark sans and an italic serif with the brand gradient, split by a small gradient diamond. */
+:root body .site-shell .marquee-outline { background: #ffffff; padding: 22px 0 14px; }
+:root body .site-shell .marquee-outline .marquee-track { animation-duration: 26s; }
+:root body .site-shell .marquee-outline .marquee-item {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(26px, 4.2vw, 54px);
+  font-weight: 800;
+  font-style: normal;
+  line-height: 1.15;
+  letter-spacing: -.035em;
+  text-transform: none;
+  color: #17140f;
+  -webkit-text-stroke: 0;
+  -webkit-text-fill-color: currentColor;
+}
+:root body .site-shell .marquee-outline .marquee-item:nth-child(even) {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -.01em;
+  font-size: clamp(30px, 4.8vw, 62px);
+  background: linear-gradient(100deg, #ef6a28, #f5a23a 40%, #0a96b6 75%, #6b4dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  padding: 0 .06em;
+}
+:root body .site-shell .marquee-outline .marquee-item:hover { color: #ef6a28; -webkit-text-stroke: 0; }
+:root body .site-shell .marquee-outline .marquee-item:nth-child(odd):hover { -webkit-text-fill-color: #ef6a28; }
+:root body .site-shell .marquee-outline .marquee-item i {
+  width: .28em; height: .28em; margin: 0 .7em; border-radius: 3px; rotate: 45deg; flex-shrink: 0;
+  background: linear-gradient(135deg, #ef6a28, #0a96b6);
+  -webkit-text-fill-color: initial;
+}
+@media (max-width: 680px) {
+  :root body .site-shell .marquee-outline { padding: 16px 0 10px; }
+  :root body .site-shell .marquee-outline .marquee-item { font-size: 24px; }
+  :root body .site-shell .marquee-outline .marquee-item:nth-child(even) { font-size: 28px; }
+  :root body .site-shell .marquee-outline .marquee-item i { margin: 0 .55em; }
 }
