@@ -293,21 +293,23 @@ export function Deck<T>({ items, axis, label, renderCard, interval = 0, persiste
 const isInvitation = (template: Template) => template.category === 'Invitation Cards';
 
 // Cards stay flat (no 3D tilt or flip-in): tilting pushed them past the section edge and cut their sides.
+// Invitation cards show only their name: no category label and no tags.
 function TemplateCard({ template, index, onOpen }: { template: Template; index: number; onOpen: () => void }) {
   // An uploaded cover wins; without one the card captures the live homepage on its own.
   const shot = useSiteShot(template.image ? undefined : template.url);
   const image = template.image || shot;
-  const tags = template.tags ?? [];
+  const invitation = isInvitation(template);
+  const tags = invitation ? [] : template.tags ?? [];
 
   return (
-    <article className={`template-card ${isInvitation(template) ? 'is-invitation' : ''}`} data-reveal style={stagger(index)}>
+    <article className={`template-card ${invitation ? 'is-invitation' : ''}`} data-reveal style={stagger(index)}>
       <div className="template-float">
         <div className="template-frame-outer">
           <div className="template-ring" aria-hidden="true" />
           <div className="template-browser">
             <div className="browser-bar">
               <span /><span /><span />
-              <b>{hostOf(template.url)}</b>
+              <b>{invitation ? template.title : hostOf(template.url)}</b>
               <em className="template-live"><i /> Live</em>
             </div>
             <div className="template-screen">
@@ -325,7 +327,7 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
                 </button>
                 {template.url && (
                   <a className="button button-outline button-small" href={template.url} target="_blank" rel="noreferrer">
-                    {isInvitation(template) ? 'Open card' : 'Open site'} <ArrowUpRight size={14} />
+                    {invitation ? 'Open card' : 'Open site'} <ArrowUpRight size={14} />
                   </a>
                 )}
               </div>
@@ -334,7 +336,7 @@ function TemplateCard({ template, index, onOpen }: { template: Template; index: 
         </div>
         <div className="template-info">
           <div>
-            <span className="template-category">{template.category}</span>
+            {!invitation && <span className="template-category">{template.category}</span>}
             <h3>{template.title}</h3>
           </div>
           <span className="template-index">{String(index + 1).padStart(2, '0')}</span>
@@ -475,7 +477,7 @@ function TemplatePreview({ template, onClose }: { template: Template; onClose: (
       >
         <div className="template-modal-bar">
           <div className="template-modal-title">
-            <span className="section-kicker">{template.category}</span>
+            {!isInvitation(template) && <span className="section-kicker">{template.category}</span>}
             <b>{template.title}</b>
           </div>
           {!fullscreen && (
