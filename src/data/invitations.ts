@@ -1,0 +1,16 @@
+import type { Template } from '@/data/site';
+
+// Digital invitation cards, shown under the "Invitation Cards" tab of the Templates section.
+// Each card is a standalone page in /public/invitations, so it opens in the same live preview popup.
+export const invitationTemplates: Template[] = [
+  {
+    title: 'Shubh Lagna – Gujarati Wedding Card',
+    category: 'Invitation Cards',
+    url: '/invitations/gujarati-wedding/index.html',
+    image: 'https://hercules-cdn.com/cdn-cgi/image/w=1200,quality=85,fit=scale-down,format=auto/file_a0K8MX9Jqz9ZSNQk2UQbUa9G',
+    tags: ['ગુજરાતી', 'हिन्दी', 'English', 'Tahuko', '3D Door Intro'],
+  },
+];
+
+export const TEMPLATE_CATEGORIES = ['Websites', 'Invitation Cards'] as const;
+export type TemplateCategory = (typeof TEMPLATE_CATEGORIES)[number];

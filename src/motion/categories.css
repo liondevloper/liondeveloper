@@ -1,0 +1,17 @@
+/* Category tabs above the template grid (Websites / Invitation Cards) and the full screen preview mode. */
+
+.template-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin: 0 auto 2.2rem; }
+.template-tabs .button { cursor: pointer; }
+.template-tabs .button span { opacity: .7; font-size: .8em; margin-left: .35rem; }
+
+/* Invitation cards are portrait pages, so their cover image is centred instead of top-aligned. */
+.template-card.is-invitation .template-screen img { object-position: center; }
+
+.template-modal-tools { display: flex; align-items: center; gap: .5rem; }
+.template-fullscreen { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid currentColor; background: transparent; color: inherit; cursor: pointer; opacity: .85; }
+.template-fullscreen:hover { opacity: 1; }
+
+/* Full screen: the window fills the screen edge to edge and the page renders at its real size. */
+:root body .site-shell .template-modal.is-fullscreen { width: 100vw; max-width: none; height: 100vh; height: 100dvh; max-height: none; border-radius: 0; margin: 0; }
+:root body .site-shell .template-modal.is-fullscreen .template-frame-wrap { flex: 1; height: auto; }
+:root body .site-shell .template-modal-backdrop:has(.is-fullscreen) { padding: 0; }
