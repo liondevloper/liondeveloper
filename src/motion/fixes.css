@@ -1,35 +1,115 @@
 /* Final fixes. Loaded last from main.tsx and every rule starts with ":root body .site-shell" (or html.*)
    so it wins over every other stylesheet. */
 
-/* Opening the live preview hides the page scrollbar; reserving its space stops the whole page jumping. */
-html { scrollbar-gutter: stable; }
+/* The page can never be wider than the phone screen, so nothing is cut on the left or right.
+   (Set on html only: on body it would turn the body into its own scroll box and break scroll effects.) */
+html { scrollbar-gutter: stable; overflow-x: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { min-width: 0; max-width: 100%; }
+:root body .site-shell { max-width: 100%; }
+
+@property --ld-plan-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 
 /* =====================================================================
-   Pricing: one clean row of equal cards. Nothing moves up or down.
+   Pricing: one clean row of equal cards with a premium 3D finish.
+   Every effect keeps the cards on the same line: they rise up from a shared floor (rotating on
+   their bottom edge), tilt in place under the mouse, and all glow effects sit inside the card.
    ===================================================================== */
 :root body .site-shell .pricing-row {
   position: relative; display: grid; grid-template-columns: repeat(var(--plans, 4), minmax(0, 1fr));
   gap: 14px; max-width: 1120px; margin: 0 auto; padding-top: 14px; align-items: stretch;
 }
 :root body .site-shell .pricing-row > .price-card {
-  display: flex; flex-direction: column; height: auto; min-height: 0; min-width: 0;
-  transform: none !important; translate: none; rotate: none; scale: none;
+  position: relative; isolation: isolate; display: flex; flex-direction: column; height: auto; min-height: 0; min-width: 0;
+  translate: none; rotate: none; scale: none;
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .6s cubic-bezier(.16, 1, .3, 1), box-shadow .45s ease, border-color .35s ease;
 }
-:root body .site-shell .pricing-row > .price-card:hover { transform: none !important; }
-:root body .site-shell .pricing-row .price-card > * { transform: none !important; }
+:root body .site-shell .pricing-row > .price-card[data-hover] {
+  border-color: rgba(239,106,40,.55);
+  box-shadow: 0 40px 70px -30px rgba(220,95,25,.5), inset 0 1px 0 #fff;
+}
 :root body .site-shell .pricing-row .price-card::after { display: none; }
+:root body .site-shell .pricing-row .price-card > :not(.price-fx):not(.popular-tag) { position: relative; z-index: 1; }
+:root body .site-shell .pricing-row .price-card > .popular-tag { z-index: 2; }
 :root body .site-shell .pricing-row .price-card h3 { min-height: 64px; display: flex; flex-direction: column; justify-content: flex-end; }
 :root body .site-shell .pricing-row .price-card h3 small { display: block; }
 :root body .site-shell .pricing-row .price-card > p { min-height: 4.8em; }
 :root body .site-shell .pricing-row .price-button { margin-top: auto; justify-content: center; }
 :root body .site-shell .pricing-note { margin: 16px auto 0; text-align: center; }
 
+/* Effect layers inside each card: 1 rotating light border, 2 light sweep, 3 mouse glare,
+   and on the popular card 4 a slowly turning colour wash plus 5-8 rising sparks. */
+:root body .site-shell .price-fx { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+:root body .site-shell .price-fx i { position: absolute; display: block; }
+:root body .site-shell .price-fx i:nth-child(1) {
+  inset: 0; border-radius: inherit; padding: 1.5px; opacity: .6;
+  background: conic-gradient(from var(--ld-plan-angle), transparent 0 62%, #ef6a28 80%, #0a96b6 90%, #6b4dff 96%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+}
+:root body .site-shell .price-card.popular .price-fx i:nth-child(1) { padding: 2px; opacity: 1; }
+:root body .site-shell .price-fx i:nth-child(2) {
+  top: -30%; bottom: -30%; left: -70%; width: 50%; opacity: 0; transform: skewX(-18deg);
+  background: linear-gradient(100deg, transparent, rgba(255,214,170,.5) 42%, rgba(255,255,255,.95) 50%, rgba(150,225,240,.45) 58%, transparent);
+}
+:root body .site-shell .price-fx i:nth-child(3) {
+  inset: 0; opacity: 0; transition: opacity .4s ease;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 0%), rgba(255,150,80,.22), rgba(10,150,182,.07) 45%, transparent 65%);
+}
+:root body .site-shell .price-card[data-hover] .price-fx i:nth-child(3) { opacity: 1; }
+:root body .site-shell .price-fx i:nth-child(4) {
+  inset: -45%;
+  background: radial-gradient(circle at 30% 30%, rgba(239,106,40,.16), transparent 38%), radial-gradient(circle at 72% 70%, rgba(10,150,182,.14), transparent 40%), radial-gradient(circle at 70% 25%, rgba(107,77,255,.1), transparent 36%);
+}
+:root body .site-shell .price-fx i:nth-child(n+5) {
+  bottom: -8px; width: 5px; height: 5px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff3e0, #ef6a28 60%, transparent 72%); box-shadow: 0 0 10px rgba(239,106,40,.7);
+}
+:root body .site-shell .price-fx i:nth-child(5) { left: 16%; }
+:root body .site-shell .price-fx i:nth-child(6) { left: 40%; width: 4px; height: 4px; }
+:root body .site-shell .price-fx i:nth-child(7) { left: 64%; }
+:root body .site-shell .price-fx i:nth-child(8) { left: 86%; width: 4px; height: 4px; background: radial-gradient(circle, #e8fbff, #0a96b6 60%, transparent 72%); box-shadow: 0 0 10px rgba(10,150,182,.6); }
+
+/* The row's own reveal is switched off: the cards make the entrance themselves. */
+html.motion-ready body .site-shell .pricing-stage[data-reveal] { opacity: 1; translate: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Entrance: every card stands up from the same floor line, one after another. */
+  html.motion-ready body .site-shell .pricing-stage:not([data-shown]) .pricing-row > .price-card { opacity: 0; }
+  html.motion-ready body .site-shell .pricing-stage[data-shown] .pricing-row > .price-card {
+    animation: ld-plan-rise 1.2s cubic-bezier(.16, 1, .3, 1) calc(var(--i, 0) * 120ms) backwards;
+  }
+  :root body .site-shell .price-fx i:nth-child(1) { animation: ld-plan-angle 5s linear infinite; animation-delay: calc(var(--i, 0) * -1.2s); }
+  :root body .site-shell .price-card.popular .price-fx i:nth-child(1) { animation-duration: 3.2s; }
+  :root body .site-shell .price-fx i:nth-child(2) { animation: ld-plan-sweep 5.5s cubic-bezier(.45, 0, .55, 1) calc(1.4s + var(--i, 0) * .55s) infinite; }
+  :root body .site-shell .price-fx i:nth-child(4) { animation: ld-plan-wash 16s linear infinite; }
+  :root body .site-shell .price-fx i:nth-child(n+5) { animation: ld-plan-spark 4.6s ease-in infinite; }
+  :root body .site-shell .price-fx i:nth-child(6) { animation-delay: 1.3s; }
+  :root body .site-shell .price-fx i:nth-child(7) { animation-delay: 2.5s; }
+  :root body .site-shell .price-fx i:nth-child(8) { animation-delay: 3.4s; }
+}
+
+@keyframes ld-plan-rise {
+  0% { opacity: 0; transform-origin: 50% 100%; transform: perspective(1100px) rotateX(-82deg) rotateY(0deg) translateZ(-60px); }
+  50% { opacity: 1; }
+  100% { opacity: 1; transform-origin: 50% 100%; transform: perspective(1100px) rotateX(0deg) rotateY(0deg) translateZ(0px); }
+}
+@keyframes ld-plan-angle { to { --ld-plan-angle: 360deg; } }
+@keyframes ld-plan-sweep {
+  0% { transform: translateX(0) skewX(-18deg); opacity: 0; }
+  6% { opacity: 1; }
+  42% { transform: translateX(380%) skewX(-18deg); opacity: 1; }
+  48%, 100% { transform: translateX(380%) skewX(-18deg); opacity: 0; }
+}
+@keyframes ld-plan-wash { to { rotate: 360deg; } }
+@keyframes ld-plan-spark { 0% { translate: 0 0; opacity: 0; scale: .6; } 15% { opacity: 1; } 100% { translate: 14px -420px; opacity: 0; scale: 1.1; } }
+
 /* Tablet + phone: the same cards in a sideways swipe row, all the same height, nothing cut off. */
 @media (max-width: 999px) {
   :root body .site-shell .pricing-row {
     grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(84%, 330px);
     overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-    margin: 0 -20px; padding: 14px 20px 10px; scroll-padding: 0 20px; scrollbar-width: none;
+    margin: 0 -20px; padding: 18px 20px 12px; scroll-padding: 0 20px; scrollbar-width: none;
   }
   :root body .site-shell .pricing-row::-webkit-scrollbar { display: none; }
   :root body .site-shell .pricing-row > .price-card { scroll-snap-align: center; }
@@ -70,20 +150,24 @@ html.preview-open body .site-shell main * { animation-play-state: paused !import
 :root body .site-shell .template-frame iframe { transition: opacity .35s ease; backface-visibility: hidden; }
 
 /* =====================================================================
-   Template cards: fully visible, never cut on the left or right
-   The 3D flip-in, mouse tilt, zoom and floating made the cards poke out of the section, which then
-   clipped their sides. The cards now stay flat and still; the colour blobs are clipped on their own.
+   Template cards: always fit inside the screen width
+   Every layer of the card is capped at the width of its column, so a long site address, the tags
+   or the buttons can never push the card past the right edge of a phone.
    ===================================================================== */
-:root body .site-shell .templates-section { overflow: visible; }
+:root body .site-shell .templates-section { overflow-x: clip; overflow-y: visible; }
 :root body .site-shell .templates-aurora { overflow: hidden; }
-:root body .site-shell .template-grid { perspective: none; padding: 6px 0 0; gap: 22px; }
+:root body .site-shell .template-grid { perspective: none; padding: 6px 0 0; gap: 22px; width: 100%; max-width: 100%; }
 :root body .site-shell .template-card,
 html.motion-ready body .site-shell .template-card[data-reveal],
-html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rotate: none; scale: none; transform: none !important; min-width: 0; width: 100%; }
+html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rotate: none; scale: none; transform: none !important; min-width: 0; width: 100%; max-width: 100%; }
 :root body .site-shell .template-card::after { display: none; }
+:root body .site-shell :is(.template-float, .template-frame-outer, .template-browser, .template-screen, .template-info, .template-tags) { min-width: 0; max-width: 100%; width: 100%; box-sizing: border-box; }
 :root body .site-shell .template-float { animation: none !important; translate: none; }
-:root body .site-shell .template-frame-outer { width: 100%; box-sizing: border-box; }
-:root body .site-shell .template-screen { width: 100%; }
+:root body .site-shell .template-browser .browser-bar { overflow: hidden; }
+:root body .site-shell .template-browser .browser-bar b { flex: 1 1 auto; max-width: none; }
+:root body .site-shell .template-overlay { padding-left: 10px; padding-right: 10px; }
+:root body .site-shell .template-overlay .button { max-width: 100%; }
+:root body .site-shell .template-tags { flex-wrap: wrap; }
 :root body .site-shell .template-screen img,
 :root body .site-shell .template-card:hover .template-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; scale: 1; transition: none; }
 
@@ -118,7 +202,7 @@ html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rot
   :root body .site-shell .nav-links { top: 78px; }
   :root body .site-shell .site-header.is-scrolled .navbar { height: 68px; }
   :root body .site-shell .site-header.is-scrolled .nav-links { top: 66px; }
-  :root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 40px; padding-bottom: 40px; }
+  :root body .site-shell .section-pad:not(.stats):not(.hero) { padding-top: 40px; padding-bottom: 40px; padding-left: 16px; padding-right: 16px; }
   :root body .site-shell .hero { padding-top: 12px; padding-bottom: 32px; }
   :root body .site-shell .hero-visual { min-height: 320px; }
   :root body .site-shell :is(.section-heading, .center-heading) { margin-bottom: 22px; }
@@ -126,4 +210,5 @@ html.motion-ready body .site-shell .template-card[data-reveal][data-shown] { rot
   :root body .site-shell .care-block { margin-top: 20px; }
   :root body .site-shell .template-modal-backdrop { padding: 10px; }
   :root body .site-shell .template-frame-wrap { padding: 8px; }
+  :root body .site-shell .pricing-row { margin: 0 -16px; padding-left: 16px; padding-right: 16px; scroll-padding: 0 16px; }
 }

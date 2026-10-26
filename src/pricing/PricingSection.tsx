@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { ArrowUpRight, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
 import {
   annualSaving,
@@ -11,7 +11,7 @@ import {
   type Plan,
   type Terms,
 } from '@/data/site';
-import { stagger } from '@/motion/effects';
+import { MOTION_ENABLED, stagger } from '@/motion/effects';
 import './pricing.css';
 
 type Choose = (name: string) => void;
@@ -21,6 +21,12 @@ const TIER_FX = ['orbit', 'holo', 'ember'] as const;
 type TierFx = (typeof TIER_FX)[number];
 const FX_LAYERS: Record<TierFx, number> = { orbit: 4, holo: 3, ember: 8 };
 
+// Price card effect layers (fixes.css): border light, sweep and glare; the popular card adds a colour wash + sparks.
+const PLAN_FX_LAYERS = 3;
+const POPULAR_FX_LAYERS = 8;
+// Max tilt angle (degrees) when the mouse moves over a price card. The card turns in place, so the row stays aligned.
+const PLAN_TILT_DEG = 7;
+
 const POLICY_TABS = [
   { id: 'payment', label: 'Payment terms', icon: CreditCard },
   { id: 'revisions', label: 'Revisions', icon: PenLine },
@@ -28,20 +34,55 @@ const POLICY_TABS = [
 ] as const;
 type PolicyTab = (typeof POLICY_TABS)[number]['id'];
 
-function PriceCard({ plan, onChoose }: { plan: Plan; onChoose: Choose }) {
+function PriceCard({ plan, index, onChoose }: { plan: Plan; index: number; onChoose: Choose }) {
   return (
-    <article className={`price-card ${plan.popular ? 'popular' : ''}`}>
+    <article className={`price-card ${plan.popular ? 'popular' : ''}`} style={{ '--i': index } as CSSProperties}>
+      <span className="price-fx" aria-hidden="true">
+        {Array.from({ length: plan.popular ? POPULAR_FX_LAYERS : PLAN_FX_LAYERS }, (_, layer) => <i key={layer} />)}
+      </span>
       {plan.popular && <span className="popular-tag">Most popular</span>}
       <span className="price-name">{plan.name}</span>
       <h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{plan.price}</> : plan.price}</h3>
       <p>{plan.description}</p>
       {plan.perk && <span className="price-perk"><Gift size={16} /><span>{plan.perk}</span></span>}
       <div className="price-divider" />
-      {plan.features.map((feature, index) => <span className="price-feature" key={index}><Check size={15} />{feature}</span>)}
+      {plan.features.map((feature, featureIndex) => <span className="price-feature" key={featureIndex}><Check size={15} />{feature}</span>)}
       {plan.revisions && <span className="price-revisions"><PenLine size={13} />{plan.revisions}</span>}
       <a className={`button ${plan.popular ? 'button-gold' : 'button-outline'} price-button`} href="#contact" onClick={() => onChoose(plan.name)}>{plan.cta} <ArrowUpRight size={16} /></a>
     </article>
   );
+}
+
+// Mouse-only 3D tilt + glare for the price cards. Touch screens skip it so swiping the row stays smooth.
+function usePlanTilt() {
+  const activeRef = useRef<HTMLElement | null>(null);
+
+  const reset = () => {
+    const card = activeRef.current;
+    if (!card) return;
+    card.style.removeProperty('--rx');
+    card.style.removeProperty('--ry');
+    card.removeAttribute('data-hover');
+    activeRef.current = null;
+  };
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!MOTION_ENABLED || event.pointerType !== 'mouse') return;
+    const card = event.target instanceof Element ? event.target.closest<HTMLElement>('.price-card') : null;
+    if (card !== activeRef.current) reset();
+    if (!card) return;
+    activeRef.current = card;
+    const rect = card.getBoundingClientRect();
+    const px = (event.clientX - rect.left) / rect.width;
+    const py = (event.clientY - rect.top) / rect.height;
+    card.style.setProperty('--ry', `${((px - 0.5) * 2 * PLAN_TILT_DEG).toFixed(2)}deg`);
+    card.style.setProperty('--rx', `${((0.5 - py) * 2 * PLAN_TILT_DEG).toFixed(2)}deg`);
+    card.style.setProperty('--mx', `${(px * 100).toFixed(1)}%`);
+    card.style.setProperty('--my', `${(py * 100).toFixed(1)}%`);
+    card.setAttribute('data-hover', '');
+  };
+
+  return { onPointerMove, onPointerLeave: reset };
 }
 
 function CheckList({ items, excluded = false }: { items: string[]; excluded?: boolean }) {
@@ -202,6 +243,7 @@ type PricingSectionProps = { pricing: Plan[]; care: CarePlan; terms: Terms; what
 
 export default function PricingSection({ pricing, care, terms, whatsapp, onChoose }: PricingSectionProps) {
   const rowRef = useRef<HTMLDivElement>(null);
+  const tilt = usePlanTilt();
   const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
   const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? '₹8,000';
   // Names the packages that carry the free domain offer, so the note never promises it on the Starter plan.
@@ -225,14 +267,16 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
         <h2 data-reveal="clip">Simple website<br /><em>pricing.</em></h2>
         <p data-reveal style={stagger(2)}>Professional websites starting from {lowest}. Compare the packages to find the right fit.</p>
       </div>
-      {/* All cards reveal together as one row, so none of them sit higher or lower than the others. */}
-      <div data-reveal>
+      {/* The cards rise up from one shared floor line as the row scrolls in, so they always end perfectly aligned. */}
+      <div className="pricing-stage" data-reveal>
         <div
           ref={rowRef}
           className="pricing-row"
           style={{ '--plans': Math.min(Math.max(pricing.length, 1), 4) } as CSSProperties}
+          onPointerMove={tilt.onPointerMove}
+          onPointerLeave={tilt.onPointerLeave}
         >
-          {pricing.map((plan, index) => <PriceCard key={index} plan={plan} onChoose={onChoose} />)}
+          {pricing.map((plan, index) => <PriceCard key={index} plan={plan} index={index} onChoose={onChoose} />)}
         </div>
       </div>
       <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.{perkNote}</p>
