@@ -46,7 +46,9 @@
     .mono{position:relative;display:grid;place-items:center;width:92px;height:92px;margin:0 auto;border-radius:50%;transform:translateZ(50px);
       background:conic-gradient(from 200deg,#f6dfe6,#efe6ff,#fbeed4,#f6dfe6);box-shadow:0 18px 30px rgba(120,80,100,.2)}
     .mono:before{content:"";position:absolute;inset:6px;border-radius:50%;background:#fffdf9}
-    .mono span{position:relative;font-family:var(--script);font-size:2.3rem;color:var(--rose)}
+    /* Script swashes run wide, so the monogram is sized and clipped to stay inside the ring. */
+    .mono{overflow:hidden}
+    .mono span{position:relative;font-family:var(--script);font-size:1.75rem;line-height:1;white-space:nowrap;padding-top:4px;color:var(--rose)}
     .lang h1{margin:24px 0 4px;font-family:var(--serif);font-weight:400;font-size:1.7rem;transform:translateZ(30px)}
     .lang .eyebrow{transform:translateZ(20px)}
     .lang-list{display:grid;gap:10px;margin-top:26px;transform-style:preserve-3d}
@@ -97,7 +99,7 @@
     .seal{position:absolute;left:50%;top:44%;width:90px;height:90px;margin:-45px 0 0 -45px;border:0;padding:0;border-radius:50%;display:grid;place-items:center;transform:translateZ(20px);
       background:conic-gradient(from 210deg,#f3d9b0,#f6d6e0,#e7dcff,#f3d9b0);box-shadow:0 18px 30px rgba(60,30,50,.35);transition:transform .9s var(--ease),opacity .6s}
     .seal:before{content:"";position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#fbf3ea 60%,#f0e2d2)}
-    .seal span{position:relative;font-family:var(--script);font-size:1.8rem;color:var(--rose)}
+    .seal span{position:relative;font-family:var(--script);font-size:1.45rem;line-height:1;white-space:nowrap;padding-top:4px;color:var(--rose)}
     .seal i{position:absolute;inset:-12px;border-radius:50%;border:1px solid rgba(255,255,255,.9);animation:ping 2.4s ease-out infinite}
     .stage.open .seal{transform:translateZ(240px) scale(1.5);opacity:0}
     .hint{margin:0;font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--soft);opacity:0;transition:opacity 1s ease 1.4s}
@@ -161,10 +163,31 @@
     .people{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;margin-top:40px;perspective:1200px}
     .weds{font-family:var(--script);font-size:2.4rem;color:var(--rose)}
     body[data-lang="gu"] .weds,body[data-lang="hi"] .weds{font-family:'Rasa',serif;font-size:1.6rem}
-    .d3{opacity:0;transform:rotateY(var(--ry0,30deg)) translateZ(-150px);transform-style:preserve-3d;transition:opacity 1s ease,transform 1.3s var(--ease);transition-delay:var(--d,0s)}
-    .d3.in{opacity:1;transform:rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg))}
+    /* Every card enters with its own 3D move (data-fx); perspective() lives in the transform so it works inside any parent. */
+    .d3{--spring:cubic-bezier(.34,1.45,.64,1);opacity:0;transform:perspective(1000px) rotateY(30deg) translateZ(-150px);transform-style:preserve-3d;transition:opacity .9s ease,transform 1.5s var(--ease);transition-delay:var(--d,0s)}
+    .d3[data-fx="swingL"]{transform-origin:left center;transform:perspective(1000px) rotateY(88deg)}
+    .d3[data-fx="swingR"]{transform-origin:right center;transform:perspective(1000px) rotateY(-88deg)}
+    .d3[data-fx="flipX"]{transform-origin:50% 0;transform:perspective(1000px) rotateX(-95deg)}
+    .d3[data-fx="unfold"]{transform-origin:50% 100%;transform:perspective(1000px) rotateX(92deg)}
+    .d3[data-fx="cube"]{transform-origin:100% 50%;transform:perspective(1000px) translateX(40%) rotateY(-90deg)}
+    .d3[data-fx="fall"]{transform:perspective(1000px) translateY(-140px) rotateX(75deg) scale(.8)}
+    .d3[data-fx="rise"]{transform:perspective(1000px) translateY(160px) rotateX(-65deg) scale(.85)}
+    .d3[data-fx="drop"]{transform-origin:50% 0;transform:perspective(600px) translateY(-60px) rotateX(-130deg)}
+    .d3[data-fx="twist"],.d3[data-fx="spiral"]{transition-timing-function:ease,var(--spring)}
+    .d3[data-fx="twist"]{transform:perspective(1000px) rotateZ(-28deg) rotateY(65deg) scale(.4)}
+    .d3[data-fx="spiral"]{transform:perspective(1000px) rotateZ(200deg) scale(.15)}
+    /* The flip card is flat so its back never shows mirrored text mid-turn. */
+    .d3[data-fx="flip"]{transform-style:flat;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:perspective(1200px) rotateY(180deg);transition-duration:.9s,1.8s}
+    .d3.in{opacity:1;transform:perspective(1000px) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg))}
     .d3.in.tilting{transition:transform .15s linear}
-    .person.b,.ev:nth-child(even){--ry0:-30deg}
+    /* Small follow-up motion once a card has landed. */
+    .frame.in{animation:floaty 6s ease-in-out 1.6s infinite}
+    @keyframes floaty{0%,100%{translate:0 0}50%{translate:0 -8px}}
+    .ev.main.in{animation:shimmer 3s ease-in-out 1.8s infinite}
+    .ev.in .no{display:inline-block;animation:spinY 1.2s var(--ease) .4s backwards}
+    @keyframes kb{from{transform:scale(1)}to{transform:scale(1.12)}}
+    @keyframes spinY{from{transform:perspective(400px) rotateY(-360deg) scale(.4)}to{transform:none}}
+    @keyframes shimmer{0%,100%{box-shadow:0 24px 50px rgba(181,84,106,.18),inset 0 0 0 1px rgba(181,84,106,.25)}50%{box-shadow:0 30px 70px rgba(181,84,106,.34),inset 0 0 0 1px rgba(181,84,106,.5)}}
     .person{padding:18px 18px 26px;border-radius:26px;background:#fff;box-shadow:0 30px 60px rgba(90,60,90,.14)}
     .person .photo{aspect-ratio:3/4;border-radius:18px;overflow:hidden;transform:translateZ(30px)}
     .person .photo img{width:100%;height:100%;object-fit:cover;display:block}
@@ -185,9 +208,11 @@
 
     /* Flex-wrap centres the odd last card instead of leaving a hole in the grid. */
     .events{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:36px;perspective:1200px;text-align:left}
-    .ev{flex:0 1 calc(50% - 8px);padding:24px 22px;border-radius:22px;background:#fff;box-shadow:0 20px 40px rgba(90,60,90,.1)}
-    .ev .no{font-family:var(--serif);font-style:italic;color:var(--gold)}
-    .ev h3{margin:8px 0 6px;font-family:var(--serif);font-weight:400;font-size:1.35rem;transform:translateZ(30px)}
+    .ev{flex:0 1 calc(50% - 8px);padding:24px 22px;border-radius:22px;background:#fff;box-shadow:0 20px 40px rgba(90,60,90,.1);transform-style:flat}
+    /* Flat cards keep the number and title on the card face instead of z-fighting with its background. */
+    .ev .no{font-family:var(--serif);font-style:italic;color:var(--gold);font-size:1.05rem}
+    body[data-lang="gu"] .ev .no{font-family:'Rasa',serif;font-style:normal}
+    .ev h3{margin:8px 0 6px;font-family:var(--serif);font-weight:400;font-size:1.35rem}
     body[data-lang="gu"] .ev h3,body[data-lang="hi"] .ev h3{font-weight:500}
     .ev p{margin:0;color:var(--soft);font-size:.95rem;line-height:1.6}
     .ev p b{color:var(--rose);font-weight:600}
@@ -345,7 +370,9 @@
     const split = (name, offset) => (lang === 'en' ? [...name] : [name]).map((ch, i) => `<span class="ch" style="--i:${i + offset}">${esc(ch)}</span>`).join('');
     const list = (items) => items.map((x) => `<p class="t">${esc(x)}</p>`).join('');
     const person = (side, img, pre, name, par, d) =>
-      `<article class="person d3 ${side}" style="--d:${d}s" data-tilt><div class="photo"><img src="${img}" alt="${esc(name)}" loading="lazy"></div><p class="pre t">${esc(pre)}</p><h3 class="who t">${esc(name)}</h3><p class="par t">${esc(par)}</p></article>`;
+      `<article class="person d3 ${side}" data-fx="${side === 'g' ? 'swingL' : 'swingR'}" style="--d:${d}s" data-tilt><div class="photo"><img src="${img}" alt="${esc(name)}" loading="lazy"></div><p class="pre t">${esc(pre)}</p><h3 class="who t">${esc(name)}</h3><p class="par t">${esc(par)}</p></article>`;
+    // One distinct entrance per event card; Hastmelap (index 5) gets the full card flip.
+    const EV_FX = ['flipX', 'cube', 'unfold', 'fall', 'twist', 'flip', 'spiral'];
 
     function render() {
       const c = C[lang];
@@ -379,18 +406,18 @@
           <section class="panel scroll3d" data-bg="${BG.count}">
             <p class="eyebrow t reveal">${esc(c.countLabel)}</p>
             <h2 class="h t reveal" style="--d:.1s">${esc(c.countH)}</h2>
-            <div class="count reveal" style="--d:.2s" id="count">${c.units.map((u) => `<div class="unit"><div class="num"><span>00</span></div><small class="t">${esc(u)}</small></div>`).join('')}</div>
+            <div class="count" id="count">${c.units.map((u, i) => `<div class="unit d3" data-fx="drop" style="--d:${0.15 + i * 0.15}s"><div class="num"><span>00</span></div><small class="t">${esc(u)}</small></div>`).join('')}</div>
           </section>
           <section class="panel scroll3d" data-bg="${BG.events}">
             <p class="eyebrow t reveal">${esc(c.evLabel)}</p>
             <h2 class="h t reveal" style="--d:.1s">${esc(c.evH)}</h2>
-            <div class="events">${c.events.map((e, i) => `<article class="ev d3${e[4] ? ' main' : ''}" style="--d:${(i % 2) * 0.12}s" data-tilt><span class="no">${num(String(i + 1).padStart(2, '0'))}</span><h3 class="t">${esc(e[0])}</h3><p class="t">${esc(e[1])} · <b>${esc(e[2])}</b><br>${esc(e[3])}</p></article>`).join('')}</div>
+            <div class="events">${c.events.map((e, i) => `<article class="ev d3${e[4] ? ' main' : ''}" data-fx="${EV_FX[i % EV_FX.length]}" style="--d:${(i % 2) * 0.12}s" data-tilt><span class="no">${num(String(i + 1).padStart(2, '0'))}</span><h3 class="t">${esc(e[0])}</h3><p class="t">${esc(e[1])} · <b>${esc(e[2])}</b><br>${esc(e[3])}</p></article>`).join('')}</div>
           </section>
           <section class="panel scroll3d" data-bg="${BG.venue}">
             <p class="eyebrow t reveal">${esc(c.venueLabel)}</p>
             <h2 class="h t reveal" style="--d:.1s">${esc(c.venueH)}</h2>
             <p class="body t reveal" style="--d:.2s">${esc(c.venue)}</p>
-            <div class="frame d3" data-tilt><img src="${IMG.couple}" alt="Rahul and Pooja" loading="lazy"></div>
+            <div class="frame d3" data-fx="rise" data-tilt><img src="${IMG.couple}" alt="Rahul and Pooja" loading="lazy"></div>
             <div class="actions reveal" style="--d:.3s">
               <a class="btn solid t" href="${MAP_URL}" target="_blank" rel="noopener noreferrer">${esc(c.map)} →</a>
               <a class="btn t" href="${CAL_URL}" target="_blank" rel="noopener noreferrer">${esc(c.cal)}</a>
@@ -398,12 +425,12 @@
           </section>
           <section class="panel scroll3d" data-bg="${BG.family}">
             <p class="eyebrow t reveal">${esc(c.famLabel)}</p>
-            <div class="fam reveal" style="--d:.1s">${list(c.fam)}</div>
+            <div class="fam d3" data-fx="twist" style="--d:.1s">${list(c.fam)}</div>
             <p class="eyebrow t reveal">${esc(c.welLabel)}</p>
-            <div class="fam reveal" style="--d:.1s">${list(c.wel)}</div>
+            <div class="fam d3" data-fx="unfold" style="--d:.15s">${list(c.wel)}</div>
           </section>
           <section class="panel scroll3d" data-bg="${BG.tahuko}">
-            <div class="tahuko d3" data-tilt>
+            <div class="tahuko d3" data-fx="drop" data-tilt>
               <h2 class="h t">${esc(c.tahukoH)}</h2>
               <p class="poem t">${esc(c.tahuko)}</p>
               <p class="kids t">${esc(c.kids)}</p>
