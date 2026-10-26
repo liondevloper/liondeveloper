@@ -20,37 +20,15 @@ const BRAND_MS = 600;
 const SPLASH_MS = DOTS_FROM * DOT_STEP + BRAND_MS;
 const PROGRESS_START = 0;
 const PROGRESS_MS = SPLASH_MS;
-// The 3D blinds intro (intro.css) opens in about 2.3s.
-const INTRO_MS = 2300;
+// The short logo glow + fade after the splash (polish.css, ld-soft-out) lasts .8s.
+const INTRO_MS = 800;
 const DONE_AT = SPLASH_MS + INTRO_MS;
 
-const SPARKS = 16;
 const BRAND = 'LION DEVELOPER';
 const ACCENT_LETTERS = 4;
-// Panels open left to right, each a little after the one before, following the light beam.
-const SLAT_START = 0.62;
-const SLAT_STEP = 0.075;
 
 type PreloaderPhase = 'splash' | 'leave' | 'done';
 type VarStyle = CSSProperties & Record<`--${string}`, string>;
-
-// Repeatable pseudo-random numbers keep spark positions stable.
-const rand = (index: number, seed: number) => {
-  const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
-  return x - Math.floor(x);
-};
-
-const slatStyle = (index: number, count: number): VarStyle => ({
-  '--n': String(count),
-  '--bx': `${count > 1 ? (index / (count - 1)) * 100 : 0}%`,
-  '--d': `${(SLAT_START + index * SLAT_STEP).toFixed(3)}s`,
-});
-
-const sparkStyle = (index: number): VarStyle => ({
-  '--a': `${((360 / SPARKS) * index + rand(index, 1) * 14).toFixed(1)}deg`,
-  '--r': `${(22 + rand(index, 2) * 26).toFixed(1)}vmin`,
-  '--d': `${(0.42 + rand(index, 3) * 0.12).toFixed(2)}s`,
-});
 
 const indexStyle = (index: number): VarStyle => ({ '--i': String(index) });
 
@@ -110,30 +88,12 @@ function Splash3D({ count }: { count: number }) {
   );
 }
 
-// After the splash: the lion spins inside two 3D gyroscope rings and bursts into sparks,
-// a beam of light sweeps across, and the screen turns open in tall 3D panels to reveal the site.
-function BlindsIntro({ logo, showLogo = true }: { logo: string; showLogo?: boolean }) {
-  const [slats] = useState(() => (window.innerWidth < 680 ? 6 : 10));
+// After the splash: the lion glows for a moment, then the white screen fades away to reveal the site.
+// Replaces the long 3D blinds intro so visitors reach the site faster.
+function SoftReveal({ logo, showLogo = true }: { logo: string; showLogo?: boolean }) {
   return (
-    <div className="intro-blinds" aria-hidden="true">
-      <div className="intro-slats" style={{ gridTemplateColumns: `repeat(${slats}, 1fr)` }}>
-        {Array.from({ length: slats }, (_, index) => (
-          <i className="intro-slat" key={index} style={slatStyle(index, slats)}>
-            <span className="intro-slat-shade" />
-            <span className="intro-slat-edge" />
-          </i>
-        ))}
-      </div>
-      <span className="intro-beam" />
-      {showLogo && (
-        <div className="intro-stage">
-          <span className="intro-halo" />
-          <span className="intro-orbit" />
-          <span className="intro-orbit intro-orbit-2" />
-          {Array.from({ length: SPARKS }, (_, index) => <i className="intro-spark" key={index} style={sparkStyle(index)} />)}
-          <img className="intro-mark" src={logo} alt="" width={454} height={480} />
-        </div>
-      )}
+    <div className="intro-soft" aria-hidden="true">
+      {showLogo && <img src={logo} alt="" width={454} height={480} />}
     </div>
   );
 }
@@ -175,7 +135,7 @@ export function DotPreloader({ logo }: { logo: string }) {
   }, [isInstalled]);
 
   if (phase === 'done') return null;
-  if (phase === 'leave') return <BlindsIntro logo={logo} showLogo={!isInstalled} />;
+  if (phase === 'leave') return <SoftReveal logo={logo} showLogo={!isInstalled} />;
   return <Splash3D count={count} />;
 }
 

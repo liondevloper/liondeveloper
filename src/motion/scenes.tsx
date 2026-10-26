@@ -8,9 +8,12 @@ import './scenes.css';
    --e (enter): 0 when the section top reaches the bottom of the screen, 1 once it is well inside.
    --l (leave): 0 while the section top is at the top of the screen, 1 once it has scrolled fully past.
    scenes.css turns them into depth: the hero browser tilts back and sinks away, headings flip up
-   in 3D, and the "ballet" chips swirl into place around the feature browser. */
+   in 3D, and the "ballet" chips swirl into place around the feature browser.
+   Sections fully off screen also get data-offscreen, which pauses their CSS animations (polish.css). */
 
 const SCENE_SELECTOR = 'main > section';
+// Extra margin so animations restart just before a section scrolls into view.
+const OFFSCREEN_MARGIN = 80;
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
 
 export function useScrollScenes() {
@@ -25,11 +28,13 @@ export function useScrollScenes() {
       // Queried each frame because sections saved in the admin panel can mount after first paint.
       document.querySelectorAll<HTMLElement>(SCENE_SELECTOR).forEach((section) => {
         const rect = section.getBoundingClientRect();
+        const offscreen = rect.bottom < -OFFSCREEN_MARGIN || rect.top > vh + OFFSCREEN_MARGIN;
         const enter = clamp01((vh - rect.top) / (vh * 0.75)).toFixed(3);
         const leave = clamp01(-rect.top / Math.max(rect.height, 1)).toFixed(3);
-        const key = `${enter}|${leave}`;
+        const key = `${enter}|${leave}|${offscreen}`;
         if (last.get(section) === key) return;
         last.set(section, key);
+        section.toggleAttribute('data-offscreen', offscreen);
         section.style.setProperty('--e', enter);
         section.style.setProperty('--l', leave);
       });

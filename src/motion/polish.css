@@ -1,0 +1,84 @@
+/* =====================================================================
+   Premium polish pass. Must stay the very last stylesheet (after trend.css).
+   1. Short intro: after the 3-dot splash, a quick logo glow + fade replaces the long 3D blinds.
+   2. Calm cards: looping card effects run only on the "Most popular" cards; every other card
+      shows its light effects only while hovered.
+   3. Round menu dots, and one consistent corner radius for cards, inputs, buttons and chips.
+   4. Off-screen sections pause their animations (data-offscreen is set in scenes.tsx).
+   5. Soft section entrance: each section gently scales and fades up as it scrolls in.
+   ===================================================================== */
+
+/* ---------- 1. Short intro after the splash ---------- */
+:root body .site-shell .intro-soft {
+  position: fixed; inset: 0; z-index: 101; display: grid; place-items: center; pointer-events: none;
+  background: #ffffff;
+}
+:root body .site-shell .intro-soft img { width: 76px; height: auto; }
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell .intro-soft { animation: ld-soft-out .8s cubic-bezier(.7, 0, .3, 1) both; }
+  :root body .site-shell .intro-soft img { animation: ld-soft-logo .8s cubic-bezier(.65, 0, .35, 1) both; }
+}
+@keyframes ld-soft-out { 0%, 35% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes ld-soft-logo {
+  0% { scale: .9; opacity: 1; filter: drop-shadow(0 0 0 rgba(239,106,40,0)); }
+  40% { scale: 1.08; opacity: 1; filter: drop-shadow(0 0 24px rgba(239,106,40,.6)); }
+  100% { scale: 1.6; opacity: 0; filter: drop-shadow(0 0 30px rgba(239,106,40,0)); }
+}
+/* The hero, menu dots and WhatsApp button now arrive right after the short intro. */
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-ready body .site-shell .hero h1 .word > span { transition-delay: calc(.15s + var(--i, 0) * 60ms); }
+  html.motion-ready.is-loaded body .site-shell .hero-text { transition-delay: .45s; }
+  html.motion-ready.is-loaded body .site-shell .hero-actions { transition-delay: .55s; }
+  html.motion-ready.is-loaded body .site-shell .hero-services { transition-delay: .65s; }
+  html.motion-ready body .site-shell .hero-visual { transition-delay: .3s; }
+  html.motion-ready.is-loaded body .site-shell .hero-visual { animation-delay: .25s; }
+  html.motion-ready.is-loaded body .site-shell .floating-whatsapp { animation-delay: .9s; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(1) { animation-delay: .3s; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(2) { animation-delay: .38s; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(3) { animation-delay: .46s; }
+  html.motion-ready.is-loaded body .dots-grid i:nth-child(4) { animation-delay: .54s; }
+}
+
+/* ---------- 2. Calm cards ---------- */
+/* Why cards: no constant shine, border light or bobbing icon; the effects wake up on hover. */
+:root body .site-shell .why-card .why-fx { opacity: 0; transition: opacity .45s ease; }
+:root body .site-shell .why-card:hover .why-fx { opacity: 1; }
+html:root body .site-shell .why-card:not(:hover) .why-fx i { animation-play-state: paused !important; }
+html:root body .site-shell .why-card > svg { animation: none !important; }
+
+/* Price cards: only the popular plan keeps its moving border, sweep and sparks. */
+:root body .site-shell .price-card:not(.popular) .price-fx { opacity: 0; transition: opacity .45s ease; }
+:root body .site-shell .price-card:not(.popular)[data-hover] .price-fx,
+:root body .site-shell .price-card:not(.popular):hover .price-fx { opacity: 1; }
+html:root body .site-shell .price-card:not(.popular):not(:hover) .price-fx i { animation-play-state: paused !important; }
+
+/* Care plan tiers: only the popular tier glows, floats and sparkles; the others stay still until hovered. */
+:root body .site-shell .care-tier:not(.is-popular) .care-fx { opacity: .35; transition: opacity .45s ease; }
+:root body .site-shell .care-tier:not(.is-popular):hover .care-fx { opacity: 1; }
+html:root body .site-shell .care-tier:not(.is-popular):not(:hover) .care-fx i { animation-play-state: paused !important; }
+html:root body .site-shell .care-tier:not(.is-popular) { animation: none !important; }
+html:root body .site-shell .care-tier:not(.is-popular) .care-price b { animation: none !important; }
+
+/* ---------- 3. Round shapes and one consistent radius ---------- */
+:root body .site-shell .dots-grid i { border-radius: 50%; }
+:root body .site-shell :is(.price-card, .care-tier, .why-card, .process-card, .testimonial-card, .care-block, .policy-panel, .template-browser) { border-radius: 24px; }
+:root body .site-shell :is(.faq-item, .policy-example, .price-perk) { border-radius: 16px; }
+:root body .site-shell .form-card :is(input, textarea) { border-radius: 14px; }
+:root body .site-shell :is(.button, .tech-cloud > span, .feature-tag, .template-tags small, .popular-tag, .care-tier-tag, .care-offer, .policy-tabs button) { border-radius: 999px; }
+
+/* ---------- 4. Off-screen sections pause their animations (saves battery, smoother scrolling) ---------- */
+html:root body .site-shell main > section[data-offscreen] *,
+html:root body .site-shell main > section[data-offscreen] *::before,
+html:root body .site-shell main > section[data-offscreen] *::after { animation-play-state: paused !important; }
+
+/* ---------- 5. Soft section entrance ---------- */
+/* Uses the separate scale property, so it never fights the transforms inside each section.
+   The templates section is left out because its previews already zoom in on their own. */
+@media (prefers-reduced-motion: no-preference) {
+  :root body .site-shell main > section:not(.hero):not(.templates-section) {
+    --s: min(var(--e, 1) * 1.35, 1);
+    scale: calc(.95 + var(--s) * .05);
+    opacity: calc(.35 + var(--s) * .65);
+    transform-origin: 50% 0%;
+  }
+}

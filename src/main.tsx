@@ -13,8 +13,10 @@ import './motion/smooth.css';
 import './motion/layout.css';
 // Pricing alignment, live preview and spacing fixes.
 import './motion/fixes.css';
-// Kinetic headings, liquid glass and 3D scroll zoom; must stay the very last stylesheet.
+// Kinetic headings, liquid glass and 3D scroll zoom.
 import './motion/trend.css';
+// Short intro, calm cards, round shapes, paused off-screen animations; must stay the very last stylesheet.
+import './motion/polish.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
