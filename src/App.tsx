@@ -6,7 +6,6 @@ import {
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
 import { phoneLink, useSiteContent, whatsappLink } from '@/data/site';
-import lionLogo from '@/assets/images/lion-logo.png';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
 import { AUTO_SWIPE_MS, DotPreloader, DotsMenuButton, FloatingWhatsApp, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
@@ -14,12 +13,15 @@ import { ScrollBallet, useScrollScenes } from '@/motion/scenes';
 import FancySelect, { toOption } from '@/motion/FancySelect';
 import PricingSection from '@/pricing/PricingSection';
 
+// The Lion Digital Solution logo, made at build time from the uploaded logo (see pwa-icons.ts).
+const lionLogo = '/brand/lion-logo.png';
+
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
 type EnquiryFields = Record<string, FormDataEntryValue>;
 
 const BAND_WORDS = ['Business Websites', 'Ready in 1–3 Days', 'Landing Pages', 'E-Commerce', 'Web Apps', 'Admin Panels', 'Booking Systems', 'UI/UX Design'];
-const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Developer'];
+const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Digital Solution'];
 const NAV_ITEMS = ['Home', 'Services', 'Templates', 'Pricing', 'About', 'Contact'];
 const WEBSITE_TYPES = [
   'Salon',
@@ -189,7 +191,7 @@ function App() {
     ? whatsappLink(
         contact.whatsapp,
         [
-          `Hi Lion Developer, I just sent a project request from your website.`,
+          `Hi Lion Digital Solution, I just sent a project request from your website.`,
           `Name: ${sentEnquiry.name}`,
           sentEnquiry.package ? `Package: ${sentEnquiry.package}` : '',
           sentEnquiry.website_type ? `Website type: ${sentEnquiry.website_type}` : '',
@@ -209,8 +211,8 @@ function App() {
       <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
       <nav className="navbar">
         <a className="brand" href="#home" onClick={closeMenu}>
-          <span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span>
-          <span><strong>LION</strong><small>DEVELOPER</small></span>
+          <span className="brand-mark"><img src={lionLogo} alt="Lion Digital Solution" width={320} height={227} /></span>
+          <span><strong>LION</strong><small>DIGITAL SOLUTION</small></span>
         </a>
         <DotsMenuButton open={menuOpen} onToggle={() => setMenuOpen(!menuOpen)} />
         <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
@@ -294,7 +296,7 @@ function App() {
           </div>
         </section>
 
-        <section className="why-section section-pad section-dark" id="about"><div className="about-grid"><div className="about-copy"><span className="section-kicker" data-reveal>Why Lion Developer</span><h2 data-reveal="clip">Digital experiences<br />that <em>matter.</em></h2><p data-reveal style={stagger(2)}>Lion Developer is focused on creating modern, responsive and business-oriented websites and web applications. I help businesses, brands and professionals turn their ideas into fast, functional and professional digital experiences.</p><a className="button button-gold" href="#contact" data-reveal style={stagger(3)}>Let’s work together <ArrowUpRight size={18} /></a></div><div className="why-cards">{WHY_CARDS.map(({ title, text, icon: Icon }, index) => <div className="why-card" key={title} data-reveal data-tilt="10" style={stagger(index)}><span className="why-fx" aria-hidden="true"><i /><i /></span><Icon size={20} /><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
+        <section className="why-section section-pad section-dark" id="about"><div className="about-grid"><div className="about-copy"><span className="section-kicker" data-reveal>Why Lion Digital Solution</span><h2 data-reveal="clip">Digital experiences<br />that <em>matter.</em></h2><p data-reveal style={stagger(2)}>Lion Digital Solution is focused on creating modern, responsive and business-oriented websites and web applications. I help businesses, brands and professionals turn their ideas into fast, functional and professional digital experiences.</p><a className="button button-gold" href="#contact" data-reveal style={stagger(3)}>Let’s work together <ArrowUpRight size={18} /></a></div><div className="why-cards">{WHY_CARDS.map(({ title, text, icon: Icon }, index) => <div className="why-card" key={title} data-reveal data-tilt="10" style={stagger(index)}><span className="why-fx" aria-hidden="true"><i /><i /></span><Icon size={20} /><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
 
         <section className="tech-section section-pad"><div className="center-heading"><span className="section-kicker" data-reveal>The toolkit</span><h2 data-reveal="clip">Technologies I<br /><em>work with.</em></h2></div><div className="tech-cloud">{technologies.map((tech, index) => <span key={index} data-reveal="scale" style={stagger(index)}><Code2 size={14} />{tech}</span>)}</div></section>
 
@@ -309,7 +311,7 @@ function App() {
       </main>
 
       {/* Footer bottom shows only the centred copyright line; the quick links and the "Let's talk" button were removed on request. */}
-      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Developer" width={454} height={480} /></span><span><strong>LION</strong><small>DEVELOPER</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p></div><div className="footer-bottom" style={{ justifyContent: 'center', textAlign: 'center' }}><span>© {new Date().getFullYear()} Lion Developer. All rights reserved.</span></div></footer>
+      <footer className="footer"><div className="footer-top" data-reveal><a className="brand" href="#home"><span className="brand-mark"><img src={lionLogo} alt="Lion Digital Solution" width={320} height={227} /></span><span><strong>LION</strong><small>DIGITAL SOLUTION</small></span></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p></div><div className="footer-bottom" style={{ justifyContent: 'center', textAlign: 'center' }}><span>© {new Date().getFullYear()} Lion Digital Solution. All rights reserved.</span></div></footer>
 
       <FloatingWhatsApp href={whatsappHref} />
 
