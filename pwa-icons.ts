@@ -9,9 +9,10 @@ import type { Plugin } from 'vite';
    Phones crop home-screen icons into a circle or rounded square, so every icon keeps the lion
    inside the safe centre zone on an ivory tile. To change the logo, replace LOGO_SOURCE_URL. */
 
-export const LOGO_SOURCE_URL = 'https://hercules-cdn.com/file_Dn4EX4Pm1c1tBNq9ZqOz6dym';
-// The lion sits above the "LION / DIGITAL SOLUTION" name plate, in the top 63% of the logo.
-const LION_SHARE = 0.63;
+export const LOGO_SOURCE_URL = 'https://hercules-cdn.com/file_5QmR8pgJOvjLs1ixaKErgR4p';
+// The lion (with its red and black pixels) sits above the "LION / DIGITAL SOLUTION" name plate,
+// in the top 61.5% of the logo. Going lower would cut into the "LION" letters.
+const LION_SHARE = 0.615;
 // Width of the transparent lion used on the site (header, footer, loader).
 const SITE_LOGO_WIDTH = 320;
 
@@ -115,7 +116,7 @@ function decodePng(file: Buffer): Rgba {
 }
 
 // Makes the white background transparent. Only white that touches the image edge is removed,
-// so the white of the lion's face and mane stays.
+// so the white of the lion's face and mane stays. Logos that are already transparent pass through.
 function removeBackground({ width, height, data }: Rgba): Rgba {
   const out = new Uint8Array(data);
   const seen = new Uint8Array(width * height);
