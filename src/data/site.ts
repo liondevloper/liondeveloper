@@ -103,8 +103,8 @@ export const BLANK_CARE_TIER: CareTier = { name: '', price: '', yearlyPrice: '',
 export const FREE_DOMAIN_PERK = 'FREE .in / .com domain + hosting for 1 year';
 
 export const siteConfig = {
-  brand: 'LION DEVELOPER',
-  shortBrand: 'Lion Developer',
+  brand: 'LION DIGITAL SOLUTION',
+  shortBrand: 'Lion Digital Solution',
   tagline: 'Websites. Apps. Digital Solutions.',
 };
 
@@ -112,7 +112,7 @@ export const defaultContent: SiteContent = {
   contact: {
     email: 'liondeveloper76@gmail.com',
     whatsapp: '9737822142',
-    whatsappMessage: 'Hi Lion Developer, I want a website for my business.',
+    whatsappMessage: 'Hi Lion Digital Solution, I want a website for my business.',
     instagram: '@lion___developer',
     instagramUrl: 'https://www.instagram.com/lion___developer/',
   },
