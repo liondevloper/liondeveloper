@@ -25,7 +25,7 @@ export default function Login({ onSignedIn }: { onSignedIn: (email: string) => v
   return (
     <div className="admin-login">
       <form onSubmit={handleSubmit}>
-        <span className="admin-kicker">Lion Developer</span>
+        <span className="admin-kicker">Lion Digital Solution</span>
         <h1>Admin sign in</h1>
         <label>
           Email

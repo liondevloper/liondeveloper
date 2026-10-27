@@ -1,23 +1,37 @@
-import { readFileSync } from 'node:fs';
 import { deflateSync, inflateSync } from 'node:zlib';
 import type { Plugin } from 'vite';
 
-/* Installed-app (PWA) icons, made from public/logo.png at build time.
-   Phones crop home-screen icons into a circle or rounded square, which cut the lion's ears and the
-   name plate off. Every icon here puts the whole logo inside the safe centre zone on an ivory tile. */
+/* Brand images, made at build time from the Lion Digital Solution logo on the Hercules CDN.
+   The white background around the logo is removed, then:
+   - the lion alone becomes /brand/lion-logo.png (header, footer and loader),
+   - the lion also becomes the favicon and the installed-app (PWA) icons,
+   - the full logo with its name becomes /logo.png for link share previews.
+   Phones crop home-screen icons into a circle or rounded square, so every icon keeps the lion
+   inside the safe centre zone on an ivory tile. To change the logo, replace LOGO_SOURCE_URL. */
+
+export const LOGO_SOURCE_URL = 'https://hercules-cdn.com/file_Dn4EX4Pm1c1tBNq9ZqOz6dym';
+// The lion sits above the "LION / DIGITAL SOLUTION" name plate, in the top 63% of the logo.
+const LION_SHARE = 0.63;
+// Width of the transparent lion used on the site (header, footer, loader).
+const SITE_LOGO_WIDTH = 320;
 
 type Rgba = { width: number; height: number; data: Uint8Array };
-type IconSpec = { file: string; size: number; logoShare: number; corner: number };
+type Bounds = { left: number; top: number; right: number; bottom: number };
+type IconSpec = { file: string; size: number; logoShare: number; corner: number; source: 'lion' | 'full' };
 
 export const PWA_ICONS: readonly IconSpec[] = [
   // "any" icons: the logo fills most of a rounded tile.
-  { file: 'icons/icon-192.png', size: 192, logoShare: 0.84, corner: 0.22 },
-  { file: 'icons/icon-512.png', size: 512, logoShare: 0.84, corner: 0.22 },
+  { file: 'icons/icon-192.png', size: 192, logoShare: 0.84, corner: 0.22, source: 'lion' },
+  { file: 'icons/icon-512.png', size: 512, logoShare: 0.84, corner: 0.22, source: 'lion' },
   // "maskable" icons: Android may crop to a circle, so the logo stays inside the inner 62%.
-  { file: 'icons/icon-maskable-192.png', size: 192, logoShare: 0.62, corner: 0 },
-  { file: 'icons/icon-maskable-512.png', size: 512, logoShare: 0.62, corner: 0 },
+  { file: 'icons/icon-maskable-192.png', size: 192, logoShare: 0.62, corner: 0, source: 'lion' },
+  { file: 'icons/icon-maskable-512.png', size: 512, logoShare: 0.62, corner: 0, source: 'lion' },
   // iOS rounds the corners itself and does not allow transparency.
-  { file: 'icons/apple-touch-icon.png', size: 180, logoShare: 0.76, corner: 0 },
+  { file: 'icons/apple-touch-icon.png', size: 180, logoShare: 0.76, corner: 0, source: 'lion' },
+  // Browser tab icon.
+  { file: 'favicon.png', size: 64, logoShare: 0.92, corner: 0.22, source: 'lion' },
+  // Share preview image (WhatsApp, Instagram, Google), with the full name plate.
+  { file: 'logo.png', size: 630, logoShare: 0.86, corner: 0, source: 'full' },
 ];
 
 const SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
@@ -33,7 +47,7 @@ const paeth = (a: number, b: number, c: number) => {
 
 // Reads 8-bit, non-interlaced PNGs (palette, grey, RGB, with or without alpha) into RGBA pixels.
 function decodePng(file: Buffer): Rgba {
-  if (!file.subarray(0, 8).equals(SIGNATURE)) throw new Error('pwa-icons: logo.png is not a PNG');
+  if (!file.subarray(0, 8).equals(SIGNATURE)) throw new Error('pwa-icons: the logo is not a PNG');
   let width = 0;
   let height = 0;
   let colorType = 0;
@@ -48,7 +62,7 @@ function decodePng(file: Buffer): Rgba {
       width = body.readUInt32BE(0);
       height = body.readUInt32BE(4);
       colorType = body[9] ?? 0;
-      if (body[8] !== 8 || body[12] !== 0) throw new Error('pwa-icons: logo.png must be 8-bit and non-interlaced');
+      if (body[8] !== 8 || body[12] !== 0) throw new Error('pwa-icons: the logo must be an 8-bit, non-interlaced PNG');
     } else if (type === 'PLTE') palette = new Uint8Array(body);
     else if (type === 'tRNS') alpha = new Uint8Array(body);
     else if (type === 'IDAT') parts.push(body);
@@ -100,8 +114,39 @@ function decodePng(file: Buffer): Rgba {
   return { width, height, data };
 }
 
+// Makes the white background transparent. Only white that touches the image edge is removed,
+// so the white of the lion's face and mane stays.
+function removeBackground({ width, height, data }: Rgba): Rgba {
+  const out = new Uint8Array(data);
+  const seen = new Uint8Array(width * height);
+  const stack: number[] = [];
+  const isWhite = (i: number) => Math.min(out[i * 4] ?? 0, out[i * 4 + 1] ?? 0, out[i * 4 + 2] ?? 0) >= 236;
+  const push = (i: number) => {
+    if (seen[i] || !isWhite(i)) return;
+    seen[i] = 1;
+    stack.push(i);
+  };
+  for (let x = 0; x < width; x++) {
+    push(x);
+    push((height - 1) * width + x);
+  }
+  for (let y = 0; y < height; y++) {
+    push(y * width);
+    push(y * width + width - 1);
+  }
+  for (let i = stack.pop(); i !== undefined; i = stack.pop()) {
+    out[i * 4 + 3] = 0;
+    const x = i % width;
+    if (x > 0) push(i - 1);
+    if (x < width - 1) push(i + 1);
+    if (i >= width) push(i - width);
+    if (i < width * (height - 1)) push(i + width);
+  }
+  return { width, height, data: out };
+}
+
 // Smallest box around the visible (non-transparent) part of the logo, so empty margins do not shrink it.
-function visibleBounds({ width, height, data }: Rgba) {
+function visibleBounds({ width, height, data }: Rgba): Bounds {
   let left = width;
   let top = height;
   let right = -1;
@@ -116,6 +161,53 @@ function visibleBounds({ width, height, data }: Rgba) {
     }
   }
   return right < 0 ? { left: 0, top: 0, right: width - 1, bottom: height - 1 } : { left, top, right, bottom };
+}
+
+function crop(image: Rgba, { left, top, right, bottom }: Bounds): Rgba {
+  const width = right - left + 1;
+  const height = bottom - top + 1;
+  const data = new Uint8Array(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    const start = ((top + y) * image.width + left) * 4;
+    data.set(image.data.subarray(start, start + width * 4), y * width * 4);
+  }
+  return { width, height, data };
+}
+
+// Box-filter downscale that keeps transparency, so the edges stay smooth on any background.
+function resize(image: Rgba, width: number): Rgba {
+  const scale = width / image.width;
+  const height = Math.max(1, Math.round(image.height * scale));
+  const data = new Uint8Array(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    const y0 = Math.floor(y / scale);
+    const y1 = Math.min(image.height, Math.max(y0 + 1, Math.floor((y + 1) / scale)));
+    for (let x = 0; x < width; x++) {
+      const x0 = Math.floor(x / scale);
+      const x1 = Math.min(image.width, Math.max(x0 + 1, Math.floor((x + 1) / scale)));
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      let a = 0;
+      for (let sy = y0; sy < y1; sy++) {
+        for (let sx = x0; sx < x1; sx++) {
+          const p = (sy * image.width + sx) * 4;
+          const pa = (image.data[p + 3] ?? 0) / 255;
+          r += (image.data[p] ?? 0) * pa;
+          g += (image.data[p + 1] ?? 0) * pa;
+          b += (image.data[p + 2] ?? 0) * pa;
+          a += pa;
+        }
+      }
+      const count = (y1 - y0) * (x1 - x0);
+      const d = (y * width + x) * 4;
+      data[d] = a ? Math.round(r / a) : 0;
+      data[d + 1] = a ? Math.round(g / a) : 0;
+      data[d + 2] = a ? Math.round(b / a) : 0;
+      data[d + 3] = Math.round((a / count) * 255);
+    }
+  }
+  return { width, height, data };
 }
 
 const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
@@ -211,27 +303,50 @@ function renderIcon(logo: Rgba, spec: IconSpec): Buffer {
   return encodePng({ width: size, height: size, data: out });
 }
 
-export function buildPwaIcons(logoPath: string): Map<string, Buffer> {
-  const logo = decodePng(readFileSync(logoPath));
-  return new Map(PWA_ICONS.map((spec) => [spec.file, renderIcon(logo, spec)]));
+async function downloadLogo(): Promise<Buffer> {
+  const response = await fetch(LOGO_SOURCE_URL);
+  if (!response.ok) throw new Error(`pwa-icons: could not download the logo (HTTP ${response.status})`);
+  return Buffer.from(await response.arrayBuffer());
 }
 
-// Serves the icons in dev and writes them into dist/icons on build. Nothing binary lives in git.
-export function pwaIcons(logoPath = 'public/logo.png'): Plugin {
-  let icons: Map<string, Buffer> | null = null;
-  const load = () => (icons ??= buildPwaIcons(logoPath));
+export function buildBrandImages(source: Buffer): Map<string, Buffer> {
+  const cleaned = removeBackground(decodePng(source));
+  const full = crop(cleaned, visibleBounds(cleaned));
+  const lionArea = crop(full, { left: 0, top: 0, right: full.width - 1, bottom: Math.round(full.height * LION_SHARE) });
+  const lion = crop(lionArea, visibleBounds(lionArea));
+  const images = new Map(PWA_ICONS.map((spec) => [spec.file, renderIcon(spec.source === 'full' ? full : lion, spec)]));
+  images.set('brand/lion-logo.png', encodePng(resize(lion, SITE_LOGO_WIDTH)));
+  return images;
+}
+
+// Serves the brand images in dev and writes them into dist on build. Nothing binary lives in git.
+export function pwaIcons(): Plugin {
+  let images: Promise<Map<string, Buffer>> | null = null;
+  const load = () => (images ??= downloadLogo().then(buildBrandImages));
   return {
-    name: 'lion-pwa-icons',
+    name: 'lion-brand-images',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const icon = load().get((req.url ?? '').split('?')[0]?.replace(/^\//, '') ?? '');
-        if (!icon) return next();
-        res.setHeader('Content-Type', 'image/png');
-        res.end(icon);
+        const file = (req.url ?? '').split('?')[0]?.replace(/^\//, '') ?? '';
+        if (!file.endsWith('.png')) return next();
+        load().then(
+          (all) => {
+            const image = all.get(file);
+            if (!image) return next();
+            res.setHeader('Content-Type', 'image/png');
+            res.end(image);
+          },
+          (error: unknown) => {
+            // Let the next request try the download again.
+            images = null;
+            console.error(error);
+            next();
+          },
+        );
       });
     },
-    generateBundle() {
-      for (const [fileName, source] of load()) this.emitFile({ type: 'asset', fileName, source });
+    async generateBundle() {
+      for (const [fileName, source] of await load()) this.emitFile({ type: 'asset', fileName, source });
     },
   };
 }
