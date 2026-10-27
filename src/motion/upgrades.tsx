@@ -25,7 +25,7 @@ const INTRO_MS = 2300;
 const DONE_AT = SPLASH_MS + INTRO_MS;
 
 const SPARKS = 16;
-const BRAND = 'LION DEVELOPER';
+const BRAND = 'LION DIGITAL SOLUTION';
 const ACCENT_LETTERS = 4;
 // Panels open left to right, each a little after the one before, following the light beam.
 const SLAT_START = 0.62;
@@ -131,7 +131,7 @@ function BlindsIntro({ logo, showLogo = true }: { logo: string; showLogo?: boole
           <span className="intro-orbit" />
           <span className="intro-orbit intro-orbit-2" />
           {Array.from({ length: SPARKS }, (_, index) => <i className="intro-spark" key={index} style={sparkStyle(index)} />)}
-          <img className="intro-mark" src={logo} alt="" width={454} height={480} />
+          <img className="intro-mark" src={logo} alt="" width={320} height={227} />
         </div>
       )}
     </div>
@@ -264,7 +264,7 @@ export function FloatingWhatsApp({ href }: { href: string }) {
       href={href}
       target={external ? '_blank' : undefined}
       rel="noreferrer"
-      aria-label="Chat with Lion Developer on WhatsApp"
+      aria-label="Chat with Lion Digital Solution on WhatsApp"
       title="Chat on WhatsApp"
     >
       <span className="wa-ring" aria-hidden="true" />
