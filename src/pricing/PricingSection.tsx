@@ -115,7 +115,7 @@ function CareTierCard({ care, tier, index }: { care: CarePlan; tier: CareTier; i
 }
 
 function CareBlock({ care, whatsapp }: { care: CarePlan; whatsapp: string }) {
-  const chatHref = whatsappLink(whatsapp, `Hi Lion Developer, I would like to confirm a ${care.name}. Please share the details.`);
+  const chatHref = whatsappLink(whatsapp, `Hi Lion Digital Solution, I would like to confirm a ${care.name}. Please share the details.`);
   return (
     <div className="care-block" data-reveal>
       <div className="care-block-head">
