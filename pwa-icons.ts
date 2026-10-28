@@ -10,7 +10,7 @@ import type { Plugin } from 'vite';
    Phones crop home-screen icons into a circle or rounded square, so every icon keeps the lion
    inside the safe centre zone on an ivory tile. To change a logo, replace its URL below. */
 
-export const LION_LOGO_URL = 'https://hercules-cdn.com/file_3U7LPe0gMYh30PEdlmc0K1eG';
+export const LION_LOGO_URL = 'https://hercules-cdn.com/file_gzv61TjvLRyIuEFZ6O2HuXjl';
 export const FULL_LOGO_URL = 'https://hercules-cdn.com/file_ZZvq8z1u4DZxyfno3dg8DH01';
 // Widths of the transparent logos used on the site.
 const SITE_LION_WIDTH = 320;
