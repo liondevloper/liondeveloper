@@ -2,6 +2,9 @@ import { useState, type FormEvent } from 'react';
 import { LogIn } from 'lucide-react';
 import { adminApi } from './api';
 
+// Wide Lion Digital Solution logo, made at build time from the uploaded logo (see pwa-icons.ts).
+const FULL_LOGO = '/brand/lion-full-logo.png';
+
 export default function Login({ onSignedIn }: { onSignedIn: (email: string) => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,6 +28,9 @@ export default function Login({ onSignedIn }: { onSignedIn: (email: string) => v
   return (
     <div className="admin-login">
       <form onSubmit={handleSubmit}>
+        <span className="admin-login-logo">
+          <img src={FULL_LOGO} alt="Lion Digital Solution - Build, Create, Grow" width={900} height={242} />
+        </span>
         <span className="admin-kicker">Lion Digital Solution</span>
         <h1>Admin sign in</h1>
         <label>

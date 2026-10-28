@@ -129,3 +129,7 @@
   .admin-fields { padding: 18px; }
   .admin-upload-row { flex-direction: column; }
 }
+
+/* Wide Lion Digital Solution logo on the sign-in card, on a light plate so its dark tagline stays readable. */
+.admin-login-logo { display: grid; place-items: center; background: #faf6ee; border-radius: 12px; padding: 14px 16px; margin-bottom: 4px; }
+.admin-login-logo img { display: block; width: 100%; height: auto; }

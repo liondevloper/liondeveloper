@@ -1,0 +1,7 @@
+/* Wide Lion Digital Solution logo in the footer (the lion icon stays in the header).
+   Uses a new class, so none of the older .brand header rules touch it. */
+:root body .site-shell .footer-logo { display: block; flex-shrink: 0; line-height: 0; }
+:root body .site-shell .footer-logo img { display: block; width: auto; height: 76px; max-width: 100%; object-fit: contain; }
+@media (max-width: 680px) {
+  :root body .site-shell .footer-logo img { height: auto; width: min(100%, 300px); }
+}
