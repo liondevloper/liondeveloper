@@ -6,7 +6,7 @@
   :root body .site-shell .footer-logo img { height: auto; width: min(100%, 300px); }
 }
 
-/* Header only: the new wide logo (lion + LION DIGITAL SOLUTION) replaces the small icon and the text beside it.
+/* Header only: the new wide transparent logo (lion + LION DIGITAL SOLUTION) replaces the small icon and the text beside it.
    The loader and footer keep their own logos. The old <img> stays in place but invisible so its alt text still reads out. */
 :root body .site-shell .site-header .brand { gap: 0; }
 :root body .site-shell .site-header .brand > span:not(.brand-mark) { display: none; }
@@ -14,8 +14,7 @@
   width: auto;
   height: 62px;
   aspect-ratio: 2172 / 724;
-  border-radius: 8px;
-  background: #fff url('https://hercules-cdn.com/file_8FGwHoIN69QcAIq4ZcmpX4ba') center / contain no-repeat;
+  background: url('https://hercules-cdn.com/file_8FGwHoIN69QcAIq4ZcmpX4ba') center / contain no-repeat;
 }
 :root body .site-shell .site-header .brand-mark img { opacity: 0; }
 @media (max-width: 680px) {
