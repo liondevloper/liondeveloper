@@ -9,10 +9,10 @@ import type { Plugin } from 'vite';
    Phones crop home-screen icons into a circle or rounded square, so every icon keeps the lion
    inside the safe centre zone on an ivory tile. To change the logo, replace LOGO_SOURCE_URL. */
 
-export const LOGO_SOURCE_URL = 'https://hercules-cdn.com/file_5QmR8pgJOvjLs1ixaKErgR4p';
+export const LOGO_SOURCE_URL = 'https://hercules-cdn.com/file_dJ202v2k7v6fw1xK5cDpHWpu';
 // The lion (with its red and black pixels) sits above the "LION / DIGITAL SOLUTION" name plate,
-// in the top 61.5% of the logo. Going lower would cut into the "LION" letters.
-const LION_SHARE = 0.615;
+// in the top 60.6% of the logo. Going lower would cut into the "LION" letters.
+const LION_SHARE = 0.606;
 // Width of the transparent lion used on the site (header, footer, loader).
 const SITE_LOGO_WIDTH = 320;
 
