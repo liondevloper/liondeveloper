@@ -69,4 +69,17 @@ footer .links { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-bottom: 1
 footer a { text-decoration: none; }
 footer a:hover { color: var(--gold); }
 .whatsapp-float { position: fixed; right: 18px; bottom: 18px; z-index: 6; background: #25d366; color: #0b2814; font-weight: 700; font-size: 13px; padding: 13px 18px; border-radius: 999px; text-decoration: none; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+/* Blog articles */
+.meta { font: 12px 'DM Mono', monospace; color: #8e8d86; margin-top: 22px; letter-spacing: .06em; }
+.article { max-width: 760px; }
+.article h2 { font-size: clamp(24px, 3vw, 32px); margin: 44px 0 14px; }
+.article h2:first-child { margin-top: 0; }
+.article p, .article li { color: #d6d5ce; font-size: 16px; }
+.article ul, .article ol { padding-left: 22px; }
+.article li { margin-bottom: 6px; }
+.article a { color: var(--gold); }
+.table-wrap { overflow-x: auto; margin: 18px 0; }
+.article table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 14px; }
+.article th, .article td { border-bottom: 1px solid var(--line); padding: 12px 10px; text-align: left; vertical-align: top; color: #d6d5ce; }
+.article th { color: var(--gold); font: 500 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .12em; }
 @media (max-width: 760px) { .top nav { display: none; } .top .btn { padding: 11px 15px; font-size: 12px; } .cta-band { padding: 30px 24px; } section { padding: 52px 0; } }
