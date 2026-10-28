@@ -23,5 +23,5 @@ const vite = await createViteServer({
 app.use(vite.middlewares);
 
 httpServer.listen(port, '0.0.0.0', () => {
-  console.log(`Lion Developer dev server running on http://localhost:${port}`);
+  console.log(`Lion Digital Solution dev server running on http://localhost:${port}`);
 });
