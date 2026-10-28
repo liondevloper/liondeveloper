@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import {
   ArrowUpRight, CalendarCheck2, Check, ChevronDown, ChevronUp, ClipboardList, Code2, Facebook, Globe, Instagram,
   LayoutDashboard, MessagesSquare, MousePointerClick, Palette, PanelsTopLeft, Phone, PlugZap, Rocket, Send, ShoppingBag,
@@ -6,6 +6,7 @@ import {
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
 import { phoneLink, useSiteContent, whatsappLink } from '@/data/site';
+import { localizeContent } from '@/data/region';
 import { BUSINESS } from '@/data/business';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
@@ -139,7 +140,9 @@ async function emailEnquiry(data: EnquiryFields, email: string) {
 }
 
 function App() {
-  const content = useSiteContent();
+  const rawContent = useSiteContent();
+  // Visitors outside India see US dollar prices everywhere on the page (see data/region.ts).
+  const content = useMemo(() => localizeContent(rawContent), [rawContent]);
   const { contact, hero, stats, services, templates, pricing, care, terms, budgets, technologies, testimonials, faqs } = content;
   const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
   const phoneHref = phoneLink(contact.whatsapp) ?? '#contact';
