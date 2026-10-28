@@ -6,17 +6,28 @@
   :root body .site-shell .footer-logo img { height: auto; width: min(100%, 300px); }
 }
 
-/* Header only: the new wide transparent logo (lion + LION DIGITAL SOLUTION) replaces the small icon and the text beside it.
-   The loader and footer keep their own logos. The old <img> stays in place but invisible so its alt text still reads out. */
-:root body .site-shell .site-header .brand { gap: 0; }
-:root body .site-shell .site-header .brand > span:not(.brand-mark) { display: none; }
-:root body .site-shell .site-header .brand-mark {
-  width: auto;
-  height: 62px;
-  aspect-ratio: 2172 / 724;
-  background: url('https://hercules-cdn.com/file_8FGwHoIN69QcAIq4ZcmpX4ba') center / contain no-repeat;
+/* Header: the lion icon on the left (the normal <img>), and on its right the red-chrome
+   "LION / DIGITAL SOLUTION" wordmark cut from the wide logo at build time (see pwa-icons.ts), so the lettering matches it exactly.
+   The plain text stays in the page for screen readers but is drawn invisibly. */
+:root body .site-shell .site-header .brand { gap: 10px; }
+:root body .site-shell .site-header .brand-mark { width: 92px; height: 66px; }
+:root body .site-shell .site-header.is-scrolled .brand-mark { width: 74px; height: 54px; }
+:root body .site-shell .site-header .brand > span:not(.brand-mark) {
+  display: block;
+  height: 52px;
+  aspect-ratio: 560 / 193;
+  flex-shrink: 0;
+  color: transparent;
+  font-size: 0;
+  background: url('/brand/lion-wordmark.png') left center / contain no-repeat;
+  transition: height .45s ease;
 }
-:root body .site-shell .site-header .brand-mark img { opacity: 0; }
+:root body .site-shell .site-header .brand > span:not(.brand-mark) * { font-size: 0; color: transparent; }
+:root body .site-shell .site-header.is-scrolled .brand > span:not(.brand-mark) { height: 44px; }
 @media (max-width: 680px) {
-  :root body .site-shell .site-header .brand-mark { height: 46px; }
+  :root body .site-shell .site-header .brand { gap: 8px; }
+  :root body .site-shell .site-header .brand-mark { width: 68px; height: 50px; }
+  :root body .site-shell .site-header.is-scrolled .brand-mark { width: 54px; height: 40px; }
+  :root body .site-shell .site-header .brand > span:not(.brand-mark) { height: 38px; }
+  :root body .site-shell .site-header.is-scrolled .brand > span:not(.brand-mark) { height: 30px; }
 }

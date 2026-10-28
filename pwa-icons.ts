@@ -12,6 +12,12 @@ import type { Plugin } from 'vite';
 
 export const LION_LOGO_URL = 'https://hercules-cdn.com/file_gzv61TjvLRyIuEFZ6O2HuXjl';
 export const FULL_LOGO_URL = 'https://hercules-cdn.com/file_ZZvq8z1u4DZxyfno3dg8DH01';
+// The wide header logo. Its "LION / DIGITAL SOLUTION" lettering is cut out and becomes /brand/lion-wordmark.png,
+// shown in the header to the right of the lion icon so the lettering matches the logo exactly.
+export const WORDMARK_SOURCE_URL = 'https://hercules-cdn.com/file_8FGwHoIN69QcAIq4ZcmpX4ba';
+// Everything touching the area left of this x position belongs to the lion and is removed.
+const WORDMARK_LION_EDGE = 860;
+const SITE_WORDMARK_WIDTH = 560;
 // Widths of the transparent logos used on the site.
 const SITE_LION_WIDTH = 320;
 const SITE_FULL_WIDTH = 900;
@@ -317,11 +323,46 @@ function prepare(source: Buffer): Rgba {
   return crop(cleaned, visibleBounds(cleaned));
 }
 
-export function buildBrandImages(lionSource: Buffer, fullSource: Buffer): Map<string, Buffer> {
+// Keeps only the lettering of the wide logo: removes every shape connected to the lion on the left,
+// clears faint halo pixels and trims the margins.
+function cutWordmark(source: Buffer): Rgba {
+  const image = decodePng(source);
+  const { width, height } = image;
+  const data = new Uint8Array(image.data);
+  const visible = (i: number) => (data[i * 4 + 3] ?? 0) > 10;
+  const seen = new Uint8Array(width * height);
+  const stack: number[] = [];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < Math.min(WORDMARK_LION_EDGE, width); x++) {
+      const i = y * width + x;
+      if (visible(i)) {
+        seen[i] = 1;
+        stack.push(i);
+      }
+    }
+  }
+  for (let i = stack.pop(); i !== undefined; i = stack.pop()) {
+    data[i * 4 + 3] = 0;
+    const x = i % width;
+    const next = [x > 0 ? i - 1 : -1, x < width - 1 ? i + 1 : -1, i - width, i + width];
+    for (const j of next) {
+      if (j >= 0 && j < width * height && !seen[j] && visible(j)) {
+        seen[j] = 1;
+        stack.push(j);
+      }
+    }
+  }
+  for (let i = 0; i < width * height; i++) if ((data[i * 4 + 3] ?? 0) < 13) data[i * 4 + 3] = 0;
+  const cleaned = { width, height, data };
+  return crop(cleaned, visibleBounds(cleaned));
+}
+
+export function buildBrandImages(lionSource: Buffer, fullSource: Buffer, wordmarkSource?: Buffer): Map<string, Buffer> {
   const logos: Record<Source, Rgba> = { lion: prepare(lionSource), full: prepare(fullSource) };
   const images = new Map(PWA_ICONS.map((spec) => [spec.file, renderIcon(logos[spec.source], spec)]));
   images.set('brand/lion-logo.png', encodePng(resize(logos.lion, SITE_LION_WIDTH)));
   images.set('brand/lion-full-logo.png', encodePng(resize(logos.full, SITE_FULL_WIDTH)));
+  if (wordmarkSource) images.set('brand/lion-wordmark.png', encodePng(resize(cutWordmark(wordmarkSource), SITE_WORDMARK_WIDTH)));
   return images;
 }
 
@@ -329,7 +370,9 @@ export function buildBrandImages(lionSource: Buffer, fullSource: Buffer): Map<st
 export function pwaIcons(): Plugin {
   let images: Promise<Map<string, Buffer>> | null = null;
   const load = () =>
-    (images ??= Promise.all([download(LION_LOGO_URL), download(FULL_LOGO_URL)]).then(([lion, full]) => buildBrandImages(lion, full)));
+    (images ??= Promise.all([download(LION_LOGO_URL), download(FULL_LOGO_URL), download(WORDMARK_SOURCE_URL)]).then(([lion, full, wordmark]) =>
+      buildBrandImages(lion, full, wordmark),
+    ));
   return {
     name: 'lion-brand-images',
     configureServer(server) {
