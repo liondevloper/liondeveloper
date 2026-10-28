@@ -1,22 +1,26 @@
 import { deflateSync, inflateSync } from 'node:zlib';
 import type { Plugin } from 'vite';
 
-/* Brand images, made at build time from the two Lion Digital Solution logos on the Hercules CDN.
+/* Brand images, made at build time from the Lion Digital Solution logos on the Hercules CDN.
    - LION_LOGO_URL is the lion icon on its own. It becomes /brand/lion-logo.png (header and loader),
      the favicon and the installed-app (PWA) icons.
-   - FULL_LOGO_URL is the wide logo with the "LION / DIGITAL SOLUTION / BUILD • CREATE • GROW" name.
+   - FULL_LOGO_URL is the wide logo with "LION / DIGITAL SOLUTION / We build your digital growth".
      It becomes /brand/lion-full-logo.png (footer and admin sign-in) and /logo.png for link share previews.
    Any white background touching the edges is removed and empty margins are trimmed.
    Phones crop home-screen icons into a circle or rounded square, so every icon keeps the lion
-   inside the safe centre zone on an ivory tile. To change a logo, replace its URL below. */
+   inside the safe centre zone on an ivory tile. The link share preview uses a pure white card,
+   so WhatsApp, Instagram and Google never show it on a black background. To change a logo, replace its URL below. */
 
-export const LION_LOGO_URL = 'https://hercules-cdn.com/file_gzv61TjvLRyIuEFZ6O2HuXjl';
-export const FULL_LOGO_URL = 'https://hercules-cdn.com/file_ZZvq8z1u4DZxyfno3dg8DH01';
-// The wide header logo. Its "LION / DIGITAL SOLUTION" lettering is cut out and becomes /brand/lion-wordmark.png,
+export const LION_LOGO_URL = 'https://hercules-cdn.com/file_LMMqaewvd4Uis6KyxFNZL6Jm';
+// The CDN trims a thin grey edge from the generated logo and returns it as a PNG.
+export const FULL_LOGO_URL = 'https://hercules-cdn.com/cdn-cgi/image/trim=12;12;12;12,format=png/file_vJA0PGriSYmzuwyAJ8ACbUpq';
+// The wide logo again. Its "LION / DIGITAL SOLUTION" lettering is cut out and becomes /brand/lion-wordmark.png,
 // shown in the header to the right of the lion icon so the lettering matches the logo exactly.
-export const WORDMARK_SOURCE_URL = 'https://hercules-cdn.com/file_8FGwHoIN69QcAIq4ZcmpX4ba';
-// Everything touching the area left of this x position belongs to the lion and is removed.
-const WORDMARK_LION_EDGE = 860;
+export const WORDMARK_SOURCE_URL = FULL_LOGO_URL;
+// Everything touching the area left of this x position belongs to the lion (and its divider line) and is removed.
+const WORDMARK_LION_EDGE = 630;
+// Rows below this y position hold the tagline, which is too small to read in the header, so they are removed.
+const WORDMARK_TEXT_BOTTOM = 446;
 const SITE_WORDMARK_WIDTH = 560;
 // Widths of the transparent logos used on the site.
 const SITE_LION_WIDTH = 320;
@@ -25,9 +29,10 @@ const SITE_FULL_WIDTH = 900;
 type Rgba = { width: number; height: number; data: Uint8Array };
 type Bounds = { left: number; top: number; right: number; bottom: number };
 type Source = 'lion' | 'full';
-type IconSpec = { file: string; width: number; height: number; logoShare: number; corner: number; source: Source };
+type Tile = 'ivory' | 'white';
+type IconSpec = { file: string; width: number; height: number; logoShare: number; corner: number; source: Source; tile: Tile };
 
-const square = (file: string, size: number, logoShare: number, corner: number): IconSpec => ({ file, width: size, height: size, logoShare, corner, source: 'lion' });
+const square = (file: string, size: number, logoShare: number, corner: number): IconSpec => ({ file, width: size, height: size, logoShare, corner, source: 'lion', tile: 'ivory' });
 
 export const PWA_ICONS: readonly IconSpec[] = [
   // "any" icons: the lion fills most of a rounded tile.
@@ -40,8 +45,9 @@ export const PWA_ICONS: readonly IconSpec[] = [
   square('icons/apple-touch-icon.png', 180, 0.76, 0),
   // Browser tab icon.
   square('favicon.png', 64, 0.92, 0.22),
-  // Share preview image (WhatsApp, Instagram, Google): the wide logo on the standard 1200x630 card.
-  { file: 'logo.png', width: 1200, height: 630, logoShare: 0.88, corner: 0, source: 'full' },
+  // Share preview image (WhatsApp, Instagram, Google): the wide logo on a solid white 1200x630 card.
+  // It is fully opaque, so apps that show transparency as black still show a white card.
+  { file: 'logo.png', width: 1200, height: 630, logoShare: 0.84, corner: 0, source: 'full', tile: 'white' },
 ];
 
 const SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
@@ -259,9 +265,9 @@ function cornerAlpha(x: number, y: number, width: number, height: number, radius
   return Math.min(Math.max(radius - Math.hypot(x + 0.5 - cx, y + 0.5 - cy) + 0.5, 0), 1);
 }
 
-// Draws a trimmed logo centred on an ivory tile of the given size.
+// Draws a trimmed logo centred on an ivory (or pure white) tile of the given size.
 function renderIcon(logo: Rgba, spec: IconSpec): Buffer {
-  const { width, height, logoShare, corner } = spec;
+  const { width, height, logoShare, corner, tile } = spec;
   const scale = Math.min((width * logoShare) / logo.width, (height * logoShare) / logo.height);
   const offX = (width - logo.width * scale) / 2;
   const offY = (height - logo.height * scale) / 2;
@@ -271,11 +277,11 @@ function renderIcon(logo: Rgba, spec: IconSpec): Buffer {
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      // Ivory tile with a soft warm radial glow, matching the site background.
-      const dist = Math.min(Math.hypot(x - width / 2, y - height / 2) / glowRadius, 1);
-      let r = 255 - 12 * dist;
-      let g = 252 - 20 * dist;
-      let b = 246 - 32 * dist;
+      // Ivory tile with a soft warm radial glow matching the site background, or solid white for share previews.
+      const dist = tile === 'white' ? 0 : Math.min(Math.hypot(x - width / 2, y - height / 2) / glowRadius, 1);
+      let r = tile === 'white' ? 255 : 255 - 12 * dist;
+      let g = tile === 'white' ? 255 : 252 - 20 * dist;
+      let b = tile === 'white' ? 255 : 246 - 32 * dist;
 
       // Box-filter the logo pixels under this icon pixel, so downscaling stays smooth.
       let sr = 0;
@@ -323,10 +329,10 @@ function prepare(source: Buffer): Rgba {
   return crop(cleaned, visibleBounds(cleaned));
 }
 
-// Keeps only the lettering of the wide logo: removes every shape connected to the lion on the left,
-// clears faint halo pixels and trims the margins.
+// Keeps only the "LION / DIGITAL SOLUTION" lettering of the wide logo: removes the white background,
+// every shape connected to the lion on the left and the tagline below, clears faint halo pixels and trims the margins.
 function cutWordmark(source: Buffer): Rgba {
-  const image = decodePng(source);
+  const image = removeBackground(decodePng(source));
   const { width, height } = image;
   const data = new Uint8Array(image.data);
   const visible = (i: number) => (data[i * 4 + 3] ?? 0) > 10;
@@ -352,6 +358,7 @@ function cutWordmark(source: Buffer): Rgba {
       }
     }
   }
+  for (let i = WORDMARK_TEXT_BOTTOM * width; i < width * height; i++) data[i * 4 + 3] = 0;
   for (let i = 0; i < width * height; i++) if ((data[i * 4 + 3] ?? 0) < 13) data[i * 4 + 3] = 0;
   const cleaned = { width, height, data };
   return crop(cleaned, visibleBounds(cleaned));
