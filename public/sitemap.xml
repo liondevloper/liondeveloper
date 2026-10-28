@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The homepage plus the static service pages in public/services. Add every new public page here. -->
+<!-- Every public static page. Add each new page here. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://liondigitalsolution.com/</loc><lastmod>2026-10-28</lastmod></url>
   <url><loc>https://liondigitalsolution.com/services/</loc><lastmod>2026-10-28</lastmod></url>
@@ -9,4 +9,11 @@
   <url><loc>https://liondigitalsolution.com/services/custom-web-application-development/</loc><lastmod>2026-10-28</lastmod></url>
   <url><loc>https://liondigitalsolution.com/services/admin-panel-development/</loc><lastmod>2026-10-28</lastmod></url>
   <url><loc>https://liondigitalsolution.com/services/booking-system-development/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/website-development-usa/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/website-development-uk/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/website-development-dubai/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/blog/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/blog/website-cost-2026/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/blog/hire-website-developer-india/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/blog/landing-page-vs-website/</loc><lastmod>2026-10-28</lastmod></url>
 </urlset>
