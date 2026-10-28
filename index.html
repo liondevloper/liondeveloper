@@ -2,6 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9C8GLGD5FX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      // Admin panel visits are not counted, so the reports only show real visitors.
+      if (!location.pathname.startsWith('/developerayan')) {
+        gtag('config', 'G-9C8GLGD5FX');
+      }
+    </script>
     <!-- maximum-scale stops the page getting stuck zoomed in on phones, which cut the sides off. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
     <title>Lion Digital Solution | Website &amp; Web App Development</title>
