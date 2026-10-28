@@ -50,6 +50,8 @@ const formatUsd = (amount: number) => `$${amount.toLocaleString('en-US')}`;
 export const formatMoney = (amount: number) =>
   IS_INTERNATIONAL ? formatUsd(amount) : `₹${amount.toLocaleString('en-IN')}`;
 
+const toNumber = (digits: string) => Number(digits.replace(/[^\d]/g, ''));
+
 const rupees = (price: string) => {
   const digits = price.replace(/[^\d]/g, '');
   return digits ? Number(digits) : null;
@@ -66,8 +68,8 @@ function usdTable(content: SiteContent) {
     const usd = USD_PLAN_PRICES[plan.name];
     const inr = rupees(plan.price);
     add(plan.price, usd);
-    // Half prices appear in the 50% advance examples.
-    if (inr && usd) table.set(Math.ceil(inr / 2), Math.ceil(usd / 2));
+    // Half prices appear on their own in some advance-payment text.
+    if (inr && usd && !table.has(Math.ceil(inr / 2))) table.set(Math.ceil(inr / 2), Math.ceil(usd / 2));
   }
   for (const tier of content.care.tiers) {
     const usd = USD_CARE_PRICES[tier.name];
@@ -78,10 +80,19 @@ function usdTable(content: SiteContent) {
 }
 
 const RUPEE_AMOUNT = /₹\s?(\d[\d,]*)/g;
+// "₹9,000 advance + ₹9,000": both halves come from one package price, so they are split from its dollar price.
+const PAYMENT_EXAMPLE = /₹\s?(\d[\d,]*)(\s*advance\s*\+\s*)₹\s?(\d[\d,]*)/gi;
 
 function toUsdText(text: string, table: Map<number, number>) {
-  return text.replace(RUPEE_AMOUNT, (_match, digits: string) => {
-    const inr = Number(digits.replace(/,/g, ''));
+  const withSplits = text.replace(PAYMENT_EXAMPLE, (match, first: string, joiner: string, second: string) => {
+    const usd = table.get(toNumber(first) + toNumber(second));
+    if (!usd) return match;
+    // Same rule as the rupee split: the advance rounds up, the final payment gets the rest.
+    const advance = Math.ceil(usd / 2);
+    return `${formatUsd(advance)}${joiner}${formatUsd(usd - advance)}`;
+  });
+  return withSplits.replace(RUPEE_AMOUNT, (_match, digits: string) => {
+    const inr = toNumber(digits);
     const usd = table.get(inr) ?? Math.max(5, Math.round(inr / FALLBACK_INR_PER_USD / 5) * 5);
     return formatUsd(usd);
   });

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The site is one public page; sections like #services and #pricing are part of it, not separate URLs. -->
+<!-- The homepage plus the static service pages in public/services. Add every new public page here. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://liondigitalsolution.com/</loc>
-    <lastmod>2026-10-28</lastmod>
-  </url>
+  <url><loc>https://liondigitalsolution.com/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/services/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/services/business-website-development/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/services/landing-page-design/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/services/ecommerce-website-development/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/services/custom-web-application-development/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/services/admin-panel-development/</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://liondigitalsolution.com/services/booking-system-development/</loc><lastmod>2026-10-28</lastmod></url>
 </urlset>
