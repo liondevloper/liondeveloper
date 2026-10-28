@@ -19,5 +19,5 @@ app.use(express.static(distDir, { index: false, maxAge: '1h' }));
 app.use((_req, res) => res.sendFile(path.join(distDir, 'index.html')));
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Lion Developer running on port ${port}`);
+  console.log(`Lion Digital Solution running on port ${port}`);
 });
