@@ -147,7 +147,7 @@ export function Preloader({ logo }: { logo: string }) {
           )}
         </div>
         <span className="preloader-word" key={counting ? 'count' : 'brand'}>
-          {counting ? 'GET READY' : 'LION DEVELOPER'}
+          {counting ? 'GET READY' : 'LION DIGITAL SOLUTION'}
         </span>
       </div>
     </div>
@@ -239,7 +239,7 @@ export function Cursor() {
   );
 }
 
-// Endless ticker of what Lion Developer builds. The list is doubled so the loop has no visible seam.
+// Endless ticker of what Lion Digital Solution builds. The list is doubled so the loop has no visible seam.
 export function Marquee({ items, variant = 'outline' }: { items: string[]; variant?: 'outline' | 'band' }) {
   const loop = [...items, ...items];
   return (
