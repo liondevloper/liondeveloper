@@ -1,7 +1,23 @@
-/* Wide Lion Digital Solution logo in the footer (the lion icon stays in the header).
+/* Wide Lion Digital Solution logo in the footer.
    Uses a new class, so none of the older .brand header rules touch it. */
 :root body .site-shell .footer-logo { display: block; flex-shrink: 0; line-height: 0; }
 :root body .site-shell .footer-logo img { display: block; width: auto; height: 76px; max-width: 100%; object-fit: contain; }
 @media (max-width: 680px) {
   :root body .site-shell .footer-logo img { height: auto; width: min(100%, 300px); }
+}
+
+/* Header only: the new wide logo (lion + LION DIGITAL SOLUTION) replaces the small icon and the text beside it.
+   The loader and footer keep their own logos. The old <img> stays in place but invisible so its alt text still reads out. */
+:root body .site-shell .site-header .brand { gap: 0; }
+:root body .site-shell .site-header .brand > span:not(.brand-mark) { display: none; }
+:root body .site-shell .site-header .brand-mark {
+  width: auto;
+  height: 62px;
+  aspect-ratio: 2144 / 733;
+  border-radius: 8px;
+  background: #fff url('https://hercules-cdn.com/file_UvOpvGV8AXMkhVhA0zaSa1R8') center / contain no-repeat;
+}
+:root body .site-shell .site-header .brand-mark img { opacity: 0; }
+@media (max-width: 680px) {
+  :root body .site-shell .site-header .brand-mark { height: 46px; }
 }
