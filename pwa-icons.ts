@@ -7,6 +7,7 @@ import type { Plugin } from 'vite';
    - FULL_LOGO_URL is the wide logo with "LION / DIGITAL SOLUTION / We build your digital growth".
      It becomes /brand/lion-full-logo.png (footer and admin sign-in) and /logo.png for link share previews.
    Any white background touching the edges is removed and empty margins are trimmed.
+   In the lettering, the white inside letters (the holes of O, D, etc.) is removed too, so the page shows through.
    Phones crop home-screen icons into a circle or rounded square, so every icon keeps the lion
    inside the safe centre zone on an ivory tile. The link share preview uses a pure white card,
    so WhatsApp, Instagram and Google never show it on a black background. To change a logo, replace its URL below. */
@@ -17,10 +18,13 @@ export const FULL_LOGO_URL = 'https://hercules-cdn.com/cdn-cgi/image/trim=12;12;
 // The wide logo again. Its "LION / DIGITAL SOLUTION" lettering is cut out and becomes /brand/lion-wordmark.png,
 // shown in the header to the right of the lion icon so the lettering matches the logo exactly.
 export const WORDMARK_SOURCE_URL = FULL_LOGO_URL;
-// Everything touching the area left of this x position belongs to the lion (and its divider line) and is removed.
+// Everything left of this x position belongs to the lion (and its divider line); everything right of it is lettering.
 const WORDMARK_LION_EDGE = 630;
 // Rows below this y position hold the tagline, which is too small to read in the header, so they are removed.
 const WORDMARK_TEXT_BOTTOM = 446;
+// In the lettering, pixels this close to white are letter holes and become transparent; slightly less white ones fade out.
+const HOLE_WHITE = 228;
+const HOLE_FADE = 40;
 const SITE_WORDMARK_WIDTH = 560;
 // Widths of the transparent logos used on the site.
 const SITE_LION_WIDTH = 320;
@@ -157,6 +161,21 @@ function removeBackground({ width, height, data }: Rgba): Rgba {
     if (x < width - 1) push(i + 1);
     if (i >= width) push(i - width);
     if (i < width * (height - 1)) push(i + width);
+  }
+  return { width, height, data: out };
+}
+
+// Removes the white inside letters (holes of O, D, etc.) right of fromX, which the edge fill above cannot reach.
+// The lion's white face sits left of fromX, so it stays. Near-white edge pixels fade out so letters keep smooth edges.
+function clearLetterHoles({ width, height, data }: Rgba, fromX: number): Rgba {
+  const out = new Uint8Array(data);
+  for (let y = 0; y < height; y++) {
+    for (let x = fromX; x < width; x++) {
+      const d = (y * width + x) * 4;
+      const lightest = Math.min(out[d] ?? 0, out[d + 1] ?? 0, out[d + 2] ?? 0);
+      if (lightest >= HOLE_WHITE) out[d + 3] = 0;
+      else if (lightest > HOLE_WHITE - HOLE_FADE) out[d + 3] = Math.round(((out[d + 3] ?? 0) * (HOLE_WHITE - lightest)) / HOLE_FADE);
+    }
   }
   return { width, height, data: out };
 }
@@ -323,16 +342,17 @@ async function download(url: string): Promise<Buffer> {
   return Buffer.from(await response.arrayBuffer());
 }
 
-// Decodes a logo, removes any white background and trims the empty margins.
-function prepare(source: Buffer): Rgba {
-  const cleaned = removeBackground(decodePng(source));
+// Decodes a logo, removes any white background (and, right of lettersFromX, the letter holes) and trims the empty margins.
+function prepare(source: Buffer, lettersFromX?: number): Rgba {
+  const background = removeBackground(decodePng(source));
+  const cleaned = lettersFromX === undefined ? background : clearLetterHoles(background, lettersFromX);
   return crop(cleaned, visibleBounds(cleaned));
 }
 
-// Keeps only the "LION / DIGITAL SOLUTION" lettering of the wide logo: removes the white background,
+// Keeps only the "LION / DIGITAL SOLUTION" lettering of the wide logo: removes the white background and letter holes,
 // every shape connected to the lion on the left and the tagline below, clears faint halo pixels and trims the margins.
 function cutWordmark(source: Buffer): Rgba {
-  const image = removeBackground(decodePng(source));
+  const image = clearLetterHoles(removeBackground(decodePng(source)), WORDMARK_LION_EDGE);
   const { width, height } = image;
   const data = new Uint8Array(image.data);
   const visible = (i: number) => (data[i * 4 + 3] ?? 0) > 10;
@@ -365,7 +385,7 @@ function cutWordmark(source: Buffer): Rgba {
 }
 
 export function buildBrandImages(lionSource: Buffer, fullSource: Buffer, wordmarkSource?: Buffer): Map<string, Buffer> {
-  const logos: Record<Source, Rgba> = { lion: prepare(lionSource), full: prepare(fullSource) };
+  const logos: Record<Source, Rgba> = { lion: prepare(lionSource), full: prepare(fullSource, WORDMARK_LION_EDGE) };
   const images = new Map(PWA_ICONS.map((spec) => [spec.file, renderIcon(logos[spec.source], spec)]));
   images.set('brand/lion-logo.png', encodePng(resize(logos.lion, SITE_LION_WIDTH)));
   images.set('brand/lion-full-logo.png', encodePng(resize(logos.full, SITE_FULL_WIDTH)));
