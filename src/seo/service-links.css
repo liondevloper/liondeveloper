@@ -1,0 +1,6 @@
+.service-links { background: #10100f; border-top: 1px solid rgba(255,255,255,.08); padding: 26px max(28px, calc((100vw - 1184px)/2)) 96px; }
+.service-links-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+.service-links-title { color: #eab94b; font: 500 11px 'DM Mono', monospace; letter-spacing: .18em; text-transform: uppercase; text-decoration: none; }
+.service-links ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.service-links ul a { color: #8f8e87; font-size: 12px; text-decoration: none; transition: color .2s; }
+.service-links a:hover { color: #ffd66f; }
