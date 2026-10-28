@@ -388,6 +388,12 @@ function mergeCare(stored: unknown): CarePlan {
   };
 }
 
+// Messages saved in the admin panel before the rebrand still say "Lion Developer"; swap in the new name.
+const renameBrand = (contact: SiteContent['contact']): SiteContent['contact'] => ({
+  ...contact,
+  whatsappMessage: (contact.whatsappMessage ?? '').replace(/lion\s*develop(?:er|or)/gi, 'Lion Digital Solution'),
+});
+
 // Stored content only holds what the admin saved; anything missing falls back to the defaults above.
 export function mergeContent(stored: unknown): SiteContent {
   if (!stored || typeof stored !== 'object') return defaultContent;
@@ -402,7 +408,7 @@ export function mergeContent(stored: unknown): SiteContent {
   const termFaqs = list<Faq>(terms.faqs, defaultContent.terms.faqs);
   const faqs = list<Faq>(raw.faqs, defaultContent.faqs);
   return {
-    contact: { ...defaultContent.contact, ...(raw.contact ?? {}) },
+    contact: renameBrand({ ...defaultContent.contact, ...(raw.contact ?? {}) }),
     hero: { ...defaultContent.hero, ...(raw.hero ?? {}) },
     stats: list(raw.stats, defaultContent.stats),
     services: list(raw.services, defaultContent.services),
