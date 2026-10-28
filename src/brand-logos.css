@@ -13,9 +13,9 @@
 :root body .site-shell .site-header .brand-mark {
   width: auto;
   height: 62px;
-  aspect-ratio: 2144 / 733;
+  aspect-ratio: 2172 / 724;
   border-radius: 8px;
-  background: #fff url('https://hercules-cdn.com/file_UvOpvGV8AXMkhVhA0zaSa1R8') center / contain no-repeat;
+  background: #fff url('https://hercules-cdn.com/file_8FGwHoIN69QcAIq4ZcmpX4ba') center / contain no-repeat;
 }
 :root body .site-shell .site-header .brand-mark img { opacity: 0; }
 @media (max-width: 680px) {
