@@ -1,0 +1,8 @@
+# Lion Digital Solution
+# Every crawler may read the public site, including CSS, JavaScript and images.
+# The admin panel is kept out of search with a noindex header (see vercel.json), so its path is not listed here.
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://liondigitalsolution.com/sitemap.xml

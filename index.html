@@ -2,6 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- maximum-scale stops the page getting stuck zoomed in on phones, which cut the sides off. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+    <title>Lion Digital Solution | Website &amp; Web App Development</title>
+    <meta name="description" content="Lion Digital Solution builds modern business websites, landing pages, e-commerce stores, booking systems, admin panels and custom web applications." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://liondigitalsolution.com/" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <!-- Home-screen icons keep the whole lion inside the safe zone, so phones no longer crop it. -->
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
@@ -10,28 +16,58 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Lion Digital" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <!-- maximum-scale stops the page getting stuck zoomed in on phones, which cut the sides off. -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-    <title>Lion Digital Solution | Professional Web Developer &amp; Website Development</title>
-    <meta name="description" content="Lion Digital Solution builds modern websites, web applications and digital solutions for businesses, brands and professionals." />
     <meta name="theme-color" content="#ffffff" />
-    <!-- Italic serif for the moving text under the contact form. -->
+    <!-- Fonts start downloading with the page instead of waiting for the CSS @import in src/index.css (same URL, so it is fetched once). -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" />
-    <meta property="og:title" content="Lion Digital Solution | Websites. Apps. Digital Solutions." />
-    <meta property="og:description" content="Modern websites and digital solutions designed to help businesses grow." />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" />
+    <!-- Italic serif for the moving text under the contact form. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;display=swap" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://liondigitalsolution.com/" />
     <meta property="og:site_name" content="Lion Digital Solution" />
+    <meta property="og:url" content="https://liondigitalsolution.com/" />
+    <meta property="og:title" content="Lion Digital Solution | Websites. Apps. Digital Solutions." />
+    <meta property="og:description" content="Modern websites, web applications and digital solutions designed to help businesses grow." />
+    <!-- logo.png (1200x630) and icons/icon-512.png are generated at build time by pwa-icons.ts. -->
+    <meta property="og:image" content="https://liondigitalsolution.com/logo.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Lion Digital Solution logo" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="canonical" href="https://liondigitalsolution.com/" />
-    <meta property="og:image" content="https://liondigitalsolution.com/logo.png">
-    <meta name="twitter:image" content="https://liondigitalsolution.com/logo.png">
-</head>
+    <meta name="twitter:title" content="Lion Digital Solution | Websites. Apps. Digital Solutions." />
+    <meta name="twitter:description" content="Modern websites, web applications and digital solutions designed to help businesses grow." />
+    <meta name="twitter:image" content="https://liondigitalsolution.com/logo.png" />
+    <!-- Only verified details: no address, area, ratings or opening hours. The Facebook and Google share links stay out of sameAs until they are confirmed as canonical profile URLs. -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://liondigitalsolution.com/#organization","name":"Lion Digital Solution","url":"https://liondigitalsolution.com/","logo":{"@type":"ImageObject","url":"https://liondigitalsolution.com/icons/icon-512.png","width":512,"height":512},"image":"https://liondigitalsolution.com/logo.png","description":"Modern websites, web applications and digital solutions for businesses, brands and professionals.","telephone":"+91-7600747798","contactPoint":{"@type":"ContactPoint","telephone":"+91-7600747798","contactType":"customer service","url":"https://wa.me/917600747798"},"sameAs":["https://www.instagram.com/liondigitalsolution/"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Website and web application development","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Business Websites","description":"Professional websites for businesses, companies, local brands and professionals."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Landing Pages","description":"Modern, conversion-focused landing pages for products, services and campaigns."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"E-Commerce Websites","description":"Online stores with product catalogues and business functionality."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Custom Web Applications","description":"Custom web applications built around specific business requirements."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Admin Panels","description":"Dashboards for managing users, bookings, products, content and data."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Booking Systems","description":"Online booking and appointment systems with WhatsApp integration."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"API Integration","description":"Payment gateways, maps, authentication, shipping, messaging and third-party APIs."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Maintenance & Support","description":"Bug fixes, updates, improvements, deployment and ongoing technical support."}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Digital Invitation Cards","description":"Interactive digital invitation card websites that open on any phone."}}]}},{"@type":"WebSite","@id":"https://liondigitalsolution.com/#website","url":"https://liondigitalsolution.com/","name":"Lion Digital Solution","inLanguage":"en","publisher":{"@id":"https://liondigitalsolution.com/#organization"}}]}</script>
+  </head>
   <body>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Lion Digital Solution","url":"https://liondigitalsolution.com/","logo":"https://liondigitalsolution.com/logo.png","description":"Modern websites, web applications and digital solutions for businesses, brands and professionals.","sameAs":["https://www.instagram.com/lion___developer/"]}</script>
     <div id="root"></div>
+    <!-- Plain-HTML summary for visitors and crawlers that do not run JavaScript. It mirrors the real page content; browsers with JavaScript never show it. -->
+    <noscript>
+      <h1>Lion Digital Solution</h1>
+      <p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p>
+      <h2>Services</h2>
+      <ul>
+        <li>Business websites</li>
+        <li>Landing pages</li>
+        <li>E-commerce websites</li>
+        <li>Custom web applications</li>
+        <li>Admin panels</li>
+        <li>Online booking systems with WhatsApp integration</li>
+        <li>API integration</li>
+        <li>Maintenance and support</li>
+        <li>Digital invitation cards</li>
+      </ul>
+      <h2>Live templates</h2>
+      <p>Hotel, salon and restaurant website templates, plus digital invitation cards.</p>
+      <h2>Contact</h2>
+      <ul>
+        <li><a href="https://wa.me/917600747798">WhatsApp: +91 7600747798</a></li>
+        <li><a href="https://www.instagram.com/liondigitalsolution/">Instagram</a></li>
+        <li><a href="https://www.facebook.com/share/1DuVJkPjwv/">Facebook</a></li>
+        <li><a href="https://share.google/RqCi4bEcF1u5D8QCU">Google Business Profile</a></li>
+      </ul>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
