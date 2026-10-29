@@ -1,4 +1,5 @@
 import type { SiteContent } from '../data/site';
+import { MAX_VIDEO_MB, publicVideoUrl, SUPABASE_ANON_KEY, SUPABASE_URL, VIDEO_BUCKET, VIDEO_TYPES } from '../data/storage';
 
 export type EnquiryStatus = 'new' | 'contacted' | 'discussion' | 'won' | 'lost';
 
@@ -84,6 +85,37 @@ function compressImage(file: File): Promise<string> {
   });
 }
 
+const VIDEO_EXTENSIONS: Record<string, string> = { 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov' };
+
+// Sends the file straight from the browser to Supabase Storage (videos are too big for the API server).
+// XMLHttpRequest instead of fetch, because only it reports upload progress.
+function putVideo(path: string, file: File, onProgress: (percent: number) => void) {
+  return new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${SUPABASE_URL}/storage/v1/object/${VIDEO_BUCKET}/${path}`);
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+    xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+    xhr.setRequestHeader('Content-Type', file.type);
+    xhr.setRequestHeader('Cache-Control', 'max-age=31536000');
+    xhr.setRequestHeader('x-upsert', 'false');
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) return resolve();
+      let message = 'Video upload failed';
+      try {
+        message = (JSON.parse(xhr.responseText) as { message?: string }).message || message;
+      } catch {
+        // Keep the generic message.
+      }
+      reject(new Error(message));
+    };
+    xhr.onerror = () => reject(new Error('Network error while uploading the video'));
+    xhr.send(file);
+  });
+}
+
 export const adminApi = {
   me: () => request<{ email: string }>('/auth/me'),
   login: (email: string, password: string) =>
@@ -108,6 +140,15 @@ export const adminApi = {
     const dataUrl = await compressImage(file);
     const { url } = await request<{ url: string }>('/images', { method: 'POST', body: JSON.stringify({ dataUrl }) });
     return url;
+  },
+  // The server checks the admin login and hands out a 30-minute ticket; the file then goes into that ticket's folder.
+  uploadVideo: async (file: File, onProgress: (percent: number) => void) => {
+    if (!VIDEO_TYPES.includes(file.type)) throw new Error('Choose an MP4, WebM or MOV video');
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024) throw new Error(`Video is too large (max ${MAX_VIDEO_MB} MB)`);
+    const { ticket } = await request<{ ticket: string }>('/videos/ticket', { method: 'POST', body: '{}' });
+    const path = `${ticket}/${Date.now()}.${VIDEO_EXTENSIONS[file.type] ?? 'mp4'}`;
+    await putVideo(path, file, onProgress);
+    return publicVideoUrl(path);
   },
 };
 
