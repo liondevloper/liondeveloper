@@ -1,0 +1,85 @@
+/* Website plans as a sticky card stack, the same scroll effect as the work videos (sticky-stack.ts).
+   The care plan below is untouched. Rules start with ":root body .site-shell" to win over older stylesheets. */
+
+/* Sticky needs ancestors that are not scroll boxes: overflow hidden on the section is swapped for clip. */
+:root body .site-shell main > section.pricing-section { overflow-x: clip; overflow-y: visible; scale: none !important; opacity: 1 !important; }
+:root body .site-shell .pricing-stage { overflow: visible; }
+
+:root body .site-shell .plan-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8vh;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 14px 0 4vh;
+}
+
+/* Each card sticks a little lower than the one before, so the stack fans out at the top. */
+:root body .site-shell .plan-stack-item {
+  --p: 0;
+  position: sticky;
+  top: calc(max(12vh, 96px) + var(--i, 0) * 14px);
+  z-index: calc(1 + var(--i, 0));
+  width: min(640px, 100%);
+}
+
+:root body .site-shell .plan-stack-card {
+  transform-origin: 50% 0%;
+  transform: scale(calc(1 - var(--p) * .12)) rotate(calc(var(--p) * -3deg));
+  filter: brightness(calc(1 - var(--p) * .22));
+  will-change: transform;
+}
+
+/* Solid white cards so the card underneath never shows through. */
+:root body .site-shell .plan-stack .price-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  transform: none !important;
+  translate: none !important;
+  rotate: none !important;
+  scale: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+  background-color: #ffffff !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 1px solid rgba(190, 115, 53, .28);
+  box-shadow: 0 30px 60px -30px rgba(90, 45, 15, .4), inset 0 1px 0 #ffffff;
+}
+:root body .site-shell .plan-stack .price-card.popular { border-color: rgba(239, 106, 40, .68); }
+:root body .site-shell .plan-stack .price-card::after { display: none; }
+:root body .site-shell .plan-stack .price-card > :not(.price-fx):not(.popular-tag) { position: relative; z-index: 1; }
+:root body .site-shell .plan-stack .price-card > .popular-tag {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  translate: none !important;
+  z-index: 2;
+  align-self: flex-start;
+  width: fit-content;
+  margin: 0 0 12px;
+  white-space: nowrap;
+}
+:root body .site-shell .plan-stack .price-button { margin-top: 18px; justify-content: center; }
+
+/* Desktop only: a light blur on covered cards. Phones skip it to keep scrolling smooth. */
+@media (min-width: 981px) and (pointer: fine) {
+  :root body .site-shell .plan-stack-card { filter: brightness(calc(1 - var(--p) * .22)) blur(calc(var(--p) * 3px)); }
+}
+
+/* Phones and tablets: no animated light layers inside the cards, so scrolling stays smooth. */
+@media (max-width: 999px) {
+  :root body .site-shell .plan-stack .price-fx { display: none !important; }
+}
+
+@media (max-width: 680px) {
+  :root body .site-shell .plan-stack { gap: 6vh; }
+  :root body .site-shell .plan-stack-item { top: calc(76px + var(--i, 0) * 10px); }
+  :root body .site-shell .plan-stack .price-card { padding: 22px 18px; }
+}

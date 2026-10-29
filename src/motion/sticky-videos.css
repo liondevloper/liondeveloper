@@ -16,14 +16,15 @@
   padding: 2vh 0 6vh;
 }
 
+/* --p (0 to 1) is set on the card by sticky-stack.ts and inherited by the inner layers. */
 :root body .site-shell .work-card {
+  --p: 0;
   position: sticky;
   top: max(12vh, 96px);
   width: min(1080px, 100%, 135vh);
 }
 
 :root body .site-shell .work-card-inner {
-  --p: 0;
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
