@@ -12,7 +12,6 @@ import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } f
 import { Deck, useTiltEffect } from '@/motion/showcase';
 import { AUTO_SWIPE_MS, DotPreloader, DotsMenuButton, FloatingWhatsApp, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
 import { ScrollBallet, useScrollScenes } from '@/motion/scenes';
-import StickyVideos from '@/motion/sticky-videos';
 import FancySelect, { toOption } from '@/motion/FancySelect';
 import PricingSection from '@/pricing/PricingSection';
 // Light 3D sections inspired by Aceternity UI, 21st.dev, motion.dev, Mobbin and Layers (see src/studio/studio.css).
@@ -151,7 +150,7 @@ function App() {
   // Visitors outside India see US dollar prices everywhere on the page (see data/region.ts).
   const content = useMemo(() => localizeContent(rawContent), [rawContent]);
   const { contact, hero, stats, services, videos, pricing, care, terms, budgets, technologies, testimonials, faqs } = content;
-  // Only videos that finished uploading are shown; the section and its menu link hide until there is one.
+  // Only videos that finished uploading are shown, inside the "Built for your customers" section (id="work").
   const workVideos = videos.filter((item) => item.video);
   const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
   const phoneHref = phoneLink(contact.whatsapp) ?? '#contact';
@@ -232,7 +231,7 @@ function App() {
         </a>
         <DotsMenuButton open={menuOpen} onToggle={() => setMenuOpen(!menuOpen)} />
         <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
-          {NAV_ITEMS.filter((item) => item !== 'Work' || workVideos.length > 0).map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu}>{item}</a>)}
+          {NAV_ITEMS.map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu}>{item}</a>)}
           <a className="button button-small button-gold" href="#contact" onClick={closeMenu}>Get a Website <ArrowUpRight size={16} /></a>
         </div>
       </nav>
@@ -260,24 +259,12 @@ function App() {
 
         <Marquee items={BAND_WORDS} variant="band" />
 
-        <ScrollShowcase />
+        {/* "Built for your customers": the Recent work videos from the admin panel play here with the sticky stack animation. */}
+        <ScrollShowcase videos={workVideos} />
 
         <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker" data-reveal>What I do</span><h2 data-reveal="clip">What I can build<br /><em>for you.</em></h2></div><p data-reveal style={stagger(2)}>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion. Swipe up or down to explore.</p></div><div data-reveal><ServiceDeck services={services} resolveIcon={(name) => iconMap[name as keyof typeof iconMap] ?? Globe} /></div></section>
 
         <section className="feature-section section-pad"><div className="feature-visual" data-reveal="left"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>Lion Digital Solution · Projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / digital</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div><ScrollBallet /></div><div className="feature-copy"><span className="section-kicker" data-reveal>The difference</span><h2 data-reveal="clip">More than just<br /><em>a website.</em></h2><p data-reveal style={stagger(2)}>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Ready in 1–3 Days (depending on website)', 'Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item, index) => <span key={item} data-reveal style={stagger(index)}><CircleCheck size={17} />{item}</span>)}</div></div></section>
-
-        {/* Work videos uploaded from the admin panel replaced the old "Live templates" section. */}
-        {workVideos.length > 0 && (
-          <section className="work-section section-pad" id="work">
-            <div className="section-heading">
-              <div>
-                <span className="section-kicker" data-reveal>Recent work</span>
-                <h2 data-reveal="clip">See it<br /><em>in motion.</em></h2>
-              </div>
-            </div>
-            <StickyVideos videos={workVideos} />
-          </section>
-        )}
 
         <IndustryMarquee />
 
