@@ -420,7 +420,7 @@ export function mergeContent(stored: unknown): SiteContent {
   const terms = { ...defaultContent.terms, ...(raw.terms ?? {}) };
   const termFaqs = list<Faq>(terms.faqs, defaultContent.terms.faqs);
   const faqs = list<Faq>(raw.faqs, defaultContent.faqs);
-  return {
+  const merged: SiteContent = {
     contact: renameBrand({ ...defaultContent.contact, ...(raw.contact ?? {}) }),
     hero: { ...defaultContent.hero, ...(raw.hero ?? {}) },
     stats: list(raw.stats, defaultContent.stats),
@@ -442,6 +442,7 @@ export function mergeContent(stored: unknown): SiteContent {
     // Old answers about domains and maintenance no longer match the policy, so they are refreshed too.
     faqs: refresh ? refreshFaqs(faqs, defaultContent.faqs) : faqs,
   };
+  return syncPrices(merged);
 }
 
 /* ------------------------------------------------------------- pricing maths */
@@ -475,6 +476,78 @@ export function careOption(care: CarePlan, tier: CareTier, billing: 'monthly' | 
   return billing === 'monthly'
     ? `${care.name} ${tier.name} – Monthly (${tier.price}${care.period})`
     : `${care.name} ${tier.name} – Yearly (${tier.yearlyPrice}${care.yearlyPeriod})`;
+}
+
+/* ------------------------------------------------------------- price syncing */
+
+// One rupee amount, optionally followed by "advance + ₹amount" (a 50/50 payment example).
+const RUPEE_OR_SPLIT = /₹\s?(\d[\d,]*)(\s*advance\s*\+\s*₹\s?(\d[\d,]*))?/gi;
+const digitsOf = (text: string) => Number(text.replace(/[^\d]/g, ''));
+
+// Default amount -> amount saved in the admin panel, for every package and care price that was changed.
+// Packages and care tiers are matched by name.
+function priceChanges(content: SiteContent) {
+  const changes = new Map<number, number>();
+  const track = (before: string | undefined, after: string) => {
+    const from = before ? parseAmount(before) : null;
+    const to = parseAmount(after);
+    if (from && to && from !== to) changes.set(from, to);
+  };
+  for (const plan of content.pricing) {
+    track(defaultContent.pricing.find((item) => item.name === plan.name)?.price, plan.price);
+  }
+  for (const tier of content.care.tiers) {
+    const preset = defaultContent.care.tiers.find((item) => item.name === tier.name);
+    track(preset?.price, tier.price);
+    track(preset?.yearlyPrice, tier.yearlyPrice);
+  }
+  return changes;
+}
+
+// Single pass, so a new amount is never mistaken for another old amount.
+function syncText(text: string, changes: Map<number, number>) {
+  return text.replace(RUPEE_OR_SPLIT, (match, first: string, splitPart: string | undefined, second: string | undefined) => {
+    if (splitPart && second) {
+      // "₹9,000 advance + ₹9,000" is half of one package price, so it is split again from the new price.
+      const total = changes.get(digitsOf(first) + digitsOf(second));
+      if (!total) return match;
+      const { advance, final } = paymentSplit(total);
+      return `${formatRupees(advance)}${splitPart.replace(/₹\s?\d[\d,]*$/, '')}${formatRupees(final)}`;
+    }
+    const next = changes.get(digitsOf(first));
+    return next ? formatRupees(next) : match;
+  });
+}
+
+function mapText(value: unknown, change: (text: string) => string): unknown {
+  if (typeof value === 'string') return change(value);
+  if (Array.isArray(value)) return value.map((item) => mapText(item, change));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, mapText(item, change)]));
+  }
+  return value;
+}
+
+// When a package or care price is changed in the admin panel, every other mention of the old price
+// (FAQs, payment examples, budget options, notes) switches to the new one automatically.
+export function syncPrices(content: SiteContent): SiteContent {
+  const changes = priceChanges(content);
+  if (changes.size === 0) return content;
+  const synced = mapText(content, (text) => syncText(text, changes)) as SiteContent;
+  // The prices themselves are the source, so they stay exactly as typed in the admin panel.
+  return {
+    ...synced,
+    contact: content.contact,
+    pricing: synced.pricing.map((plan, index) => ({ ...plan, price: content.pricing[index]?.price ?? plan.price })),
+    care: {
+      ...synced.care,
+      tiers: synced.care.tiers.map((tier, index) => ({
+        ...tier,
+        price: content.care.tiers[index]?.price ?? tier.price,
+        yearlyPrice: content.care.tiers[index]?.yearlyPrice ?? tier.yearlyPrice,
+      })),
+    },
+  };
 }
 
 /* ------------------------------------------------------------------ loading */
