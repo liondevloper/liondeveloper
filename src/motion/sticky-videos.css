@@ -5,8 +5,9 @@
    one and stopped sticky from working; clip hides overflow the same way without that side effect. */
 :root body .site-shell { overflow: clip; }
 
-/* The soft section entrance (polish.css) scales whole sections; this one stays put so the stack lines up. */
-:root body .site-shell main > section.work-section { scale: none !important; opacity: 1 !important; overflow: visible; }
+/* The soft section entrance (polish.css) scales whole sections; this one stays put so the stack lines up.
+   The "Built for your customers" showcase (ld-showcase) hides overflow by default, which would also stop sticky. */
+:root body .site-shell main > section.work-section { scale: none !important; opacity: 1 !important; overflow: visible !important; }
 
 :root body .site-shell .work-stack {
   display: flex;
@@ -15,18 +16,22 @@
   gap: 10vh;
   padding: 2vh 0 6vh;
 }
+:root body .site-shell .ld-showcase .work-stack { margin-top: 46px; }
 
-/* --p (0 to 1) is set on the card by sticky-stack.ts and inherited by the inner layers. */
+/* --p (0 to 1) is set on the card by sticky-stack.ts and inherited by the inner layers.
+   --ar is the video's own width / height (set when the video loads). The card width is capped so its
+   height never passes 76vh, which keeps the whole video on screen while the card is pinned. */
 :root body .site-shell .work-card {
   --p: 0;
+  --ar: 1.7778;
   position: sticky;
   top: max(12vh, 96px);
-  width: min(1080px, 100%, 135vh);
+  width: min(1080px, 100%, calc(76vh * var(--ar)));
 }
 
 :root body .site-shell .work-card-inner {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--ar);
   overflow: hidden;
   border-radius: 28px;
   background: #17140f;
@@ -37,13 +42,14 @@
   will-change: transform;
 }
 
+/* contain (not cover) so no part of the uploaded video is ever cut off. */
 :root body .site-shell .work-card-inner video {
   position: absolute;
   inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* Darkens the bottom so the white title always reads, whatever the video shows. */
@@ -51,7 +57,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(12, 9, 5, .78), rgba(12, 9, 5, 0) 48%);
+  background: linear-gradient(to top, rgba(12, 9, 5, .7), rgba(12, 9, 5, 0) 34%);
 }
 
 /* Fades the card into the background as the next one covers it. */
@@ -111,6 +117,8 @@
 
 @media (max-width: 680px) {
   :root body .site-shell .work-stack { gap: 6vh; }
+  :root body .site-shell .ld-showcase .work-stack { margin-top: 30px; }
+  :root body .site-shell .work-card { width: min(100%, calc(70vh * var(--ar))); }
   :root body .site-shell .work-card-inner { border-radius: 18px; box-shadow: 0 24px 48px -28px rgba(90, 45, 15, .5), 0 0 0 4px rgba(255, 255, 255, .7); }
   :root body .site-shell .work-card-index { top: 10px; right: 12px; padding: 4px 8px; font-size: 10px; }
   :root body .site-shell .work-card-info { left: 14px; right: 14px; bottom: 12px; gap: 10px; }
