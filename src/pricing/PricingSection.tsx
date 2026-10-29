@@ -10,7 +10,7 @@ import {
   type Plan,
   type Terms,
 } from '@/data/site';
-import { IS_INTERNATIONAL, formatMoney } from '@/data/region';
+import { CURRENCY_NOTE, STARTING_PRICE, formatMoney } from '@/data/region';
 import { MOTION_ENABLED, stagger } from '@/motion/effects';
 import './pricing.css';
 
@@ -245,14 +245,12 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
   const rowRef = useRef<HTMLDivElement>(null);
   const tilt = usePlanTilt();
   const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
-  const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? formatMoney(8000);
+  const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? STARTING_PRICE;
   // Names the packages that carry the free domain offer, so the note never promises it on the Starter plan.
   const perkPlans = pricing.filter((plan) => plan.perk).map((plan) => plan.name);
   const perkNote = perkPlans.length > 0
     ? ` ${perkPlans.join(' and ')} include a FREE .in / .com domain & hosting for the first year; renewals from the second year are charged separately.`
     : '';
-  // International visitors see US dollar prices (see data/region.ts), so the note says so.
-  const currencyNote = IS_INTERNATIONAL ? ' All prices are in US dollars (USD).' : '';
 
   // On phones and tablets the row swipes sideways; start it centred on the most popular package.
   useEffect(() => {
@@ -281,7 +279,7 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
           {pricing.map((plan, index) => <PriceCard key={index} plan={plan} index={index} onChoose={onChoose} />)}
         </div>
       </div>
-      <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.{perkNote}{currencyNote}</p>
+      <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.{perkNote}{CURRENCY_NOTE}</p>
       {care.enabled && <CareBlock care={care} whatsapp={whatsapp} />}
       <PolicyPanel pricing={pricing} terms={terms} />
     </section>
