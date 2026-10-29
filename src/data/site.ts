@@ -13,13 +13,22 @@ export type Project = {
   // Live site address. When set, the card shows a real screenshot of that homepage.
   url?: string;
 };
-// A live website shown in the Templates section. An uploaded image wins over the automatic screenshot.
+// A live website (no longer shown on the homepage; the work videos below replaced the "Live templates" section).
 export type Template = {
   title: string;
   category: string;
   url: string;
   image?: string;
   tags: string[];
+};
+// A work video uploaded from the admin panel, shown in the sticky "Recent work" stack on the homepage.
+export type WorkVideo = {
+  title: string;
+  category: string;
+  // Public Supabase Storage address of the uploaded video. Blank items are skipped on the site.
+  video: string;
+  // Optional live site; adds an "Open site" button on the video.
+  url?: string;
 };
 export type Plan = {
   name: string;
@@ -74,6 +83,7 @@ export type SiteContent = {
   services: Service[];
   projects: Project[];
   templates: Template[];
+  videos: WorkVideo[];
   pricing: Plan[];
   care: CarePlan;
   terms: Terms;
@@ -99,6 +109,8 @@ export const PROJECT_ACCENTS: ProjectAccent[] = ['gold', 'blue', 'dark'];
 export const BLANK_PLAN: Plan = { name: '', price: '', description: '', popular: false, perk: '', features: [], revisions: '', hosting: [], cta: 'Get Started' };
 
 export const BLANK_CARE_TIER: CareTier = { name: '', price: '', yearlyPrice: '', description: '', features: [], popular: false };
+
+export const BLANK_VIDEO: WorkVideo = { title: '', category: '', video: '', url: '' };
 
 export const FREE_DOMAIN_PERK = 'FREE .in / .com domain + hosting for 1 year';
 
@@ -178,6 +190,7 @@ export const defaultContent: SiteContent = {
       tags: ['Menu', 'Online order', 'Table booking'],
     },
   ],
+  videos: [],
   pricing: [
     {
       name: 'Starter',
@@ -414,6 +427,7 @@ export function mergeContent(stored: unknown): SiteContent {
     services: list(raw.services, defaultContent.services),
     projects: list(raw.projects, defaultContent.projects),
     templates: list(raw.templates, defaultContent.templates),
+    videos: list<WorkVideo>(raw.videos, defaultContent.videos).map((item) => ({ ...BLANK_VIDEO, ...item })),
     pricing,
     care: mergeCare(raw.care),
     terms: {

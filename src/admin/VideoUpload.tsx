@@ -29,7 +29,11 @@ export default function VideoUpload({ value, onChange }: { value: string; onChan
       <span className="admin-upload-label">Video</span>
       <div className="admin-upload-row">
         <div className="admin-upload-preview">
-          {value ? <video src={value} muted loop playsInline autoPlay /> : <Film size={22} />}
+          {value ? (
+            <video src={value} muted loop playsInline autoPlay style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <Film size={22} />
+          )}
         </div>
         <div className="admin-upload-actions">
           <label className="admin-button admin-button-ghost admin-upload-button">
