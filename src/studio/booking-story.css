@@ -1,0 +1,138 @@
+/* Booking story (BookingStory.tsx). The section is tall; its stage stays pinned while JS writes transforms. */
+
+:root .site-shell .ld-bs { --bs-ink: #1f1a16; --bs-muted: #7a7066; --bs-soft: #f4eee6; --bs-accent: #ef6a28; position: relative; height: 500vh; }
+:root .site-shell .ld-bs-sticky {
+  position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; padding: 24px 20px;
+  background: radial-gradient(ellipse 60% 50% at 50% 55%, rgba(239,106,40,.12), transparent 70%);
+}
+:root .site-shell .ld-bs-stage {
+  position: relative; width: min(980px, 100%, calc(80svh * 4 / 3)); aspect-ratio: 4 / 3;
+  border-radius: 28px; perspective: 1400px; box-shadow: 0 40px 80px -30px rgba(60,30,10,.45);
+}
+:root .site-shell .ld-bs-scene {
+  position: absolute; inset: 0; overflow: hidden; border-radius: 28px; background: #2a231d;
+  opacity: 0; will-change: transform, opacity; backface-visibility: hidden;
+}
+:root .site-shell .ld-bs-scene:first-child { opacity: 1; }
+:root .site-shell .ld-bs-scene > img {
+  position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; margin: 0; object-fit: cover;
+  transform: scale(1.12); will-change: transform;
+}
+:root .site-shell .ld-bs-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.45), rgba(0,0,0,.05) 50%, transparent); }
+:root .site-shell .ld-bs-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+:root .site-shell .ld-bs [data-fx] { will-change: transform, opacity; }
+:root .site-shell .ld-bs-layer [data-fx]:not(.ld-bs-hand):not(.ld-bs-site-nav):not(.ld-bs-meter i):not(b) { opacity: 0; }
+
+:root .site-shell .ld-bs-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(120,85,40,.15); }
+:root .site-shell .ld-bs-progress i { display: block; height: 100%; background: var(--bs-accent); transform: scaleX(0); transform-origin: left; }
+
+:root .site-shell .ld-bs-serif { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; }
+:root .site-shell .ld-bs-card { position: absolute; background: #fff; color: var(--bs-ink); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.35); }
+:root .site-shell .ld-bs-pill {
+  position: absolute; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  padding: 6px 12px; border-radius: 999px; background: var(--bs-ink); color: #fff; font-size: 11px; font-weight: 700; box-shadow: 0 10px 20px rgba(0,0,0,.25);
+}
+:root .site-shell .ld-bs-pill svg { color: var(--bs-accent); }
+
+/* Scene 1: website card */
+:root .site-shell .ld-bs-site { right: 32px; bottom: 32px; width: min(330px, 82%); }
+:root .site-shell .ld-bs-site-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid #eee5d9; }
+:root .site-shell .ld-bs-site-bar i { width: 8px; height: 8px; border-radius: 50%; background: #ff5f57; }
+:root .site-shell .ld-bs-site-bar i:nth-child(2) { background: #febc2e; }
+:root .site-shell .ld-bs-site-bar i:nth-child(3) { background: #28c840; }
+:root .site-shell .ld-bs-site-bar span { margin-left: 8px; padding: 2px 12px; border-radius: 999px; background: var(--bs-soft); color: var(--bs-muted); font-size: 10px; }
+:root .site-shell .ld-bs-site-body { display: grid; gap: 12px; padding: 16px; }
+:root .site-shell .ld-bs-site-nav { display: flex; gap: 8px; height: 8px; width: 0; overflow: hidden; }
+:root .site-shell .ld-bs-site-nav i { flex-shrink: 0; width: 32px; border-radius: 999px; background: var(--bs-soft); }
+:root .site-shell .ld-bs-site-nav i:first-child { width: 40px; background: var(--bs-accent); }
+:root .site-shell .ld-bs-site-body strong { display: block; font-size: 24px; line-height: 1.1; }
+:root .site-shell .ld-bs-site-body small { display: block; color: var(--bs-muted); font-size: 11px; }
+:root .site-shell .ld-bs-site-services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+:root .site-shell .ld-bs-site-services span { padding: 8px; border-radius: 8px; background: var(--bs-soft); text-align: center; font-size: 10px; font-weight: 700; }
+:root .site-shell .ld-bs-site-row { display: flex; align-items: center; justify-content: space-between; }
+:root .site-shell .ld-bs-site-row b { padding: 6px 16px; border-radius: 999px; background: var(--bs-accent); color: #fff; font-size: 11px; }
+:root .site-shell .ld-bs-site-row span { display: inline-flex; align-items: center; gap: 2px; color: var(--bs-muted); font-size: 10px; }
+:root .site-shell .ld-bs-site-row svg { color: var(--bs-accent); }
+:root .site-shell .ld-bs-live { top: -12px; left: -12px; }
+:root .site-shell .ld-bs-live i { width: 8px; height: 8px; border-radius: 50%; background: #28c840; }
+
+/* Scene 2: phone booking */
+:root .site-shell .ld-bs-phone { right: 40px; bottom: 32px; width: 210px; height: min(400px, 72%); overflow: hidden; border: 6px solid var(--bs-ink); border-radius: 30px; }
+:root .site-shell .ld-bs-notch { width: 56px; height: 6px; margin: 6px auto 0; border-radius: 999px; background: var(--bs-ink); }
+:root .site-shell .ld-bs-phone-body { display: grid; gap: 12px; padding: 14px; }
+:root .site-shell .ld-bs-phone-body > div:first-child small { display: block; color: var(--bs-muted); font-size: 10px; }
+:root .site-shell .ld-bs-phone-body > div:first-child strong { font-size: 14px; font-weight: 800; }
+:root .site-shell .ld-bs-days { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+:root .site-shell .ld-bs-day { position: relative; overflow: hidden; padding: 6px 0; border-radius: 8px; background: var(--bs-soft); text-align: center; }
+:root .site-shell .ld-bs-day span, :root .site-shell .ld-bs-slot span { position: relative; }
+:root .site-shell .ld-bs-day small { display: block; font-size: 9px; }
+:root .site-shell .ld-bs-day b { display: block; font-size: 12px; }
+:root .site-shell .ld-bs-pick { position: absolute; inset: 0; background: var(--bs-accent); }
+:root .site-shell .ld-bs-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+:root .site-shell .ld-bs-slot { position: relative; overflow: hidden; padding: 8px 0; border: 1px solid #eadfd2; border-radius: 8px; text-align: center; color: var(--bs-muted); font-size: 10px; font-weight: 600; }
+:root .site-shell .ld-bs-slot.is-picked { color: var(--bs-ink); }
+:root .site-shell .ld-bs-ripple { position: absolute; top: 50%; left: 50%; width: 32px; height: 32px; margin: -16px 0 0 -16px; border-radius: 50%; background: var(--bs-ink); opacity: 0; }
+:root .site-shell .ld-bs-confirm { padding: 10px 0; border-radius: 12px; background: var(--bs-ink); color: #fff; text-align: center; font-size: 11px; font-weight: 700; }
+:root .site-shell .ld-bs-booked { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 12px; background: #e7f8ec; color: #14692f; font-size: 10px; font-weight: 600; line-height: 1.3; }
+:root .site-shell .ld-bs-booked i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #28c840; color: #fff; }
+
+/* Scene 3: WhatsApp */
+:root .site-shell .ld-bs-toast { top: 16px; left: 50%; translate: -50% 0; display: flex; align-items: center; gap: 12px; width: min(320px, 86%); padding: 12px; }
+:root .site-shell .ld-bs-toast > i { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 12px; background: #25d366; color: #fff; }
+:root .site-shell .ld-bs-toast span { min-width: 0; font-size: 11px; line-height: 1.4; }
+:root .site-shell .ld-bs-toast b, :root .site-shell .ld-bs-toast small { display: block; }
+:root .site-shell .ld-bs-toast small { color: var(--bs-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root .site-shell .ld-bs-chat { position: absolute; right: 32px; bottom: 32px; width: min(300px, 84%); overflow: hidden; border-radius: 16px; background: #efe7dd; box-shadow: 0 25px 50px -12px rgba(0,0,0,.35); }
+:root .site-shell .ld-bs-chat-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #075e54; color: #fff; font-size: 12px; line-height: 1.2; }
+:root .site-shell .ld-bs-chat-head > i { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.2); font-size: 14px; }
+:root .site-shell .ld-bs-chat-head b, :root .site-shell .ld-bs-chat-head small { display: block; }
+:root .site-shell .ld-bs-chat-head small { font-size: 10px; opacity: .8; }
+:root .site-shell .ld-bs-chat-body { display: grid; gap: 8px; padding: 12px; color: #111b21; font-size: 11px; line-height: 1.4; }
+:root .site-shell .ld-bs-msg { max-width: 88%; padding: 10px; border-radius: 0 12px 12px 12px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+:root .site-shell .ld-bs-msg.is-out { max-width: 70%; margin-left: auto; border-radius: 12px 0 12px 12px; background: #d9fdd3; }
+:root .site-shell .ld-bs-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; color: #667781; font-size: 9px; }
+:root .site-shell .ld-bs-meta i { color: #53bdeb; display: inline-flex; }
+:root .site-shell .ld-bs-typing { display: flex; gap: 4px; width: 48px; }
+:root .site-shell .ld-bs-typing i { width: 6px; height: 6px; border-radius: 50%; background: #667781; }
+
+/* Scene 4: clock + day panel */
+:root .site-shell .ld-bs-clock {
+  position: absolute; top: 32px; right: 32px; width: 128px; height: 128px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.6), 0 25px 50px -12px rgba(0,0,0,.35);
+}
+:root .site-shell .ld-bs-tick, :root .site-shell .ld-bs-hand { position: absolute; top: 50%; left: 50%; translate: -50% -100%; transform-origin: bottom center; }
+:root .site-shell .ld-bs-tick { width: 2px; height: 46%; }
+:root .site-shell .ld-bs-tick i { display: block; height: 6px; background: rgba(122,112,102,.5); }
+:root .site-shell .ld-bs-tick i.is-major { height: 10px; background: var(--bs-ink); }
+:root .site-shell .ld-bs-hand { border-radius: 999px; }
+:root .site-shell .ld-bs-hand.is-hour { width: 4px; height: 26%; background: var(--bs-ink); transform: rotate(97deg); }
+:root .site-shell .ld-bs-hand.is-minute { width: 2px; height: 38%; background: var(--bs-accent); transform: rotate(270deg); }
+:root .site-shell .ld-bs-pin { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--bs-accent); box-shadow: 0 0 0 2px #fff; }
+:root .site-shell .ld-bs-arrived { top: 176px; right: 32px; }
+:root .site-shell .ld-bs-panel { bottom: 32px; left: 32px; width: min(260px, 78%); padding: 16px; }
+:root .site-shell .ld-bs-panel small { display: flex; align-items: center; gap: 6px; color: var(--bs-muted); font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+:root .site-shell .ld-bs-panel small svg { color: var(--bs-accent); }
+:root .site-shell .ld-bs-panel p { display: flex; align-items: baseline; gap: 6px; margin: 4px 0 0; color: var(--bs-muted); font-size: 12px; }
+:root .site-shell .ld-bs-panel p b { color: var(--bs-ink); font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+:root .site-shell .ld-bs-meter { height: 6px; margin-top: 8px; overflow: hidden; border-radius: 999px; background: var(--bs-soft); }
+:root .site-shell .ld-bs-meter i { display: block; width: 62%; height: 100%; border-radius: 999px; background: var(--bs-accent); }
+:root .site-shell .ld-bs-panel .ld-bs-note { margin-top: 8px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+/* Phones: a portrait stage, and the overlay layer laid out 40% larger then scaled down so the photo stays visible. */
+@media (max-width: 640px) {
+  :root .site-shell .ld-bs { height: 420vh; }
+  :root .site-shell .ld-bs-sticky { padding: 16px 14px; }
+  :root .site-shell .ld-bs-stage { width: min(100%, calc(78svh * 4 / 5)); aspect-ratio: 4 / 5; }
+  :root .site-shell .ld-bs-layer { width: 140%; height: 140%; transform: scale(.714); transform-origin: top left; }
+  :root .site-shell .ld-bs-site, :root .site-shell .ld-bs-chat { right: 16px; bottom: 16px; }
+  :root .site-shell .ld-bs-phone { right: 16px; bottom: 16px; width: 200px; }
+  :root .site-shell .ld-bs-clock { top: 16px; right: 16px; width: 112px; height: 112px; }
+  :root .site-shell .ld-bs-arrived { top: 144px; right: 16px; }
+  :root .site-shell .ld-bs-panel { bottom: 16px; left: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .site-shell .ld-bs { height: auto; }
+  :root .site-shell .ld-bs-sticky { position: relative; height: auto; padding: 60px 20px; }
+}
