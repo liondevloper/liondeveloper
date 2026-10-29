@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { pool, ENQUIRY_STATUSES } from './db.js';
@@ -11,6 +12,8 @@ const NO_SECRET = 'Admin access is disabled until SESSION_SECRET is set on the s
 
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+// How long a video upload ticket stays valid. Long enough for a 50 MB upload on a slow phone connection.
+const VIDEO_TICKET_MINUTES = 30;
 
 function requireSecret(_req, res, next) {
   if (!secret()) return res.status(503).json({ error: NO_SECRET });
@@ -190,6 +193,24 @@ api.post('/images', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('[images] insert failed', error);
     res.status(500).json({ error: 'Could not save image' });
+  }
+});
+
+// Videos are too big for this server, so the browser uploads them straight to Supabase Storage.
+// The storage rules only accept a file inside a folder named after a valid, unexpired ticket,
+// and only a signed-in admin can get one here.
+api.post('/videos/ticket', requireAuth, async (_req, res) => {
+  const ticket = randomBytes(24).toString('hex');
+  try {
+    await pool.query('DELETE FROM upload_tickets WHERE expires_at < now()');
+    await pool.query(
+      `INSERT INTO upload_tickets (token, expires_at) VALUES ($1, now() + make_interval(mins => $2))`,
+      [ticket, VIDEO_TICKET_MINUTES],
+    );
+    res.status(201).json({ ticket });
+  } catch (error) {
+    console.error('[videos] ticket failed', error);
+    res.status(500).json({ error: 'Could not start the video upload' });
   }
 });
 
