@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import App from './App.tsx';
 import AdminApp from './admin/AdminApp.tsx';
 import { ADMIN_PATH } from './admin/route.ts';
-import ServiceLinks from './seo/ServiceLinks.tsx';
+import SiteFooter from './seo/ServiceLinks.tsx';
 import './index.css';
 // Imported after index.css so the theme stylesheet it carries wins over the older styles.
 import { WithScene } from './motion/scene.tsx';
@@ -19,11 +19,11 @@ import './motion/trend.css';
 // Short intro, calm cards, round shapes, paused off-screen animations; must stay the very last stylesheet.
 import './motion/polish.css';
 
-// The public site, followed by links to the separate service pages.
+// The public site, followed by the shared footer (same footer as the static service, blog and country pages).
 const PublicSite = () => (
   <WithScene>
     <App />
-    <ServiceLinks />
+    <SiteFooter />
   </WithScene>
 );
 

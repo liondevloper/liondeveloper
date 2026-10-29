@@ -20,9 +20,9 @@ Website templates shown on the site include hotel, salon and restaurant websites
 
 ## International clients
 
-- [Website development for US businesses](https://liondigitalsolution.com/website-development-usa/)
-- [Website development for UK businesses](https://liondigitalsolution.com/website-development-uk/)
-- [Website development in Dubai and the UAE](https://liondigitalsolution.com/website-development-dubai/)
+- [Website development for US businesses](https://liondigitalsolution.com/website-development-usa/): prices in US dollars
+- [Website development for UK businesses](https://liondigitalsolution.com/website-development-uk/): prices in British pounds
+- [Website development in Dubai and the UAE](https://liondigitalsolution.com/website-development-dubai/): prices in UAE dirhams
 
 ## Guides
 
@@ -32,13 +32,19 @@ Website templates shown on the site include hotel, salon and restaurant websites
 
 ## Pricing
 
-- Clients in India: Starter from ₹8,000, Business from ₹18,000, Professional from ₹30,000, Custom Project on request
-- International clients: Starter from $299, Business from $649, Professional from $999, Custom Project on request
+Each client is quoted in their own currency.
+
+- India: Starter from ₹12,000, Business from ₹24,000, Professional from ₹40,000
+- USA: Starter from $399, Business from $799, Professional from $1,299
+- UK: Starter from £319, Business from £649, Professional from £999
+- UAE: Starter from AED 1,499, Business from AED 2,999, Professional from AED 4,799
+- Custom Project on request
 - 50% advance before work begins, 50% after approval
 
 ## Contact
 
 - WhatsApp: +91 7600747798 (https://wa.me/917600747798)
+- Email: liondigitalsolution0@gmail.com
 - Instagram: https://www.instagram.com/liondigitalsolution/
 - Facebook: https://www.facebook.com/share/1DuVJkPjwv/
 - Google Business Profile: https://share.google/RqCi4bEcF1u5D8QCU
