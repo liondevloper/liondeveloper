@@ -1,0 +1,217 @@
+/* New light 3D sections (studio/): container-scroll showcase, 3D industry marquee, client bento grid and
+   the beams call-to-action. Ideas taken from Aceternity UI, 21st.dev, motion.dev, Mobbin and Layers,
+   rebuilt in plain CSS so the site needs no new libraries. Every rule starts with ":root .site-shell"
+   so it wins over the older stylesheets, and everything stays on the light ivory theme. */
+
+:root .site-shell .ld-showcase,
+:root .site-shell .ld-industries,
+:root .site-shell .ld-bento-section,
+:root .site-shell .ld-cta { position: relative; }
+
+/* ---------------- 1. Container scroll showcase ---------------- */
+:root .site-shell .ld-showcase { --p: 0; overflow: hidden; padding-bottom: 70px; background: radial-gradient(circle at 50% 70%, rgba(255,140,70,.14), transparent 50%); }
+:root .site-shell .ld-showcase-head p { max-width: 620px; margin: 16px auto 0; color: var(--muted); }
+:root .site-shell .ld-device { position: relative; width: min(1080px, 100%); margin: 46px auto 0; perspective: 1200px; }
+:root .site-shell .ld-device-glow {
+  position: absolute; inset: 12% 8% -6%; border-radius: 40px; filter: blur(60px); z-index: 0;
+  background: linear-gradient(120deg, rgba(239,106,40,.35), rgba(245,149,58,.25) 45%, rgba(10,150,182,.22));
+  opacity: calc(.35 + var(--p) * .65);
+}
+:root .site-shell .ld-device-frame {
+  position: relative; z-index: 1; padding: 10px; border-radius: 30px;
+  background: linear-gradient(160deg, #ffffff, #f6eee2); border: 1px solid rgba(120,85,40,.18);
+  box-shadow: 0 2px 0 #fff inset, 0 60px 120px -40px rgba(120,70,20,.45), 0 20px 40px -20px rgba(120,70,20,.25);
+  transform-origin: 50% 0%;
+  transform: rotateX(calc((1 - var(--p)) * 22deg)) scale(calc(1.06 - var(--p) * .06)) translateY(calc((1 - var(--p)) * 30px));
+  will-change: transform;
+}
+:root .site-shell .ld-device-bar { display: flex; align-items: center; gap: 7px; padding: 6px 10px 12px; }
+:root .site-shell .ld-device-bar > span { width: 10px; height: 10px; border-radius: 50%; background: #e7dccb; }
+:root .site-shell .ld-device-bar > span:nth-child(1) { background: #f2a089; }
+:root .site-shell .ld-device-bar > span:nth-child(2) { background: #f4cf7c; }
+:root .site-shell .ld-device-bar > span:nth-child(3) { background: #9fd8a8; }
+:root .site-shell .ld-device-bar b {
+  margin: 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 16px; border-radius: 999px;
+  background: #fff; border: 1px solid rgba(120,85,40,.14); font: 500 12px 'DM Mono', monospace; color: #6a6357;
+}
+:root .site-shell .ld-device-bar b svg { color: #2f8a3c; }
+:root .site-shell .ld-device-screen { position: relative; aspect-ratio: 16 / 10; border-radius: 20px; overflow: hidden; background: #efe9dd; }
+:root .site-shell .ld-device-screen img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top;
+  opacity: 0; scale: 1.06; transition: opacity .9s ease, scale 1.4s cubic-bezier(.2,.8,.2,1);
+}
+:root .site-shell .ld-device-screen img.is-active { opacity: 1; scale: 1; }
+:root .site-shell .ld-device-tag {
+  position: absolute; left: 18px; bottom: 18px; padding: 9px 16px; border-radius: 999px;
+  background: rgba(255,255,255,.92); color: var(--ink); font-weight: 700; font-size: 13px;
+  box-shadow: 0 14px 30px -14px rgba(60,35,10,.5); animation: lds-tag-in .6s cubic-bezier(.2,.8,.2,1) both;
+}
+:root .site-shell .ld-device-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 34px; }
+:root .site-shell .ld-device-tabs button {
+  cursor: pointer; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--glass-border); background: #fff;
+  color: #5b5448; font: 600 14px 'Manrope', sans-serif; transition: all .3s ease;
+}
+:root .site-shell .ld-device-tabs button:hover { border-color: var(--gold); color: var(--gold); }
+:root .site-shell .ld-device-tabs button.is-active { background: linear-gradient(120deg, #ef6a28, #f5953a); color: #fff; border-color: transparent; box-shadow: 0 10px 24px -10px rgba(239,106,40,.7); }
+:root .site-shell .ld-showcase-cta { display: flex; justify-content: center; margin-top: 28px; }
+
+/* ---------------- 2. 3D industry marquee ---------------- */
+:root .site-shell .ld-industries { overflow: hidden; background: linear-gradient(180deg, transparent, rgba(255,236,214,.5) 50%, transparent); }
+/* Edges fade out with a mask, so it blends into any page background colour. */
+:root .site-shell .ld-marquee3d {
+  position: relative; height: 560px; margin-top: 40px; overflow: hidden; border-radius: 32px; perspective: 1400px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
+}
+:root .site-shell .ld-marquee3d-plane {
+  position: absolute; left: 50%; top: 50%; width: 1500px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
+  transform: translate(-50%, -50%) rotateX(52deg) rotateZ(-38deg) scale(.95); transform-style: preserve-3d;
+}
+:root .site-shell .ld-marquee3d-col { display: flex; flex-direction: column; gap: 22px; animation: lds-col-up var(--d, 32s) linear infinite; }
+:root .site-shell .ld-marquee3d-col.is-down { animation-name: lds-col-down; }
+:root .site-shell .ld-marquee3d:hover .ld-marquee3d-col { animation-play-state: paused; }
+:root .site-shell .ld-marquee3d-col img {
+  width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; border-radius: 18px;
+  border: 6px solid #fff; box-shadow: 0 30px 50px -24px rgba(120,70,20,.45);
+  transition: transform .5s cubic-bezier(.2,.8,.2,1);
+}
+:root .site-shell .ld-marquee3d-col img:hover { transform: translateZ(40px) scale(1.04); }
+:root .site-shell .ld-industry-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px; }
+:root .site-shell .ld-industry-chips span {
+  padding: 9px 16px; border-radius: 999px; background: #fff; border: 1px solid var(--glass-border);
+  font-weight: 600; font-size: 14px; color: #4d463b; box-shadow: 0 8px 18px -14px rgba(120,70,20,.4);
+}
+
+/* ---------------- 3. Client bento grid ---------------- */
+:root .site-shell .ld-bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; }
+:root .site-shell .ld-bento-card {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 330px; border-radius: 26px;
+  background: linear-gradient(160deg, #ffffff, #fff8ee); border: 1px solid var(--glass-border);
+  box-shadow: 0 24px 50px -28px rgba(140,80,20,.35), inset 0 1px 0 #fff;
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s ease, border-color .3s ease;
+}
+:root .site-shell .ld-bento-card.is-wide { grid-column: span 2; }
+:root .site-shell .ld-bento-card:hover { transform: translateY(-6px); border-color: rgba(239,106,40,.45); box-shadow: 0 40px 70px -30px rgba(220,95,25,.45), inset 0 1px 0 #fff; }
+:root .site-shell .ld-bento-spot {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s ease;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), rgba(255,160,90,.18), transparent 60%);
+}
+:root .site-shell .ld-bento-card:hover .ld-bento-spot { opacity: 1; }
+:root .site-shell .ld-bento-visual { position: relative; flex: 1; display: grid; place-items: center; padding: 26px 26px 6px; min-height: 160px; }
+:root .site-shell .ld-bento-copy { position: relative; padding: 0 26px 26px; }
+:root .site-shell .ld-bento-icon {
+  display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; margin-bottom: 12px;
+  background: linear-gradient(135deg, rgba(239,106,40,.14), rgba(10,150,182,.12)); color: var(--gold);
+}
+:root .site-shell .ld-bento-copy h3 { margin: 0 0 6px; font-size: 20px; letter-spacing: -.02em; color: var(--ink); }
+:root .site-shell .ld-bento-copy p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+
+/* Timeline visual */
+:root .site-shell .ld-v-timeline { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+:root .site-shell .ld-v-timeline div { padding: 14px; border-radius: 16px; background: #fff; border: 1px solid var(--glass-border); box-shadow: 0 10px 24px -18px rgba(120,70,20,.5); }
+:root .site-shell .ld-v-timeline span { display: block; font: 500 12px 'DM Mono', monospace; color: #6a6357; margin-bottom: 12px; }
+:root .site-shell .ld-v-timeline i { display: block; height: 6px; border-radius: 999px; background: rgba(23,20,15,.07); position: relative; overflow: hidden; }
+:root .site-shell .ld-v-timeline i::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; transform-origin: left; transform: scaleX(0);
+  background: linear-gradient(90deg, #ef6a28, #f5953a, #0a96b6);
+  animation: lds-fill 4.5s cubic-bezier(.6,0,.2,1) infinite; animation-delay: calc(var(--i, 0) * .9s);
+}
+/* Chat visual */
+:root .site-shell .ld-v-chat { width: 100%; max-width: 330px; display: grid; gap: 10px; }
+:root .site-shell .ld-v-chat p { margin: 0; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.45; max-width: 85%; box-shadow: 0 10px 20px -16px rgba(60,35,10,.5); }
+:root .site-shell .ld-v-chat .is-in { background: #fff; border: 1px solid var(--glass-border); color: var(--ink); border-bottom-left-radius: 4px; animation: lds-pop 5s ease infinite; }
+:root .site-shell .ld-v-chat .is-out { justify-self: end; background: #dcf8c6; color: #1f3a17; border-bottom-right-radius: 4px; animation: lds-pop 5s ease .8s infinite; }
+/* Dashboard visual */
+:root .site-shell .ld-v-dashboard { width: 100%; max-width: 320px; padding: 16px; border-radius: 18px; background: #fff; border: 1px solid var(--glass-border); }
+:root .site-shell .ld-v-dashboard small { display: block; font: 500 12px 'DM Mono', monospace; color: #6a6357; margin-bottom: 12px; }
+:root .site-shell .ld-v-dashboard div { display: flex; align-items: flex-end; gap: 8px; height: 90px; }
+:root .site-shell .ld-v-dashboard i {
+  flex: 1; height: var(--h); border-radius: 6px 6px 3px 3px; transform-origin: bottom;
+  background: linear-gradient(180deg, #f5953a, #ef6a28); animation: lds-bar 3.6s ease-in-out infinite; animation-delay: calc(var(--i) * .12s);
+}
+:root .site-shell .ld-v-dashboard i:nth-child(odd) { background: linear-gradient(180deg, #3cc3dc, #0a96b6); }
+/* Search visual */
+:root .site-shell .ld-v-search { width: 100%; max-width: 330px; display: grid; gap: 10px; }
+:root .site-shell .ld-v-search-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--glass-border); font-size: 13px; color: #4d463b; }
+:root .site-shell .ld-v-search-result { padding: 14px; border-radius: 16px; background: #fff; border: 1px solid rgba(239,106,40,.35); box-shadow: 0 14px 30px -20px rgba(220,95,25,.6); }
+:root .site-shell .ld-v-search-result small { display: block; color: #2f8a3c; font-size: 12px; }
+:root .site-shell .ld-v-search-result b { display: block; color: #1a4fb4; font-size: 15px; margin: 2px 0; }
+:root .site-shell .ld-v-search-result span { font-size: 12px; color: #6a6357; }
+/* Devices visual */
+:root .site-shell .ld-v-devices { position: relative; width: 100%; max-width: 330px; height: 150px; }
+:root .site-shell .ld-v-devices img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+:root .site-shell .ld-v-laptop { position: absolute; left: 0; top: 0; width: 82%; height: 128px; border-radius: 12px; overflow: hidden; border: 5px solid #fff; box-shadow: 0 20px 40px -22px rgba(60,35,10,.55); }
+:root .site-shell .ld-v-phone { position: absolute; right: 0; bottom: 0; width: 76px; height: 136px; border-radius: 18px; overflow: hidden; border: 5px solid #17140f; box-shadow: 0 20px 40px -18px rgba(60,35,10,.6); animation: lds-bob 5s ease-in-out infinite; }
+
+/* ---------------- 4. Beams call-to-action ---------------- */
+:root .site-shell .ld-cta-card {
+  position: relative; overflow: hidden; max-width: 1100px; margin: 0 auto; padding: 80px 24px; border-radius: 36px; text-align: center;
+  background: radial-gradient(circle at 50% 0%, rgba(255,160,90,.28), transparent 60%), linear-gradient(180deg, #fffaf2, #fff1e0);
+  border: 1px solid rgba(239,106,40,.25); box-shadow: 0 50px 100px -50px rgba(220,95,25,.55), inset 0 1px 0 #fff;
+}
+:root .site-shell .ld-cta-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(120,85,40,.22) 1px, transparent 1px); background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, #000, transparent 70%); mask-image: radial-gradient(circle at 50% 40%, #000, transparent 70%);
+}
+:root .site-shell .ld-cta-beams { position: absolute; inset: 0; pointer-events: none; }
+:root .site-shell .ld-cta-beams i {
+  position: absolute; top: -40%; left: calc(8% + var(--i) * 14%); width: 2px; height: 40%; border-radius: 999px;
+  background: linear-gradient(180deg, transparent, rgba(239,106,40,.85), rgba(10,150,182,.6), transparent);
+  animation: lds-beam 6s linear infinite; animation-delay: calc(var(--i) * -.85s);
+}
+:root .site-shell .ld-cta-copy { position: relative; }
+:root .site-shell .ld-cta-copy p { max-width: 560px; margin: 16px auto 0; color: var(--muted); }
+:root .site-shell .ld-cta-actions { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 30px; }
+
+/* Moving border button */
+:root .site-shell .ld-moving-border { position: relative; display: inline-flex; padding: 2px; border-radius: 999px; overflow: hidden; text-decoration: none; isolation: isolate; }
+:root .site-shell .ld-moving-border-spin {
+  position: absolute; inset: -150%; z-index: -1;
+  background: conic-gradient(from 0deg, transparent 0 60%, #ef6a28 75%, #0a96b6 88%, transparent 100%);
+  animation: lds-spin 3.2s linear infinite;
+}
+:root .site-shell .ld-moving-border-inner {
+  display: inline-flex; align-items: center; gap: 9px; padding: 14px 26px; border-radius: 999px;
+  background: #17140f; color: #fff; font-weight: 700; font-size: 15px; transition: background .3s ease;
+}
+:root .site-shell .ld-moving-border:hover .ld-moving-border-inner { background: #2b241b; }
+
+/* ---------------- Keyframes (lds- prefix so they never clash with the older ld- animations) ---------------- */
+@keyframes lds-col-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes lds-col-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+@keyframes lds-tag-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes lds-fill { 0% { transform: scaleX(0); } 45%, 80% { transform: scaleX(1); } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes lds-pop { 0%, 8% { opacity: 0; transform: translateY(8px) scale(.96); } 18%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes lds-bar { 0%, 100% { transform: scaleY(.55); } 50% { transform: scaleY(1); } }
+@keyframes lds-bob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+@keyframes lds-beam { from { transform: translateY(0); } to { transform: translateY(380%); } }
+@keyframes lds-spin { to { transform: rotate(360deg); } }
+
+/* ---------------- Tablet + phone ---------------- */
+@media (max-width: 960px) {
+  :root .site-shell .ld-bento { grid-template-columns: 1fr 1fr; }
+  :root .site-shell .ld-bento-card.is-wide { grid-column: span 2; }
+  :root .site-shell .ld-marquee3d { height: 460px; }
+  :root .site-shell .ld-marquee3d-plane { width: 1150px; }
+}
+@media (max-width: 680px) {
+  :root .site-shell .ld-device-frame { padding: 6px; border-radius: 20px; }
+  :root .site-shell .ld-device-screen { border-radius: 14px; }
+  :root .site-shell .ld-device-bar b { font-size: 11px; padding: 4px 10px; }
+  :root .site-shell .ld-device-tabs button { padding: 8px 14px; font-size: 13px; }
+  :root .site-shell .ld-marquee3d { height: 360px; border-radius: 22px; }
+  :root .site-shell .ld-marquee3d-plane { width: 820px; gap: 12px; }
+  :root .site-shell .ld-marquee3d-col { gap: 12px; }
+  :root .site-shell .ld-marquee3d-col img { border-width: 4px; border-radius: 12px; }
+  :root .site-shell .ld-bento { grid-template-columns: 1fr; }
+  :root .site-shell .ld-bento-card.is-wide { grid-column: auto; }
+  :root .site-shell .ld-bento-card { min-height: 0; }
+  :root .site-shell .ld-v-timeline { grid-template-columns: 1fr; }
+  :root .site-shell .ld-cta-card { padding: 56px 18px; border-radius: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .site-shell :is(.ld-marquee3d-col, .ld-cta-beams i, .ld-moving-border-spin, .ld-v-chat p, .ld-v-dashboard i, .ld-v-phone) { animation: none !important; }
+  :root .site-shell .ld-v-timeline i::after { animation: none !important; transform: scaleX(1); }
+  :root .site-shell .ld-device-frame { transform: none; }
+}
