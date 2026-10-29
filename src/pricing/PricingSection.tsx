@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, Check, ChevronDown, ChevronUp, CreditCard, Gift, HeartHandshake, MessageCircle, PenLine, Server, Sparkles, X } from 'lucide-react';
 import {
   annualSaving,
@@ -11,8 +11,10 @@ import {
   type Terms,
 } from '@/data/site';
 import { IS_INTERNATIONAL, formatMoney } from '@/data/region';
-import { MOTION_ENABLED, stagger } from '@/motion/effects';
+import { stagger } from '@/motion/effects';
+import { useStickyStack } from '@/motion/sticky-stack';
 import './pricing.css';
+import './plan-stack.css';
 
 type Choose = (name: string) => void;
 
@@ -24,8 +26,6 @@ const FX_LAYERS: Record<TierFx, number> = { orbit: 4, holo: 3, ember: 8 };
 // Price card effect layers (fixes.css): border light, sweep and glare; the popular card adds a colour wash + sparks.
 const PLAN_FX_LAYERS = 3;
 const POPULAR_FX_LAYERS = 8;
-// Max tilt angle (degrees) when the mouse moves over a price card. The card turns in place, so the row stays aligned.
-const PLAN_TILT_DEG = 7;
 
 const POLICY_TABS = [
   { id: 'payment', label: 'Payment terms', icon: CreditCard },
@@ -53,36 +53,19 @@ function PriceCard({ plan, index, onChoose }: { plan: Plan; index: number; onCho
   );
 }
 
-// Mouse-only 3D tilt + glare for the price cards. Touch screens skip it so swiping the row stays smooth.
-function usePlanTilt() {
-  const activeRef = useRef<HTMLElement | null>(null);
-
-  const reset = () => {
-    const card = activeRef.current;
-    if (!card) return;
-    card.style.removeProperty('--rx');
-    card.style.removeProperty('--ry');
-    card.removeAttribute('data-hover');
-    activeRef.current = null;
-  };
-
-  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!MOTION_ENABLED || event.pointerType !== 'mouse') return;
-    const card = event.target instanceof Element ? event.target.closest<HTMLElement>('.price-card') : null;
-    if (card !== activeRef.current) reset();
-    if (!card) return;
-    activeRef.current = card;
-    const rect = card.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
-    card.style.setProperty('--ry', `${((px - 0.5) * 2 * PLAN_TILT_DEG).toFixed(2)}deg`);
-    card.style.setProperty('--rx', `${((0.5 - py) * 2 * PLAN_TILT_DEG).toFixed(2)}deg`);
-    card.style.setProperty('--mx', `${(px * 100).toFixed(1)}%`);
-    card.style.setProperty('--my', `${(py * 100).toFixed(1)}%`);
-    card.setAttribute('data-hover', '');
-  };
-
-  return { onPointerMove, onPointerLeave: reset };
+// Website plans stack on scroll like the work videos: each card sticks, then the next one slides over it.
+function PlanStack({ pricing, onChoose }: { pricing: Plan[]; onChoose: Choose }) {
+  const listRef = useRef<HTMLDivElement>(null);
+  useStickyStack(listRef, '.plan-stack-item', pricing.length);
+  return (
+    <div className="plan-stack" ref={listRef}>
+      {pricing.map((plan, index) => (
+        <div className="plan-stack-item" key={index} style={{ '--i': index } as CSSProperties}>
+          <div className="plan-stack-card"><PriceCard plan={plan} index={index} onChoose={onChoose} /></div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function CheckList({ items, excluded = false }: { items: string[]; excluded?: boolean }) {
@@ -242,9 +225,6 @@ function PolicyPanel({ pricing, terms }: { pricing: Plan[]; terms: Terms }) {
 type PricingSectionProps = { pricing: Plan[]; care: CarePlan; terms: Terms; whatsapp: string; onChoose: Choose };
 
 export default function PricingSection({ pricing, care, terms, whatsapp, onChoose }: PricingSectionProps) {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const tilt = usePlanTilt();
-  const popularPlan = Math.max(pricing.findIndex((plan) => plan.popular), 0);
   const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? formatMoney(8000);
   // Names the packages that carry the free domain offer, so the note never promises it on the Starter plan.
   const perkPlans = pricing.filter((plan) => plan.perk).map((plan) => plan.name);
@@ -254,33 +234,14 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
   // International visitors see US dollar prices (see data/region.ts), so the note says so.
   const currencyNote = IS_INTERNATIONAL ? ' All prices are in US dollars (USD).' : '';
 
-  // On phones and tablets the row swipes sideways; start it centred on the most popular package.
-  useEffect(() => {
-    const row = rowRef.current;
-    const card = row?.children[popularPlan];
-    if (!row || !(card instanceof HTMLElement) || row.scrollWidth <= row.clientWidth) return;
-    row.scrollLeft = card.offsetLeft - (row.clientWidth - card.offsetWidth) / 2;
-  }, [popularPlan, pricing.length]);
-
   return (
     <section className="pricing-section section-pad" id="pricing">
       <div className="center-heading">
         <span className="section-kicker" data-reveal>Clear starting points</span>
         <h2 data-reveal="clip">Simple website<br /><em>pricing.</em></h2>
-        <p data-reveal style={stagger(2)}>Professional websites starting from {lowest}. Compare the packages to find the right fit.</p>
+        <p data-reveal style={stagger(2)}>Professional websites starting from {lowest}. Keep scrolling to compare the packages.</p>
       </div>
-      {/* The cards rise up from one shared floor line as the row scrolls in, so they always end perfectly aligned. */}
-      <div className="pricing-stage" data-reveal>
-        <div
-          ref={rowRef}
-          className="pricing-row"
-          style={{ '--plans': Math.min(Math.max(pricing.length, 1), 4) } as CSSProperties}
-          onPointerMove={tilt.onPointerMove}
-          onPointerLeave={tilt.onPointerLeave}
-        >
-          {pricing.map((plan, index) => <PriceCard key={index} plan={plan} index={index} onChoose={onChoose} />)}
-        </div>
-      </div>
+      <PlanStack pricing={pricing} onChoose={onChoose} />
       <p className="pricing-note" data-reveal>Starting prices. Your final quotation depends on pages, features, integrations and project requirements.{perkNote}{currencyNote}</p>
       {care.enabled && <CareBlock care={care} whatsapp={whatsapp} />}
       <PolicyPanel pricing={pricing} terms={terms} />
