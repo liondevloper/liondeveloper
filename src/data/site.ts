@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BUSINESS } from '@/data/business';
 
 export type Stat = { value: string; label: string };
 export type Service = { icon: string; title: string; description: string };
@@ -121,23 +122,25 @@ export const siteConfig = {
 };
 
 export const defaultContent: SiteContent = {
+  // The same verified details as index.html, public/llms.txt and every service page (see data/business.ts).
   contact: {
     email: 'liondeveloper76@gmail.com',
-    whatsapp: '9737822142',
+    whatsapp: BUSINESS.whatsapp,
     whatsappMessage: 'Hi Lion Digital Solution, I want a website for my business.',
-    instagram: '@lion___developer',
-    instagramUrl: 'https://www.instagram.com/lion___developer/',
+    instagram: BUSINESS.instagram,
+    instagramUrl: BUSINESS.instagramUrl,
   },
   hero: {
     badge: 'Available for New Projects',
     headline: 'I build websites that *grow* your business.',
     text: 'Modern websites, web applications and digital solutions designed to help businesses build a stronger online presence and turn visitors into customers. Your website can be ready in just 1–3 days, depending on the website.',
   },
+  // No "24/7 support" claim: the care plan itself says 24/7 support is not included.
   stats: [
     { value: '50+', label: 'Projects' },
     { value: '30+', label: 'Clients' },
     { value: '100%', label: 'Responsive' },
-    { value: '24/7', label: 'Support' },
+    { value: '50%', label: 'Pay on approval' },
   ],
   services: [
     { icon: 'Globe', title: 'Business Websites', description: 'Professional websites for businesses, companies, local brands and professionals.' },
@@ -191,10 +194,11 @@ export const defaultContent: SiteContent = {
     },
   ],
   videos: [],
+  // Prices carry no "+": the card already says "Starting from".
   pricing: [
     {
       name: 'Starter',
-      price: '₹8,000+',
+      price: '₹15,000',
       description: 'A polished launchpad for a focused online presence.',
       popular: false,
       perk: '',
@@ -209,7 +213,7 @@ export const defaultContent: SiteContent = {
     },
     {
       name: 'Business',
-      price: '₹18,000+',
+      price: '₹25,000',
       description: 'A premium website built to support your next stage of growth.',
       popular: true,
       perk: FREE_DOMAIN_PERK,
@@ -225,7 +229,7 @@ export const defaultContent: SiteContent = {
     },
     {
       name: 'Professional',
-      price: '₹30,000+',
+      price: '₹40,000',
       description: 'Advanced functionality and custom solutions for businesses with bigger requirements.',
       popular: false,
       perk: FREE_DOMAIN_PERK,
@@ -320,7 +324,7 @@ export const defaultContent: SiteContent = {
       'Project timelines begin after the advance payment and all required materials are received.',
       'Payment milestones are confirmed with you before the project starts.',
     ],
-    paymentNote: 'For projects above ₹30,000, the 50% advance and remaining balance are calculated from the final agreed quotation.',
+    paymentNote: 'For projects above ₹40,000, the 50% advance and remaining balance are calculated from the final agreed quotation.',
     revisions: [
       'A revision round is one consolidated list of changes you send for the agreed design or content.',
       'Minor text, colour, spacing and image adjustments within the agreed scope count as revisions.',
@@ -335,7 +339,7 @@ export const defaultContent: SiteContent = {
       {
         question: 'How does the 50% advance payment work?',
         answer:
-          'You pay 50% of the agreed price before work begins. The remaining 50% is due after you review and approve the completed website, before final handover and launch. For example, a ₹18,000 Business website is ₹9,000 advance + ₹9,000 final payment.',
+          'You pay 50% of the agreed price before work begins. The remaining 50% is due after you review and approve the completed website, before final handover and launch. For example, a ₹25,000 Business website is ₹12,500 advance + ₹12,500 final payment.',
       },
       {
         question: 'What is included in a revision round?',
@@ -356,18 +360,26 @@ export const defaultContent: SiteContent = {
       },
     ],
   },
-  budgets: ['₹8,000 – ₹18,000', '₹18,000 – ₹30,000', '₹30,000 – ₹50,000', '₹50,000+', 'Not sure'],
+  budgets: ['₹15,000 – ₹25,000', '₹25,000 – ₹40,000', '₹40,000 – ₹60,000', '₹60,000+', 'Not sure'],
   technologies: ['HTML5', 'CSS3', 'JavaScript', 'React', 'Node.js', 'PHP', 'Laravel', 'Firebase', 'Supabase', 'REST APIs', 'Cloudflare', 'Vercel', 'GitHub'],
   testimonials: [],
   faqs: [
-    { question: 'How much does a website cost?', answer: 'Website packages start from ₹8,000. Final pricing depends on pages, features and integrations.' },
+    { question: 'How much does a website cost?', answer: 'Website packages start from ₹15,000. Final pricing depends on pages, features and integrations.' },
     { question: 'How long does a website take?', answer: 'Most websites are ready in just 1–3 days, depending on the website. Bigger projects with custom features may take longer, and a clear timeline is shared before work begins.' },
-    { question: 'Do you provide domain and hosting?', answer: 'Yes. Business (₹18,000+), Professional (₹30,000+) and Custom Project include a FREE .in or .com domain and hosting for the first year. Renewals from the second year are charged separately.' },
+    { question: 'Do you provide domain and hosting?', answer: 'Yes. Business (from ₹25,000), Professional (from ₹40,000) and Custom Project include a FREE .in or .com domain and hosting for the first year. Renewals from the second year are charged separately.' },
     { question: 'Can you build an admin panel?', answer: 'Yes. Custom admin panels can be developed when required.' },
     { question: 'Can you integrate WhatsApp?', answer: 'Yes. WhatsApp enquiry and booking functionality can be integrated.' },
     { question: 'Do you provide maintenance?', answer: 'Yes. The optional Website Care Plan starts at ₹999/month (Starter), with Business at ₹1,499 and Professional at ₹2,499. Yearly plans get 2 months free, and the first month is free with every website.' },
   ],
 };
+
+// Starting prices before the October 2026 price update. Content saved in the admin panel with these
+// amounts moves to the new prices, and every other mention of them (FAQs, budgets, notes) follows.
+const LEGACY_PRICES: Record<string, number> = { Starter: 8000, Business: 18000, Professional: 30000 };
+
+// Contact details from before the rebrand; saved admin content with them switches to the verified ones.
+const OLD_WHATSAPP = '9737822142';
+const OLD_INSTAGRAM = 'lion___developer';
 
 const list = <T,>(value: unknown, fallback: T[]): T[] => (Array.isArray(value) ? (value as T[]) : fallback);
 
@@ -377,11 +389,14 @@ const isCurrentPlans = (value: unknown): value is Plan[] =>
 
 // Plans saved before the free domain offer have no perk; the default package with the same name supplies
 // both the offer box and the matching domain & hosting terms, so the card and the policy never disagree.
+// Plans still on an old starting price get the current one.
 function upgradePlan(stored: Plan): Plan {
   const plan = { ...BLANK_PLAN, ...stored };
-  if (typeof (stored as Partial<Plan>).perk === 'string') return plan;
   const preset = defaultContent.pricing.find((item) => item.name === plan.name);
-  return preset ? { ...plan, perk: preset.perk, hosting: preset.hosting } : plan;
+  if (!preset) return plan;
+  const price = parseAmount(plan.price) === LEGACY_PRICES[plan.name] ? preset.price : plan.price;
+  if (typeof (stored as Partial<Plan>).perk === 'string') return { ...plan, price };
+  return { ...plan, price, perk: preset.perk, hosting: preset.hosting };
 }
 
 // Replaces answers to the default questions with the current default answers.
@@ -401,11 +416,25 @@ function mergeCare(stored: unknown): CarePlan {
   };
 }
 
-// Messages saved in the admin panel before the rebrand still say "Lion Developer"; swap in the new name.
-const renameBrand = (contact: SiteContent['contact']): SiteContent['contact'] => ({
-  ...contact,
-  whatsappMessage: (contact.whatsappMessage ?? '').replace(/lion\s*develop(?:er|or)/gi, 'Lion Digital Solution'),
-});
+// Messages saved before the rebrand still say "Lion Developer" or use the old number and Instagram;
+// they switch to the verified details so the site never shows two different numbers.
+const upgradeContact = (contact: SiteContent['contact']): SiteContent['contact'] => {
+  const whatsapp = contact.whatsapp ?? '';
+  const instagram = contact.instagram ?? '';
+  const instagramUrl = contact.instagramUrl ?? '';
+  const oldNumber = whatsapp.replace(/\D/g, '').endsWith(OLD_WHATSAPP);
+  const oldInstagram = instagram.includes(OLD_INSTAGRAM) || instagramUrl.includes(OLD_INSTAGRAM);
+  return {
+    ...contact,
+    whatsapp: oldNumber ? BUSINESS.whatsapp : whatsapp,
+    instagram: oldInstagram ? BUSINESS.instagram : instagram,
+    instagramUrl: oldInstagram ? BUSINESS.instagramUrl : instagramUrl,
+    whatsappMessage: (contact.whatsappMessage ?? '').replace(/lion\s*develop(?:er|or)/gi, 'Lion Digital Solution'),
+  };
+};
+
+// The old "24/7 Support" stat contradicted the care plan terms, so saved content drops it too.
+const upgradeStat = (stat: Stat): Stat => (stat.value === '24/7' ? { value: '50%', label: 'Pay on approval' } : stat);
 
 // Stored content only holds what the admin saved; anything missing falls back to the defaults above.
 export function mergeContent(stored: unknown): SiteContent {
@@ -421,9 +450,9 @@ export function mergeContent(stored: unknown): SiteContent {
   const termFaqs = list<Faq>(terms.faqs, defaultContent.terms.faqs);
   const faqs = list<Faq>(raw.faqs, defaultContent.faqs);
   const merged: SiteContent = {
-    contact: renameBrand({ ...defaultContent.contact, ...(raw.contact ?? {}) }),
+    contact: upgradeContact({ ...defaultContent.contact, ...(raw.contact ?? {}) }),
     hero: { ...defaultContent.hero, ...(raw.hero ?? {}) },
-    stats: list(raw.stats, defaultContent.stats),
+    stats: list<Stat>(raw.stats, defaultContent.stats).map(upgradeStat),
     services: list(raw.services, defaultContent.services),
     projects: list(raw.projects, defaultContent.projects),
     templates: list(raw.templates, defaultContent.templates),
@@ -447,7 +476,7 @@ export function mergeContent(stored: unknown): SiteContent {
 
 /* ------------------------------------------------------------- pricing maths */
 
-// "₹30,000+" -> 30000. Returns null for prices without a number, like "Let's Discuss".
+// "₹40,000" -> 40000. Returns null for prices without a number, like "Let's Discuss".
 export function parseAmount(price: string): number | null {
   const digits = price.replace(/[^\d]/g, '');
   return digits ? Number(digits) : null;
@@ -484,22 +513,23 @@ export function careOption(care: CarePlan, tier: CareTier, billing: 'monthly' | 
 const RUPEE_OR_SPLIT = /₹\s?(\d[\d,]*)(\s*advance\s*\+\s*₹\s?(\d[\d,]*))?/gi;
 const digitsOf = (text: string) => Number(text.replace(/[^\d]/g, ''));
 
-// Default amount -> amount saved in the admin panel, for every package and care price that was changed.
-// Packages and care tiers are matched by name.
+// Old amount -> current amount, for every package and care price that differs from the default
+// or from the pre-update starting price. Packages and care tiers are matched by name.
 function priceChanges(content: SiteContent) {
   const changes = new Map<number, number>();
-  const track = (before: string | undefined, after: string) => {
-    const from = before ? parseAmount(before) : null;
+  const track = (from: number | null | undefined, after: string) => {
     const to = parseAmount(after);
     if (from && to && from !== to) changes.set(from, to);
   };
   for (const plan of content.pricing) {
-    track(defaultContent.pricing.find((item) => item.name === plan.name)?.price, plan.price);
+    const preset = defaultContent.pricing.find((item) => item.name === plan.name);
+    track(preset ? parseAmount(preset.price) : null, plan.price);
+    track(LEGACY_PRICES[plan.name], plan.price);
   }
   for (const tier of content.care.tiers) {
     const preset = defaultContent.care.tiers.find((item) => item.name === tier.name);
-    track(preset?.price, tier.price);
-    track(preset?.yearlyPrice, tier.yearlyPrice);
+    track(preset ? parseAmount(preset.price) : null, tier.price);
+    track(preset ? parseAmount(preset.yearlyPrice) : null, tier.yearlyPrice);
   }
   return changes;
 }
@@ -508,7 +538,7 @@ function priceChanges(content: SiteContent) {
 function syncText(text: string, changes: Map<number, number>) {
   return text.replace(RUPEE_OR_SPLIT, (match, first: string, splitPart: string | undefined, second: string | undefined) => {
     if (splitPart && second) {
-      // "₹9,000 advance + ₹9,000" is half of one package price, so it is split again from the new price.
+      // "₹12,500 advance + ₹12,500" is half of one package price, so it is split again from the new price.
       const total = changes.get(digitsOf(first) + digitsOf(second));
       if (!total) return match;
       const { advance, final } = paymentSplit(total);

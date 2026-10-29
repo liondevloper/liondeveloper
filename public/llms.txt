@@ -32,8 +32,8 @@ Website templates shown on the site include hotel, salon and restaurant websites
 
 ## Pricing
 
-- Clients in India: Starter from ₹8,000, Business from ₹18,000, Professional from ₹30,000, Custom Project on request
-- International clients: Starter from $299, Business from $649, Professional from $999, Custom Project on request
+- Clients in India: Starter from ₹15,000, Business from ₹25,000, Professional from ₹40,000, Custom Project on request
+- International clients: Starter from $399, Business from $799, Professional from $1,299, Custom Project on request
 - 50% advance before work begins, 50% after approval
 
 ## Contact

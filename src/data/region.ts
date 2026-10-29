@@ -7,9 +7,9 @@ export type Region = 'india' | 'international';
 
 // International website package prices in USD. A package missing here (e.g. "Custom Project") keeps its text.
 export const USD_PLAN_PRICES: Record<string, number> = {
-  Starter: 299,
-  Business: 649,
-  Professional: 999,
+  Starter: 399,
+  Business: 799,
+  Professional: 1299,
 };
 
 // International Website Care Plan prices in USD. Yearly = 10 months, so the "2 months free" offer still holds.
@@ -19,10 +19,12 @@ export const USD_CARE_PRICES: Record<string, { monthly: number; yearly: number }
   Professional: { monthly: 99, yearly: 990 },
 };
 
-// Other rupee amounts used in the text: the free domain + hosting cap (₹3,000) and the top budget band (₹50,000).
-const USD_EXTRA: Record<number, number> = { 3000: 40, 50000: 1499 };
+// Other rupee amounts used in the text: the free domain + hosting cap (₹3,000) and the top budget bands.
+const USD_EXTRA: Record<number, number> = { 3000: 40, 50000: 1499, 60000: 1999 };
 
 // Only used for a rupee amount that matches nothing above, e.g. a new figure typed in the admin panel.
+// This is the studio's own price ratio (about ₹30 per $1 across the packages), not the bank exchange rate,
+// so an unknown amount lands in line with the published dollar packages.
 const FALLBACK_INR_PER_USD = 30;
 
 const INDIA_TIME_ZONES = ['Asia/Kolkata', 'Asia/Calcutta'];
@@ -80,7 +82,7 @@ function usdTable(content: SiteContent) {
 }
 
 const RUPEE_AMOUNT = /₹\s?(\d[\d,]*)/g;
-// "₹9,000 advance + ₹9,000": both halves come from one package price, so they are split from its dollar price.
+// "₹12,500 advance + ₹12,500": both halves come from one package price, so they are split from its dollar price.
 const PAYMENT_EXAMPLE = /₹\s?(\d[\d,]*)(\s*advance\s*\+\s*)₹\s?(\d[\d,]*)/gi;
 
 function toUsdText(text: string, table: Map<number, number>) {
