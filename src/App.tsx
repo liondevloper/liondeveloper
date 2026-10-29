@@ -15,6 +15,12 @@ import { ScrollBallet, useScrollScenes } from '@/motion/scenes';
 import StickyVideos from '@/motion/sticky-videos';
 import FancySelect, { toOption } from '@/motion/FancySelect';
 import PricingSection from '@/pricing/PricingSection';
+// Light 3D sections inspired by Aceternity UI, 21st.dev, motion.dev, Mobbin and Layers (see src/studio/studio.css).
+import ScrollShowcase from '@/studio/ScrollShowcase';
+import IndustryMarquee from '@/studio/IndustryMarquee';
+import ClientBento from '@/studio/ClientBento';
+import CtaBeams from '@/studio/CtaBeams';
+import '@/studio/studio.css';
 import './brand-logos.css';
 
 // Lion Digital Solution logos, made at build time from the uploaded logos (see pwa-icons.ts).
@@ -254,6 +260,8 @@ function App() {
 
         <Marquee items={BAND_WORDS} variant="band" />
 
+        <ScrollShowcase />
+
         <section className="section-pad section-dark" id="services"><div className="section-heading"><div><span className="section-kicker" data-reveal>What I do</span><h2 data-reveal="clip">What I can build<br /><em>for you.</em></h2></div><p data-reveal style={stagger(2)}>Professional digital solutions designed around your business requirements, with a sharp focus on clarity, trust and conversion. Swipe up or down to explore.</p></div><div data-reveal><ServiceDeck services={services} resolveIcon={(name) => iconMap[name as keyof typeof iconMap] ?? Globe} /></div></section>
 
         <section className="feature-section section-pad"><div className="feature-visual" data-reveal="left"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>Lion Digital Solution · Projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / digital</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div><ScrollBallet /></div><div className="feature-copy"><span className="section-kicker" data-reveal>The difference</span><h2 data-reveal="clip">More than just<br /><em>a website.</em></h2><p data-reveal style={stagger(2)}>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Ready in 1–3 Days (depending on website)', 'Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item, index) => <span key={item} data-reveal style={stagger(index)}><CircleCheck size={17} />{item}</span>)}</div></div></section>
@@ -270,6 +278,10 @@ function App() {
             <StickyVideos videos={workVideos} />
           </section>
         )}
+
+        <IndustryMarquee />
+
+        <ClientBento />
 
         <PricingSection pricing={pricing} care={care} terms={terms} whatsapp={contact.whatsapp} onChoose={choosePackage} />
 
@@ -314,6 +326,8 @@ function App() {
 
         {/* id lets the FAQ be linked directly; aria-expanded tells screen readers which answer is open. */}
         <section className="faq-section section-pad section-dark" id="faq"><div className="section-heading"><div><span className="section-kicker" data-reveal>Need to know</span><h2 data-reveal="clip">Frequently<br /><em>asked.</em></h2></div><p data-reveal style={stagger(2)}>Still curious? Here are answers to a few of the questions clients ask most often.</p></div><div className="faq-list">{faqs.map((faq, index) => <div className={`faq-item ${openFaq === index ? 'open' : ''}`} key={index} data-reveal style={stagger(index)}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{String(index + 1).padStart(2, '0')}</span><b>{faq.question}</b>{openFaq === index ? <ChevronUp size={19} /> : <ChevronDown size={19} />}</button>{openFaq === index && <p>{faq.answer}</p>}</div>)}</div></section>
+
+        <CtaBeams whatsappHref={whatsappHref} />
 
         {/* Facebook and Google Business Profile come from the verified business details, so they always match the structured data. */}
         <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy" data-reveal="left"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and your website can be ready in 1–3 days, depending on the website. I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={BUSINESS.facebookUrl} target="_blank" rel="noreferrer"><Facebook size={19} />Facebook</a><a href={BUSINESS.googleBusinessUrl} target="_blank" rel="noreferrer"><Globe size={19} />Google Business Profile</a><a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={phoneHref}><Phone size={19} />{contact.whatsapp || 'Call me'}</a></div></div>
