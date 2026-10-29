@@ -34,6 +34,9 @@ const POLICY_TABS = [
 ] as const;
 type PolicyTab = (typeof POLICY_TABS)[number]['id'];
 
+// "Starting from" already says the price can go up, so a trailing "+" saved in the admin panel is dropped.
+const cardPrice = (price: string) => price.replace(/\s*\+\s*$/, '');
+
 function PriceCard({ plan, index, onChoose }: { plan: Plan; index: number; onChoose: Choose }) {
   return (
     <article className={`price-card ${plan.popular ? 'popular' : ''}`} style={{ '--i': index } as CSSProperties}>
@@ -42,7 +45,7 @@ function PriceCard({ plan, index, onChoose }: { plan: Plan; index: number; onCho
       </span>
       {plan.popular && <span className="popular-tag">Most popular</span>}
       <span className="price-name">{plan.name}</span>
-      <h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{plan.price}</> : plan.price}</h3>
+      <h3>{/\d/.test(plan.price) ? <><small>Starting from</small>{cardPrice(plan.price)}</> : plan.price}</h3>
       <p>{plan.description}</p>
       {plan.perk && <span className="price-perk"><Gift size={16} /><span>{plan.perk}</span></span>}
       <div className="price-divider" />
@@ -225,7 +228,7 @@ function PolicyPanel({ pricing, terms }: { pricing: Plan[]; terms: Terms }) {
 type PricingSectionProps = { pricing: Plan[]; care: CarePlan; terms: Terms; whatsapp: string; onChoose: Choose };
 
 export default function PricingSection({ pricing, care, terms, whatsapp, onChoose }: PricingSectionProps) {
-  const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? formatMoney(8000);
+  const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? formatMoney(IS_INTERNATIONAL ? 399 : 15000);
   // Names the packages that carry the free domain offer, so the note never promises it on the Starter plan.
   const perkPlans = pricing.filter((plan) => plan.perk).map((plan) => plan.name);
   const perkNote = perkPlans.length > 0
