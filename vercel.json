@@ -8,6 +8,10 @@
     { "source": "/invitations/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] },
     { "source": "/api/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
   ],
+  "redirects": [
+    { "source": "/:page(services|blog|website-development-usa|website-development-uk|website-development-dubai)", "destination": "/:page/", "permanent": true },
+    { "source": "/:section(services|blog)/:slug([a-z0-9-]+)", "destination": "/:section/:slug/", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/developerayan(.*)", "destination": "/index.html" }
