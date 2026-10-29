@@ -9,9 +9,10 @@ import { phoneLink, useSiteContent, whatsappLink } from '@/data/site';
 import { localizeContent } from '@/data/region';
 import { BUSINESS } from '@/data/business';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
-import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
+import { Deck, useTiltEffect } from '@/motion/showcase';
 import { AUTO_SWIPE_MS, DotPreloader, DotsMenuButton, FloatingWhatsApp, ServiceDeck, useAnchorScroll, useScrolled } from '@/motion/upgrades';
 import { ScrollBallet, useScrollScenes } from '@/motion/scenes';
+import StickyVideos from '@/motion/sticky-videos';
 import FancySelect, { toOption } from '@/motion/FancySelect';
 import PricingSection from '@/pricing/PricingSection';
 import './brand-logos.css';
@@ -27,7 +28,7 @@ type EnquiryFields = Record<string, FormDataEntryValue>;
 
 const BAND_WORDS = ['Business Websites', 'Ready in 1–3 Days', 'Landing Pages', 'E-Commerce', 'Web Apps', 'Admin Panels', 'Booking Systems', 'UI/UX Design'];
 const OUTRO_WORDS = ['Let’s build', 'Something great', 'Lion Digital Solution'];
-const NAV_ITEMS = ['Home', 'Services', 'Templates', 'Pricing', 'About', 'Contact'];
+const NAV_ITEMS = ['Home', 'Services', 'Work', 'Pricing', 'About', 'Contact'];
 const WEBSITE_TYPES = [
   'Salon',
   'Gym / Fitness centre',
@@ -143,7 +144,9 @@ function App() {
   const rawContent = useSiteContent();
   // Visitors outside India see US dollar prices everywhere on the page (see data/region.ts).
   const content = useMemo(() => localizeContent(rawContent), [rawContent]);
-  const { contact, hero, stats, services, templates, pricing, care, terms, budgets, technologies, testimonials, faqs } = content;
+  const { contact, hero, stats, services, videos, pricing, care, terms, budgets, technologies, testimonials, faqs } = content;
+  // Only videos that finished uploading are shown; the section and its menu link hide until there is one.
+  const workVideos = videos.filter((item) => item.video);
   const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
   const phoneHref = phoneLink(contact.whatsapp) ?? '#contact';
   const [menuOpen, setMenuOpen] = useState(false);
@@ -223,7 +226,7 @@ function App() {
         </a>
         <DotsMenuButton open={menuOpen} onToggle={() => setMenuOpen(!menuOpen)} />
         <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
-          {NAV_ITEMS.filter((item) => item !== 'Templates' || templates.length > 0).map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu}>{item}</a>)}
+          {NAV_ITEMS.filter((item) => item !== 'Work' || workVideos.length > 0).map((item) => <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu}>{item}</a>)}
           <a className="button button-small button-gold" href="#contact" onClick={closeMenu}>Get a Website <ArrowUpRight size={16} /></a>
         </div>
       </nav>
@@ -255,17 +258,17 @@ function App() {
 
         <section className="feature-section section-pad"><div className="feature-visual" data-reveal="left"><div className="browser feature-browser"><div className="browser-bar"><span /><span /><span /><b>Lion Digital Solution · Projects</b></div><div className="mock-site feature-site"><div className="feature-word">BUILT<br /><span>TO MOVE</span></div><div className="feature-site-footer"><span>lion / digital</span><b>Scroll to explore <ArrowUpRight size={13} /></b></div><div className="feature-sun" /></div></div><div className="feature-tag tag-one"><Monitor size={16} /><span>Responsive<br /><b>by default</b></span></div><div className="feature-tag tag-two"><Gauge size={16} /><span>Built for<br /><b>performance</b></span></div><ScrollBallet /></div><div className="feature-copy"><span className="section-kicker" data-reveal>The difference</span><h2 data-reveal="clip">More than just<br /><em>a website.</em></h2><p data-reveal style={stagger(2)}>Every detail is considered to make your business look credible, feel effortless and perform better online.</p><div className="feature-list">{['Ready in 1–3 Days (depending on website)', 'Modern UI/UX', 'Fully Responsive', 'Fast Performance', 'SEO-Friendly', 'WhatsApp Integration', 'Contact & Booking Forms', 'Admin Panels', 'Database & API Integration', 'Domain, Hosting & Deployment'].map((item, index) => <span key={item} data-reveal style={stagger(index)}><CircleCheck size={17} />{item}</span>)}</div></div></section>
 
-        {templates.length > 0 && (
-          <section className="templates-section section-pad" id="templates">
-            <div className="templates-aurora" aria-hidden="true"><i /><i /><i /></div>
+        {/* Work videos uploaded from the admin panel replaced the old "Live templates" section. */}
+        {workVideos.length > 0 && (
+          <section className="work-section section-pad" id="work">
             <div className="section-heading">
               <div>
-                <span className="section-kicker" data-reveal>Live templates</span>
-                <h2 data-reveal="clip">See them<br /><em>in action.</em></h2>
+                <span className="section-kicker" data-reveal>Recent work</span>
+                <h2 data-reveal="clip">See it<br /><em>in motion.</em></h2>
               </div>
-              <p data-reveal style={stagger(2)}>Real websites, running live. Open any one to explore it right here, on desktop or mobile view.</p>
+              <p data-reveal style={stagger(2)}>Short recordings of real websites I have built. Keep scrolling to see each one in action.</p>
             </div>
-            <TemplateShowcase templates={templates} />
+            <StickyVideos videos={workVideos} />
           </section>
         )}
 
