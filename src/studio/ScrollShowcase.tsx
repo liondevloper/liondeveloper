@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
-import { MOTION_ENABLED, stagger } from '@/motion/effects';
+import { MOTION_ENABLED } from '@/motion/effects';
 import { SHOWCASE } from './showcase-data';
+import ScrollAssemble from './ScrollAssemble';
+import './assemble.css';
 
 const SWITCH_MS = 3400;
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
@@ -48,14 +50,14 @@ export default function ScrollShowcase() {
 
   const current = SHOWCASE[active];
 
+  // The scroll story plays first, so both scroll pieces sit together in one spot on the page.
   return (
+    <>
+    <ScrollAssemble />
     <section className="ld-showcase section-pad" id="showcase" ref={sectionRef}>
       <div className="center-heading ld-showcase-head">
         <span className="section-kicker" data-reveal>Built for your customers</span>
         <h2 data-reveal="clip">Your business,<br /><em>beautifully online.</em></h2>
-        <p data-reveal style={stagger(2)}>
-          Sample designs for the kinds of businesses I work with. Every website is designed fresh around your brand, your services and the way your customers like to book.
-        </p>
       </div>
 
       <div className="ld-device">
@@ -70,7 +72,7 @@ export default function ScrollShowcase() {
               <img
                 key={item.title}
                 src={item.image}
-                alt={`${item.title} website sample design`}
+                alt={`${item.title} website design`}
                 className={index === active ? 'is-active' : ''}
                 loading="lazy"
                 decoding="async"
@@ -83,7 +85,7 @@ export default function ScrollShowcase() {
         </div>
       </div>
 
-      <div className="ld-device-tabs" role="tablist" aria-label="Sample designs">
+      <div className="ld-device-tabs" role="tablist" aria-label="Website designs">
         {SHOWCASE.map((item, index) => (
           <button
             key={item.title}
@@ -102,5 +104,6 @@ export default function ScrollShowcase() {
         <a className="button button-gold" href="#contact">Get a website like this <ArrowUpRight size={18} /></a>
       </div>
     </section>
+    </>
   );
 }

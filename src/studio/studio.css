@@ -57,12 +57,7 @@
 
 /* ---------------- 2. 3D industry marquee ---------------- */
 :root .site-shell .ld-industries { overflow: hidden; background: linear-gradient(180deg, transparent, rgba(255,236,214,.5) 50%, transparent); }
-/* Edges fade out with a mask, so it blends into any page background colour. */
-:root .site-shell .ld-marquee3d {
-  position: relative; height: 560px; margin-top: 40px; overflow: hidden; border-radius: 32px; perspective: 1400px;
-  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
-  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
-}
+:root .site-shell .ld-marquee3d { position: relative; height: 560px; margin-top: 40px; overflow: hidden; border-radius: 32px; perspective: 1400px; }
 :root .site-shell .ld-marquee3d-plane {
   position: absolute; left: 50%; top: 50%; width: 1500px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
   transform: translate(-50%, -50%) rotateX(52deg) rotateZ(-38deg) scale(.95); transform-style: preserve-3d;
@@ -76,6 +71,12 @@
   transition: transform .5s cubic-bezier(.2,.8,.2,1);
 }
 :root .site-shell .ld-marquee3d-col img:hover { transform: translateZ(40px) scale(1.04); }
+/* Edges fade out with a mask, so it blends into any page background colour. */
+:root .site-shell .ld-marquee3d {
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
+}
+:root .site-shell .ld-marquee3d-fade { display: none; }
 :root .site-shell .ld-industry-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px; }
 :root .site-shell .ld-industry-chips span {
   padding: 9px 16px; border-radius: 999px; background: #fff; border: 1px solid var(--glass-border);
@@ -177,7 +178,14 @@
 }
 :root .site-shell .ld-moving-border:hover .ld-moving-border-inner { background: #2b241b; }
 
-/* ---------------- Keyframes (lds- prefix so they never clash with the older ld- animations) ---------------- */
+/* ---------------- Calmer background (on request) ----------------
+   The hero's spinning orbit rings are hidden. overflow-x: clip (not hidden) keeps sideways overflow cut off
+   without breaking the pinned scroll story in assemble.css. */
+:root .site-shell .hero-visual .orbit { display: none !important; }
+html, body, :root .site-shell, :root .site-shell main { overflow-x: clip !important; }
+:root .site-shell, :root .site-shell main { overflow-y: visible !important; }
+
+/* ---------------- Keyframes ---------------- */
 @keyframes lds-col-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 @keyframes lds-col-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
 @keyframes lds-tag-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -211,7 +219,6 @@
   :root .site-shell .ld-cta-card { padding: 56px 18px; border-radius: 26px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root .site-shell :is(.ld-marquee3d-col, .ld-cta-beams i, .ld-moving-border-spin, .ld-v-chat p, .ld-v-dashboard i, .ld-v-phone) { animation: none !important; }
-  :root .site-shell .ld-v-timeline i::after { animation: none !important; transform: scaleX(1); }
+  :root .site-shell :is(.ld-marquee3d-col, .ld-cta-beams i, .ld-moving-border-spin, .ld-v-timeline i::after, .ld-v-chat p, .ld-v-dashboard i, .ld-v-phone) { animation: none !important; }
   :root .site-shell .ld-device-frame { transform: none; }
 }
