@@ -1,0 +1,118 @@
+/* Sticky work video stack (sticky-videos.tsx). Every rule starts with ":root body .site-shell" so it
+   wins over the older stylesheets, whatever the load order. */
+
+/* Sticky cards need every ancestor to not be a scroll box. .site-shell used overflow: hidden, which made it
+   one and stopped sticky from working; clip hides overflow the same way without that side effect. */
+:root body .site-shell { overflow: clip; }
+
+/* The soft section entrance (polish.css) scales whole sections; this one stays put so the stack lines up. */
+:root body .site-shell main > section.work-section { scale: none !important; opacity: 1 !important; overflow: visible; }
+
+:root body .site-shell .work-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10vh;
+  padding: 2vh 0 6vh;
+}
+
+:root body .site-shell .work-card {
+  position: sticky;
+  top: max(12vh, 96px);
+  width: min(1080px, 100%, 135vh);
+}
+
+:root body .site-shell .work-card-inner {
+  --p: 0;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #17140f;
+  border: 1px solid rgba(190, 115, 53, .28);
+  box-shadow: 0 40px 80px -40px rgba(90, 45, 15, .5), 0 0 0 6px rgba(255, 255, 255, .7);
+  transform-origin: 50% 0%;
+  transform: scale(calc(1 - var(--p) * .2)) rotate(calc(var(--p) * -5deg));
+  will-change: transform;
+}
+
+:root body .site-shell .work-card-inner video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Darkens the bottom so the white title always reads, whatever the video shows. */
+:root body .site-shell .work-card-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(12, 9, 5, .78), rgba(12, 9, 5, 0) 48%);
+}
+
+/* Fades the card into the background as the next one covers it. */
+:root body .site-shell .work-card-dim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: #17140f;
+  opacity: calc(var(--p) * .55);
+}
+
+:root body .site-shell .work-card-index {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .9);
+  color: #17140f;
+  font: 500 11px 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+
+:root body .site-shell .work-card-info {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  bottom: 22px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  color: #ffffff;
+}
+:root body .site-shell .work-card-info > div { min-width: 0; }
+:root body .site-shell .work-card-category {
+  display: block;
+  color: #ffd2b0;
+  font: 500 10px 'DM Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+:root body .site-shell .work-card-info h3 {
+  margin: 8px 0 0;
+  color: #ffffff;
+  font-size: clamp(20px, 2.6vw, 34px);
+  line-height: 1.05;
+  letter-spacing: -.04em;
+  overflow-wrap: anywhere;
+}
+:root body .site-shell .work-card-info .button { flex-shrink: 0; }
+
+/* Desktop only: a light blur on covered cards. Phones skip it to keep scrolling smooth. */
+@media (min-width: 981px) and (pointer: fine) {
+  :root body .site-shell .work-card-inner video { filter: blur(calc(var(--p) * 6px)); }
+}
+
+@media (max-width: 680px) {
+  :root body .site-shell .work-stack { gap: 6vh; }
+  :root body .site-shell .work-card-inner { border-radius: 18px; box-shadow: 0 24px 48px -28px rgba(90, 45, 15, .5), 0 0 0 4px rgba(255, 255, 255, .7); }
+  :root body .site-shell .work-card-index { top: 10px; right: 12px; padding: 4px 8px; font-size: 10px; }
+  :root body .site-shell .work-card-info { left: 14px; right: 14px; bottom: 12px; gap: 10px; }
+  :root body .site-shell .work-card-info h3 { margin-top: 4px; font-size: 17px; }
+  :root body .site-shell .work-card-info .button { padding: 8px 11px; font-size: 10px; }
+}
