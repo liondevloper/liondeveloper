@@ -266,7 +266,6 @@ function App() {
                 <span className="section-kicker" data-reveal>Recent work</span>
                 <h2 data-reveal="clip">See it<br /><em>in motion.</em></h2>
               </div>
-              <p data-reveal style={stagger(2)}>Short recordings of real websites I have built. Keep scrolling to see each one in action.</p>
             </div>
             <StickyVideos videos={workVideos} />
           </section>
