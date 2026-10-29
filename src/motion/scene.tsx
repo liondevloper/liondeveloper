@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { MOTION_ENABLED } from './effects';
 import { useDepthCards } from './depth';
+import ScrollWorld from './scroll-world';
 import './theme.css';
 // Light theme + 3D card depth. Loaded last so it wins over every older stylesheet.
 import './light.css';
@@ -213,10 +214,12 @@ function Scene3D() {
 }
 
 // Puts the live 3D backdrop behind the public site (the admin panel stays plain).
+// The scroll layer goes first so the particles draw on top of its colour washes and floor grid.
 export function WithScene({ children }: { children: ReactNode }) {
   useDepthCards();
   return (
     <>
+      <ScrollWorld />
       <Scene3D />
       {children}
     </>
