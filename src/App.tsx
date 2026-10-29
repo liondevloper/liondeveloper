@@ -6,7 +6,7 @@ import {
   Gauge, Monitor, CircleCheck
 } from 'lucide-react';
 import { phoneLink, useSiteContent, whatsappLink } from '@/data/site';
-import { localizeContent } from '@/data/region';
+import { PHONE_PLACEHOLDER, localizeContent } from '@/data/region';
 import { BUSINESS } from '@/data/business';
 import { CountUp, Cursor, Marquee, ScrollProgress, stagger, useMotionEffects } from '@/motion/effects';
 import { Deck, TemplateShowcase, useTiltEffect } from '@/motion/showcase';
@@ -16,10 +16,9 @@ import FancySelect, { toOption } from '@/motion/FancySelect';
 import PricingSection from '@/pricing/PricingSection';
 import './brand-logos.css';
 
-// Lion Digital Solution logos, made at build time from the uploaded logos (see pwa-icons.ts).
-// The lion icon suits small spots (header, loader); the wide logo with the full name suits the footer.
+// Lion Digital Solution logo, made at build time from the uploaded logo (see pwa-icons.ts).
+// The footer lives in src/seo/ServiceLinks.tsx, shared with every static page.
 const lionLogo = '/brand/lion-logo.png';
-const fullLogo = '/brand/lion-full-logo.png';
 
 const iconMap = { Globe, MousePointerClick, ShoppingBag, PanelsTopLeft, LayoutDashboard, CalendarCheck2, PlugZap, Wrench };
 
@@ -141,7 +140,7 @@ async function emailEnquiry(data: EnquiryFields, email: string) {
 
 function App() {
   const rawContent = useSiteContent();
-  // Visitors outside India see US dollar prices everywhere on the page (see data/region.ts).
+  // Visitors outside India see prices in their own currency everywhere on the page (see data/region.ts).
   const content = useMemo(() => localizeContent(rawContent), [rawContent]);
   const { contact, hero, stats, services, templates, pricing, care, terms, budgets, technologies, testimonials, faqs } = content;
   const whatsappHref = whatsappLink(contact.whatsapp, contact.whatsappMessage) ?? '#contact';
@@ -316,14 +315,11 @@ function App() {
         {/* Facebook and Google Business Profile come from the verified business details, so they always match the structured data. */}
         <section className="contact-section section-pad" id="contact"><div className="contact-grid"><div className="contact-copy" data-reveal="left"><span className="section-kicker">Start a conversation</span><h2>Let’s build<br /><em>something great.</em></h2><p>Have a business idea or need a professional website? Tell me what you need and your website can be ready in 1–3 days, depending on the website. I’ll get back to you with the right direction.</p><div className="contact-links">{contact.instagram && <a href={contact.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={19} />{contact.instagram}</a>}<a href={BUSINESS.facebookUrl} target="_blank" rel="noreferrer"><Facebook size={19} />Facebook</a><a href={BUSINESS.googleBusinessUrl} target="_blank" rel="noreferrer"><Globe size={19} />Google Business Profile</a><a href={contact.email ? `mailto:${contact.email}` : '#contact'}><Mail size={19} />{contact.email || 'Email me'}</a><a href={phoneHref}><Phone size={19} />{contact.whatsapp || 'Call me'}</a></div></div>
         <div className="form-card" data-reveal="right">{submitted ? <div className="success-message"><div><Check size={30} /></div><h3>Request received.</h3><p>Thanks for reaching out. I’ll confirm the plan, pricing and payment details with you before anything starts.</p>{followUpHref && <a className="button button-gold success-whatsapp" href={followUpHref} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Continue on WhatsApp</a>}<button className="button button-outline" onClick={() => setSubmitted(false)}>Send another request</button></div> : <form onSubmit={handleSubmit}>
-        <div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder="+91 00000 00000" /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Package<FancySelect name="package" value={chosenPackage} options={packageOptions} placeholder="Not decided yet" onChange={setChosenPackage} /></label>
+        <div className="form-row"><label>Name<input required name="name" placeholder="Your name" /></label><label>Business name<input name="business" placeholder="Your business" /></label></div><div className="form-row"><label>WhatsApp number<input required name="whatsapp" type="tel" placeholder={PHONE_PLACEHOLDER} /></label><label>Email<input required name="email" type="email" placeholder="you@example.com" /></label></div><label>Package<FancySelect name="package" value={chosenPackage} options={packageOptions} placeholder="Not decided yet" onChange={setChosenPackage} /></label>
         <label>Website type<FancySelect name="website_type" value={websiteType} options={WEBSITE_TYPES.map(toOption)} placeholder="Select a website type" onChange={setWebsiteType} /></label><label>Budget<FancySelect name="budget" value={budget} options={budgets.map(toOption)} placeholder="Choose your budget" onChange={setBudget} /></label><label>Project details<textarea required name="details" placeholder="Tell me a little about what you want to build..." rows={4} /></label><button className="button button-gold form-submit" type="submit" disabled={sending}>{sending ? 'Sending...' : <>Send project request <Send size={17} /></>}</button>{sendError && <p className="form-error">Couldn’t send that. Try again, or email {contact.email} directly.</p>}</form>}</div></div></section>
 
         <Marquee items={OUTRO_WORDS} />
       </main>
-
-      {/* Footer bottom shows only the centred copyright line; the quick links and the "Let's talk" button were removed on request. */}
-      <footer className="footer"><div className="footer-top" data-reveal><a className="footer-logo" href="#home"><img src={fullLogo} alt="Lion Digital Solution - Build, Create, Grow" width={900} height={242} loading="lazy" decoding="async" /></a><p>Modern websites, web applications and digital solutions for businesses, brands and professionals.</p></div><div className="footer-bottom" style={{ justifyContent: 'center', textAlign: 'center' }}><span>© {new Date().getFullYear()} Lion Digital Solution. All rights reserved.</span></div></footer>
 
       <FloatingWhatsApp href={whatsappHref} />
 
