@@ -4,21 +4,23 @@ import { MOTION_ENABLED } from '@/motion/effects';
 
 /* Scroll story inspired by food "scrollytelling" sites: the pieces of a client website float apart in 3D,
    then fly in and click into place on the screen as the visitor scrolls, and the site goes live.
+   The mini website's header (logo + Home, Services, Gallery, About) is already in place at the top from the start.
    JS only writes --p (0-1 scroll progress through the pinned section); all movement is CSS in assemble.css. */
 
 type Piece = { id: string; label: string; x: number; y: number; r: number; s: number };
 
 // x/y: start offset in vw/vh, r: start spin in deg, s: progress at which the piece starts flying in.
 const PIECES: Piece[] = [
-  { id: 'nav', label: 'Your logo & menu', x: -26, y: -30, r: -14, s: 0.04 },
-  { id: 'photo', label: 'Your photos', x: 30, y: -26, r: 16, s: 0.08 },
-  { id: 'title', label: 'Words that sell', x: -36, y: 4, r: 10, s: 0.12 },
-  { id: 'stars', label: 'Google reviews', x: 10, y: -38, r: -22, s: 0.16 },
-  { id: 'cards', label: 'Your services', x: 28, y: 30, r: -12, s: 0.2 },
-  { id: 'cta', label: 'Book now button', x: -24, y: 32, r: -20, s: 0.24 },
+  { id: 'photo', label: 'Your photos', x: 30, y: -26, r: 16, s: 0.04 },
+  { id: 'title', label: 'Words that sell', x: -36, y: 4, r: 10, s: 0.08 },
+  { id: 'stars', label: 'Google reviews', x: 10, y: -38, r: -22, s: 0.13 },
+  { id: 'cards', label: 'Your services', x: 28, y: 30, r: -12, s: 0.18 },
+  { id: 'cta', label: 'Book now button', x: -24, y: 32, r: -20, s: 0.23 },
   { id: 'booking', label: 'Online booking', x: 40, y: 2, r: 22, s: 0.28 },
   { id: 'whatsapp', label: 'WhatsApp chat', x: -40, y: -12, r: 26, s: 0.32 },
 ];
+
+const HEADER_LINKS = ['Home', 'Services', 'Gallery', 'About'];
 
 const STAGES = [
   { no: '01', name: 'The idea', title: 'Every piece of', accent: 'your business.' },
@@ -32,8 +34,6 @@ const stageFor = (p: number) => (p < 0.3 ? 0 : p < 0.74 ? 1 : 2);
 
 function PieceBody({ id }: { id: string }) {
   switch (id) {
-    case 'nav':
-      return <><b><Scissors size={12} />Glow Studio</b><span>Services</span><span>Prices</span><span>Contact</span></>;
     case 'photo':
       return <img src={PHOTO} alt="" loading="lazy" decoding="async" width={900} height={675} />;
     case 'title':
@@ -105,6 +105,11 @@ export default function ScrollAssemble() {
               <em>LIVE</em>
             </div>
             <div className="ld-asm-screen">
+              {/* Header is ready at the top from the start; only the rest of the page flies in. */}
+              <div className="ld-asm-head" aria-hidden="true">
+                <b><Scissors size={12} />Glow Studio</b>
+                <nav>{HEADER_LINKS.map((link, index) => <span key={link} className={index === 0 ? 'is-on' : ''}>{link}</span>)}</nav>
+              </div>
               {PIECES.map((piece) => (
                 <div
                   key={piece.id}
