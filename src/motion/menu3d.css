@@ -1,0 +1,179 @@
+/* 3D cube menu button and full-screen 3D menu (see menu3d.tsx). */
+
+/* ---------- Cube button ---------- */
+:root body .site-shell .m3d-btn,
+.m3d-close {
+  width: 48px; height: 48px; padding: 0; display: grid; place-items: center;
+  background: transparent !important; border: 0 !important; box-shadow: none !important;
+  perspective: 420px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+:root body .site-shell .m3d-btn:hover { transform: none; }
+.m3d-btn:focus-visible .m3d-cube,
+.m3d-close:focus-visible .m3d-cube { outline: 2px dashed rgba(239,106,40,.75); outline-offset: 5px; border-radius: 12px; }
+
+.m3d-cube {
+  position: relative; display: block; width: 36px; height: 36px;
+  transform-style: preserve-3d;
+  transition: transform .75s cubic-bezier(.2, 1.3, .35, 1);
+}
+.m3d-face {
+  position: absolute; inset: 0; border-radius: 12px;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+}
+.m3d-front {
+  display: grid; grid-template-columns: repeat(2, 8px); gap: 5px; place-content: center;
+  background: linear-gradient(145deg, #ffffff, #f4eee7);
+  border: 1px solid rgba(239,106,40,.28);
+  box-shadow: 0 10px 20px -8px rgba(150,70,20,.45), inset 0 1px 0 #fff, inset 0 -3px 0 rgba(120,60,20,.08);
+}
+.m3d-front i {
+  width: 8px; height: 8px; border-radius: 3px;
+  transition: transform .5s cubic-bezier(.2, 1.4, .4, 1), border-radius .4s ease;
+}
+.m3d-front i:nth-child(1) { background: #eab94b; }
+.m3d-front i:nth-child(2) { background: #4fa3ff; }
+.m3d-front i:nth-child(3) { background: #48d597; }
+.m3d-front i:nth-child(4) { background: #ff5f6d; }
+.m3d-back {
+  display: grid; place-items: center; transform: rotateY(180deg);
+  background: linear-gradient(145deg, #ff8a48, #ef6a28 45%, #c2511c);
+  box-shadow: 0 10px 22px -6px rgba(239,106,40,.65), inset 0 1px 0 rgba(255,255,255,.45);
+}
+.m3d-back b { position: absolute; width: 17px; height: 2.5px; border-radius: 2px; background: #fff; }
+.m3d-back b:first-child { transform: rotate(45deg); }
+.m3d-back b:last-child { transform: rotate(-45deg); }
+
+/* Hover: the cube leans back in 3D and the dots spread out and turn round. */
+.m3d-btn:hover .m3d-cube:not(.is-open) { transform: rotateX(-20deg) rotateY(26deg); }
+.m3d-btn:hover .m3d-front i { border-radius: 50%; }
+.m3d-btn:hover .m3d-front i:nth-child(1) { transform: translate(-2px, -2px); }
+.m3d-btn:hover .m3d-front i:nth-child(2) { transform: translate(2px, -2px); }
+.m3d-btn:hover .m3d-front i:nth-child(3) { transform: translate(-2px, 2px); }
+.m3d-btn:hover .m3d-front i:nth-child(4) { transform: translate(2px, 2px); }
+.m3d-cube.is-open { transform: rotateY(180deg); }
+
+/* ---------- Full-screen menu ---------- */
+html.m3d-lock, html.m3d-lock body { overflow: hidden; }
+
+.m3d-overlay {
+  position: fixed; inset: 0; z-index: 90;
+  display: flex; flex-direction: column;
+  padding: max(16px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  overflow: hidden auto;
+  color: #fff; font-family: Manrope, system-ui, sans-serif;
+  background:
+    radial-gradient(120% 70% at 100% 0%, rgba(239,106,40,.28), transparent 55%),
+    radial-gradient(90% 60% at 0% 100%, rgba(10,150,182,.22), transparent 60%),
+    #120d09;
+  animation: m3d-open .7s cubic-bezier(.7, 0, .2, 1) both;
+}
+.m3d-overlay.is-closing { animation: m3d-close .55s cubic-bezier(.7, 0, .3, 1) both; pointer-events: none; }
+
+@keyframes m3d-open {
+  from { clip-path: circle(0 at calc(100% - 44px) 44px); }
+  to { clip-path: circle(150vmax at calc(100% - 44px) 44px); }
+}
+@keyframes m3d-close {
+  from { clip-path: circle(150vmax at calc(100% - 44px) 44px); }
+  to { clip-path: circle(0 at calc(100% - 44px) 44px); }
+}
+
+/* Background: glowing orbs, three spinning 3D rings and a grid floor that keeps moving forward. */
+.m3d-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; perspective: 800px; overflow: hidden; }
+.m3d-orb { position: absolute; border-radius: 50%; filter: blur(50px); opacity: .55; }
+.m3d-orb-a { width: 240px; height: 240px; top: -60px; right: -40px; background: #ef6a28; animation: m3d-float 7s ease-in-out infinite alternate; }
+.m3d-orb-b { width: 220px; height: 220px; bottom: 12%; left: -80px; background: #0a96b6; animation: m3d-float 9s ease-in-out infinite alternate-reverse; }
+@keyframes m3d-float { to { translate: 30px 40px; scale: 1.15; } }
+
+.m3d-rings {
+  position: absolute; top: 18%; right: -70px; width: 260px; height: 260px;
+  transform-style: preserve-3d; animation: m3d-spin 16s linear infinite;
+}
+.m3d-rings i { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(255,166,110,.45); box-shadow: 0 0 18px rgba(239,106,40,.25); }
+.m3d-rings i:nth-child(1) { transform: rotateX(72deg); }
+.m3d-rings i:nth-child(2) { transform: rotateY(72deg); border-color: rgba(95,208,234,.45); }
+.m3d-rings i:nth-child(3) { transform: rotateX(72deg) rotateY(60deg); border-color: rgba(150,120,255,.4); }
+@keyframes m3d-spin {
+  from { transform: rotateX(18deg) rotateY(0deg) rotateZ(8deg); }
+  to { transform: rotateX(18deg) rotateY(360deg) rotateZ(8deg); }
+}
+
+.m3d-floor {
+  position: absolute; left: -50%; right: -50%; bottom: -8%; height: 58%;
+  background-image:
+    linear-gradient(rgba(239,106,40,.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,150,182,.34) 1px, transparent 1px);
+  background-size: 46px 46px;
+  transform: rotateX(64deg); transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 15%, transparent 85%);
+  mask-image: linear-gradient(to top, #000 15%, transparent 85%);
+  animation: m3d-floor 2.6s linear infinite;
+}
+@keyframes m3d-floor { to { background-position: 0 46px, 0 0; } }
+
+/* Top row */
+.m3d-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
+.m3d-label {
+  font-family: 'DM Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: rgba(255,255,255,.6);
+  animation: m3d-fade .5s ease .3s backwards;
+}
+.m3d-close { margin-right: -6px; }
+.m3d-close .m3d-cube { animation: m3d-flip .8s cubic-bezier(.2, 1.3, .35, 1) .15s backwards; }
+@keyframes m3d-flip { from { transform: rotateY(0deg); } }
+@keyframes m3d-fade { from { opacity: 0; translate: 0 8px; } }
+
+/* Links fold down into place one after another, like cards on a hinge. */
+.m3d-links {
+  position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 24px 0; perspective: 900px;
+}
+.m3d-link {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 10px 2px; border-bottom: 1px solid rgba(255,255,255,.1);
+  color: #fff; text-decoration: none;
+  font-size: clamp(32px, 10vw, 54px); font-weight: 800; line-height: 1.1; letter-spacing: -.03em;
+  transform-origin: 50% 0; transform-style: preserve-3d;
+  transition: transform .45s cubic-bezier(.2, 1, .3, 1), color .3s ease, padding-left .45s cubic-bezier(.2, 1, .3, 1);
+  animation: m3d-link-in .8s cubic-bezier(.2, 1, .3, 1) calc(.22s + var(--i, 0) * 70ms) backwards;
+}
+.m3d-link svg { flex: none; color: rgba(255,255,255,.35); transition: transform .45s cubic-bezier(.2, 1.3, .4, 1), color .3s ease; }
+.m3d-link:hover, .m3d-link:focus-visible, .m3d-link:active {
+  outline: none; padding-left: 12px; color: #ff9b5e;
+  transform: translateZ(40px) rotateX(10deg);
+}
+.m3d-link:hover svg, .m3d-link:focus-visible svg, .m3d-link:active svg { color: #5fd0ea; transform: rotate(45deg) scale(1.15); }
+@keyframes m3d-link-in {
+  from { opacity: 0; transform: rotateX(-100deg) translateZ(-40px); }
+  to { opacity: 1; transform: none; }
+}
+.is-closing .m3d-link { animation: m3d-link-out .35s ease-in calc(var(--i, 0) * 30ms) both; }
+@keyframes m3d-link-out { to { opacity: 0; transform: rotateX(70deg) translateY(-14px); } }
+
+.m3d-cta {
+  position: relative; z-index: 1; align-self: stretch;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 17px 24px; border-radius: 999px;
+  color: #fff; text-decoration: none; font-weight: 800; font-size: 16px;
+  background: linear-gradient(135deg, #ff8a48, #ef6a28 50%, #c2511c);
+  box-shadow: 0 18px 36px -14px rgba(239,106,40,.75), inset 0 1px 0 rgba(255,255,255,.4);
+  animation: m3d-fade .6s cubic-bezier(.2, 1, .3, 1) calc(.3s + var(--i, 0) * 70ms) backwards;
+  transition: transform .3s ease;
+}
+.m3d-cta:active { transform: scale(.97); }
+
+/* The new full-screen menu replaces the old drop-down list on phones. */
+@media (max-width: 680px) {
+  :root body .site-shell .nav-links { display: none !important; }
+}
+
+@media (min-width: 681px) {
+  .m3d-overlay { padding-left: 48px; padding-right: 48px; }
+  .m3d-links, .m3d-cta { width: 100%; max-width: 560px; margin: 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m3d-overlay, .m3d-overlay.is-closing { animation-duration: .01s; }
+  .m3d-orb, .m3d-rings, .m3d-floor, .m3d-link, .is-closing .m3d-link, .m3d-label, .m3d-cta, .m3d-close .m3d-cube { animation: none; }
+  .m3d-cube, .m3d-link { transition: none; }
+}
