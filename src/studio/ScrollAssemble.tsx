@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { ArrowUpRight, CalendarCheck2, MessageCircle, Scissors, Sparkles, Star } from 'lucide-react';
+import { ArrowUpRight, CalendarCheck2, Scissors, Sparkles, Star } from 'lucide-react';
 import { MOTION_ENABLED } from '@/motion/effects';
+import { WhatsAppIcon } from '@/motion/upgrades';
 
 /* Scroll story inspired by food "scrollytelling" sites: the pieces of a client website float apart in 3D,
    then fly in and click into place on the screen as the visitor scrolls, and the site goes live.
@@ -49,7 +50,8 @@ function PieceBody({ id }: { id: string }) {
     case 'booking':
       return <><small><CalendarCheck2 size={11} />Today</small>{['11:00', '1:30', '4:00'].map((time, i) => <i key={time} className={i === 1 ? 'is-on' : ''}>{time}</i>)}</>;
     case 'whatsapp':
-      return <MessageCircle size={14} />;
+      // The official WhatsApp logo, the same one used by the site's floating WhatsApp button.
+      return <WhatsAppIcon size={14} />;
     default:
       return null;
   }
