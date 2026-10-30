@@ -3,13 +3,23 @@
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
     { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
     { "source": "/developerayan(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
     { "source": "/invitations/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] },
     { "source": "/api/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
   ],
   "redirects": [
-    { "source": "/:page(services|blog|website-development-usa|website-development-uk|website-development-dubai)", "destination": "/:page/", "permanent": true },
+    { "source": "/:page(services|blog|privacy-policy|website-development-usa|website-development-uk|website-development-dubai)", "destination": "/:page/", "permanent": true },
     { "source": "/:section(services|blog)/:slug([a-z0-9-]+)", "destination": "/:section/:slug/", "permanent": true }
   ],
   "rewrites": [
