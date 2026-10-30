@@ -64,17 +64,24 @@
 }
 :root .site-shell .ld-marquee3d-col { display: flex; flex-direction: column; gap: 22px; animation: lds-col-up var(--d, 32s) linear infinite; }
 :root .site-shell .ld-marquee3d-col.is-down { animation-name: lds-col-down; }
-:root .site-shell .ld-marquee3d:hover .ld-marquee3d-col { animation-play-state: paused; }
 :root .site-shell .ld-marquee3d-col img {
   width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; border-radius: 18px;
   border: 6px solid #fff; box-shadow: 0 30px 50px -24px rgba(120,70,20,.45);
   transition: transform .5s cubic-bezier(.2,.8,.2,1);
 }
-:root .site-shell .ld-marquee3d-col img:hover { transform: translateZ(40px) scale(1.04); }
+/* Touch: paused only while a finger is on the photos (IndustryMarquee.tsx adds .is-paused, then removes it). */
+:root .site-shell .ld-marquee3d.is-paused .ld-marquee3d-col { animation-play-state: paused; }
+/* Mouse: hover pauses and lifts a photo. Kept to real mouse devices, because phones keep a tapped
+   "hover" stuck forever, which used to freeze the wall until another tap elsewhere. */
+@media (hover: hover) and (pointer: fine) {
+  :root .site-shell .ld-marquee3d:hover .ld-marquee3d-col { animation-play-state: paused; }
+  :root .site-shell .ld-marquee3d-col img:hover { transform: translateZ(40px) scale(1.04); }
+}
 /* Edges fade out with a mask, so it blends into any page background colour. */
 :root .site-shell .ld-marquee3d {
   -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
   mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 55%, transparent 100%);
+  -webkit-tap-highlight-color: transparent;
 }
 :root .site-shell .ld-marquee3d-fade { display: none; }
 :root .site-shell .ld-industry-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px; }
