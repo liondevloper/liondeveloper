@@ -84,7 +84,13 @@
 :root .site-shell .ld-asm-title strong { font-size: 4.2cqw; line-height: 1; letter-spacing: -.04em; }
 :root .site-shell .ld-asm-title em { font-family: 'Instrument Serif', serif; font-weight: 400; color: var(--gold); }
 :root .site-shell .ld-asm-photo { right: 3%; top: 20%; width: 45%; height: 54%; padding: 0; overflow: visible; }
-:root .site-shell .ld-asm-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+/* The crop box hides the photo's own top menu strip (Home, Services, Gallery, About next to Book Appointment):
+   the image is drawn a little taller and shifted up, so that strip sits outside the box. */
+:root .site-shell .ld-asm-photo-crop { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; border-radius: inherit; }
+:root .site-shell .ld-asm-photo-crop img {
+  position: absolute; left: 0; top: -16%; width: 100%; height: 116%;
+  object-fit: cover; object-position: center top; display: block; max-width: none;
+}
 :root .site-shell .ld-asm-stars { left: 4%; top: 55%; padding: 1cqw 1.6cqw; font-size: 1.3cqw; font-weight: 700; }
 :root .site-shell .ld-asm-stars span { display: inline-flex; gap: .2cqw; color: #f2a516; }
 :root .site-shell .ld-asm-stars svg { width: 1.3cqw; height: 1.3cqw; }
