@@ -231,8 +231,12 @@ export default function PricingSection({ pricing, care, terms, whatsapp, onChoos
   const lowest = pricing.map((plan) => plan.price).find((price) => /\d/.test(price))?.replace(/\s*\+\s*$/, '') ?? formatMoney(IS_INTERNATIONAL ? 399 : 15000);
   // Names the packages that carry the free domain offer, so the note never promises it on the Starter plan.
   const perkPlans = pricing.filter((plan) => plan.perk).map((plan) => plan.name);
+  // "A, B and C": commas between the names, "and" only before the last one.
+  const perkNames = perkPlans.length > 1
+    ? `${perkPlans.slice(0, -1).join(', ')} and ${perkPlans[perkPlans.length - 1]}`
+    : perkPlans.join('');
   const perkNote = perkPlans.length > 0
-    ? ` ${perkPlans.join(' and ')} include a FREE .in / .com domain & hosting for the first year; renewals from the second year are charged separately.`
+    ? ` ${perkNames} include a FREE .in / .com domain & hosting for the first year; renewals from the second year are charged separately.`
     : '';
   // International visitors see US dollar prices (see data/region.ts), so the note says so.
   const currencyNote = IS_INTERNATIONAL ? ' All prices are in US dollars (USD).' : '';

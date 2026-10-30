@@ -74,7 +74,7 @@ const WHY_CARDS = [
   { title: 'Quick Delivery', text: 'Your website ready in 1–3 days, depending on the website.', icon: Rocket },
   { title: 'Modern Design', text: 'Professional interfaces designed for modern businesses.', icon: Sparkles },
   { title: 'Responsive', text: 'Perfect experience on mobile, tablet and desktop.', icon: Smartphone },
-  { title: 'Fast Performance', text: 'Optimized websites that load quickly.', icon: Gauge },
+  { title: 'Fast Performance', text: 'Optimised websites that load quickly.', icon: Gauge },
   { title: 'Business Focused', text: 'Websites designed around business goals and conversion.', icon: Target },
   { title: 'Custom Development', text: 'Custom functionality based on actual requirements.', icon: Code2 },
   { title: 'Support', text: 'Technical assistance after launch.', icon: MessageCircle },
@@ -244,7 +244,7 @@ function App() {
             <h1>{headlineWords(hero.headline)}</h1>
             <p className="hero-text">{hero.text}</p>
             <div className="hero-actions"><a className="button button-gold" href="#contact">Get a Website <ArrowUpRight size={18} /></a><a className="button button-outline" href="#services">View Services <ArrowUpRight size={18} /></a></div>
-            <div className="hero-services"><span>Website Ready in 1–3 Days*</span><i /> <span>Web Development</span><i /> <span>UI/UX</span><i /> <span>Web Apps</span></div>
+            <div className="hero-services"><span>Website Ready in 1–3 Days</span><i /> <span>Web Development</span><i /> <span>UI/UX</span><i /> <span>Web Apps</span></div>
           </div>
           <div className="hero-visual">
             <div className="orbit orbit-one"><b /></div><div className="orbit orbit-two"><b /></div>

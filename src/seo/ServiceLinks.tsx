@@ -21,7 +21,7 @@ export default function ServiceLinks() {
   return (
     <nav className="service-links" aria-label="Services">
       <div className="service-links-inner">
-        <a className="service-links-title" href="/services/">Explore our services</a>
+        <a className="service-links-title" href="/services/">Explore all services</a>
         <ul>
           {SERVICE_PAGES.map((page) => (
             <li key={page.href}><a href={page.href}>{page.label}</a></li>
