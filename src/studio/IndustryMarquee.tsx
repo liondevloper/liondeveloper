@@ -1,11 +1,15 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { stagger } from '@/motion/effects';
-import { SHOWCASE } from './showcase-data';
+import { SHOWCASE, type ShowcaseItem } from './showcase-data';
 
 const COLUMNS = 4;
 const INDUSTRIES = ['Salons', 'Restaurants', 'Hotels', 'Gyms', 'Clinics', 'Boutiques', 'Cafes', 'Real estate', 'Coaching classes', 'Wedding planners', 'Travel agencies', 'Jewellery shops'];
 // After a finger lifts off the photos, the wall waits this long and then starts moving again.
 const TOUCH_RESUME_MS = 1200;
+// A tapped/clicked photo opens full size for this long, then closes and the wall carries on.
+const ZOOM_MS = 3000;
 
 // Each column starts on a different design so neighbouring columns never show the same picture side by side.
 const columnItems = (column: number) => SHOWCASE.map((_, index) => SHOWCASE[(index + column * 2) % SHOWCASE.length]);
@@ -32,9 +36,45 @@ function useTouchPause() {
   return { paused, handlers: { onPointerDown, onPointerUp: onPointerEnd, onPointerCancel: onPointerEnd, onPointerLeave: onPointerEnd } };
 }
 
+// Full-size view of one design. Closes by itself after ZOOM_MS, or straight away on a tap / Escape.
+function PhotoZoom({ item, onClose }: { item: ShowcaseItem; onClose: () => void }) {
+  useEffect(() => {
+    const timer = window.setTimeout(onClose, ZOOM_MS);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [item, onClose]);
+
+  return createPortal(
+    <div className="ld-zoom" role="dialog" aria-label={`${item.title} website design`} onClick={onClose} style={{ '--zoom-ms': `${ZOOM_MS}ms` } as CSSProperties}>
+      <figure className="ld-zoom-card">
+        <img src={item.image} alt={`${item.title} website design`} width={1400} height={1050} />
+        <figcaption><b>{item.title}</b><span>{item.tag}</span></figcaption>
+        <i className="ld-zoom-timer" aria-hidden="true" />
+      </figure>
+      <button type="button" className="ld-zoom-close" aria-label="Close"><X size={20} /></button>
+    </div>,
+    document.body,
+  );
+}
+
 // Aceternity-style 3D marquee: a tilted wall of website designs scrolling up and down in alternating columns.
 export default function IndustryMarquee() {
   const { paused, handlers } = useTouchPause();
+  const [zoomed, setZoomed] = useState<ShowcaseItem | null>(null);
+  const closeZoom = useRef(() => setZoomed(null)).current;
+
+  // One click handler for the whole wall: the tapped image carries its design index.
+  const openPhoto = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target instanceof HTMLElement ? event.target.closest<HTMLElement>('[data-item]') : null;
+    const item = target ? SHOWCASE[Number(target.dataset.item)] : undefined;
+    if (item) setZoomed(item);
+  };
 
   return (
     <section className="ld-industries section-pad" id="industries">
@@ -48,7 +88,7 @@ export default function IndustryMarquee() {
         </p>
       </div>
 
-      <div className={`ld-marquee3d${paused ? ' is-paused' : ''}`} aria-hidden="true" {...handlers}>
+      <div className={`ld-marquee3d${paused || zoomed ? ' is-paused' : ''}`} aria-hidden="true" onClick={openPhoto} {...handlers}>
         <div className="ld-marquee3d-plane">
           {Array.from({ length: COLUMNS }, (_, column) => {
             const items = columnItems(column);
@@ -60,7 +100,16 @@ export default function IndustryMarquee() {
               >
                 {/* Doubled so the loop has no visible seam. */}
                 {[...items, ...items].map((item, index) => (
-                  <img key={index} src={item.image} alt="" loading="lazy" decoding="async" width={1400} height={1050} />
+                  <img
+                    key={index}
+                    src={item.image}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width={1400}
+                    height={1050}
+                    data-item={SHOWCASE.indexOf(item)}
+                  />
                 ))}
               </div>
             );
@@ -73,6 +122,8 @@ export default function IndustryMarquee() {
           <span key={name} data-reveal="scale" style={stagger(index)}>{name}</span>
         ))}
       </div>
+
+      {zoomed && <PhotoZoom item={zoomed} onClose={closeZoom} />}
     </section>
   );
 }
