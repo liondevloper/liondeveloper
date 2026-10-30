@@ -1,0 +1,57 @@
+/* Full-size photo view for the "Made for local businesses" wall (IndustryMarquee.tsx).
+   It pops up in 3D, a thin bar runs down for 3 seconds, then it closes and the wall keeps moving. */
+
+.ld-zoom {
+  position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; padding: 20px;
+  background: rgba(23, 20, 15, .62); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  perspective: 1400px; cursor: pointer; animation: ld-zoom-fade .35s ease both;
+}
+.ld-zoom-card {
+  position: relative; margin: 0; width: min(1000px, 100%); overflow: hidden; border-radius: 22px;
+  background: #fff; border: 6px solid #fff; box-shadow: 0 50px 120px -30px rgba(0, 0, 0, .6);
+  animation: ld-zoom-pop .6s cubic-bezier(.2, .9, .25, 1.15) both;
+}
+.ld-zoom-card img {
+  display: block; width: 100%; height: auto; max-height: calc(100vh - 150px); max-height: calc(100svh - 150px);
+  object-fit: contain; object-position: top; border-radius: 16px; background: #f5efe5;
+}
+.ld-zoom-card figcaption {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 10px 8px;
+  font-family: 'Manrope', sans-serif; color: #17140f;
+}
+.ld-zoom-card figcaption b { font-size: 17px; }
+.ld-zoom-card figcaption span {
+  padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #fff;
+  background: linear-gradient(120deg, #ef6a28, #f5953a);
+}
+/* Countdown bar: shows the photo will close by itself. */
+.ld-zoom-timer {
+  position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; transform-origin: left;
+  background: linear-gradient(90deg, #ef6a28, #f5953a, #0a96b6);
+  animation: ld-zoom-timer var(--zoom-ms, 3000ms) linear both;
+}
+.ld-zoom-close {
+  position: absolute; top: 18px; right: 18px; display: grid; place-items: center; width: 44px; height: 44px;
+  border: 0; border-radius: 50%; background: #fff; color: #17140f; cursor: pointer;
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, .5);
+}
+/* Wall photos look tappable. */
+:root .site-shell .ld-marquee3d-col img { cursor: zoom-in; }
+
+@keyframes ld-zoom-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ld-zoom-pop {
+  from { opacity: 0; transform: rotateX(28deg) rotateZ(-6deg) scale(.6) translateY(40px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ld-zoom-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@media (max-width: 680px) {
+  .ld-zoom { padding: 12px; }
+  .ld-zoom-card { border-width: 4px; border-radius: 16px; }
+  .ld-zoom-card img { border-radius: 12px; }
+  .ld-zoom-card figcaption b { font-size: 15px; }
+  .ld-zoom-close { top: 12px; right: 12px; width: 40px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ld-zoom, .ld-zoom-card { animation: none; }
+}
