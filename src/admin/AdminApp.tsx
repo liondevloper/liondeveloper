@@ -8,6 +8,7 @@ import Enquiries from './Enquiries';
 import Login from './Login';
 import { ADMIN_PATH } from './route';
 import Settings from './Settings';
+import UsdPrices from './UsdPrices';
 import './admin.css';
 
 export default function AdminApp() {
@@ -48,6 +49,7 @@ export default function AdminApp() {
           <NavLink to={ADMIN_PATH} end>Dashboard</NavLink>
           <NavLink to={`${ADMIN_PATH}/enquiries`}>Enquiries</NavLink>
           <NavLink to={`${ADMIN_PATH}/content`}>Content</NavLink>
+          <NavLink to={`${ADMIN_PATH}/dollar-prices`}>Dollar prices</NavLink>
           <NavLink to={`${ADMIN_PATH}/settings`}>Settings</NavLink>
         </nav>
         <div className="admin-bar-right">
@@ -61,6 +63,7 @@ export default function AdminApp() {
           <Route index element={<Dashboard />} />
           <Route path="enquiries" element={<Enquiries />} />
           <Route path="content" element={<Content />} />
+          <Route path="dollar-prices" element={<UsdPrices />} />
           <Route path="settings" element={<Settings email={email} />} />
           <Route path="*" element={<Dashboard />} />
         </Routes>
