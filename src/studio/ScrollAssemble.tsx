@@ -35,7 +35,9 @@ const stageFor = (p: number) => (p < 0.3 ? 0 : p < 0.74 ? 1 : 2);
 function PieceBody({ id }: { id: string }) {
   switch (id) {
     case 'photo':
-      return <img src={PHOTO} alt="" loading="lazy" decoding="async" width={900} height={675} />;
+      // The salon photo has its own menu strip (Home, Services, Gallery, About, Book Appointment) at the top;
+      // the crop box hides that strip so only the salon interior shows.
+      return <span className="ld-asm-photo-crop"><img src={PHOTO} alt="" loading="lazy" decoding="async" width={900} height={506} /></span>;
     case 'title':
       return <><small>Hair · Skin · Nails</small><strong>Look good.<br /><em>Feel better.</em></strong></>;
     case 'stars':
