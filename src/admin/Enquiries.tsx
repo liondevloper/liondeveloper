@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Download, Mail, MessageCircle, Search, Trash2, X } from 'lucide-react';
 import {
   adminApi,
+  errorMessage,
   formatDate,
   STATUS_LABELS,
   STATUS_ORDER,
@@ -24,7 +25,7 @@ export default function Enquiries() {
       setEnquiries(await adminApi.listEnquiries({ status, q: search }));
       setError('');
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Could not load enquiries');
+      setError(errorMessage(loadError, 'Could not load enquiries'));
     } finally {
       setLoading(false);
     }
@@ -40,11 +41,17 @@ export default function Enquiries() {
     setSelected((current) => (current && current.id === updated.id ? updated : current));
   };
 
+  // Returns an error message for the drawer to show, or an empty string on success.
   const remove = async (enquiry: Enquiry) => {
-    if (!confirm(`Delete the enquiry from ${enquiry.name}? This cannot be undone.`)) return;
-    await adminApi.deleteEnquiry(enquiry.id);
+    if (!confirm(`Delete the enquiry from ${enquiry.name}? This cannot be undone.`)) return '';
+    try {
+      await adminApi.deleteEnquiry(enquiry.id);
+    } catch (deleteError) {
+      return errorMessage(deleteError, 'Could not delete the enquiry');
+    }
     setEnquiries((current) => current.filter((item) => item.id !== enquiry.id));
     setSelected(null);
+    return '';
   };
 
   return (
@@ -121,22 +128,41 @@ function EnquiryDetail({
   enquiry: Enquiry;
   onClose: () => void;
   onChange: (updated: Enquiry) => void;
-  onDelete: () => void;
+  onDelete: () => Promise<string>;
 }) {
   const [notes, setNotes] = useState(enquiry.notes);
   const [savedAt, setSavedAt] = useState('');
+  const [error, setError] = useState('');
   const whatsapp = whatsappLink(enquiry.whatsapp);
 
   useEffect(() => {
     setNotes(enquiry.notes);
     setSavedAt('');
+    setError('');
   }, [enquiry.id, enquiry.notes]);
 
-  const setStatus = async (status: EnquiryStatus) => onChange(await adminApi.updateEnquiry(enquiry.id, { status }));
+  const setStatus = async (status: EnquiryStatus) => {
+    setError('');
+    try {
+      onChange(await adminApi.updateEnquiry(enquiry.id, { status }));
+    } catch (statusError) {
+      setError(errorMessage(statusError, 'Could not change the status'));
+    }
+  };
 
   const saveNotes = async () => {
-    onChange(await adminApi.updateEnquiry(enquiry.id, { notes }));
-    setSavedAt('Saved');
+    setError('');
+    try {
+      onChange(await adminApi.updateEnquiry(enquiry.id, { notes }));
+      setSavedAt('Saved');
+    } catch (notesError) {
+      setError(errorMessage(notesError, 'Could not save the notes'));
+    }
+  };
+
+  const handleDelete = async () => {
+    setError('');
+    setError(await onDelete());
   };
 
   return (
@@ -204,7 +230,9 @@ function EnquiryDetail({
           {savedAt && <span className="admin-muted">{savedAt}</span>}
         </div>
 
-        <button className="admin-delete" type="button" onClick={onDelete}>
+        {error && <p className="admin-error">{error}</p>}
+
+        <button className="admin-delete" type="button" onClick={handleDelete}>
           <Trash2 size={14} /> Delete enquiry
         </button>
       </aside>
