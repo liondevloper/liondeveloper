@@ -1,0 +1,68 @@
+/* Header entrance: when the website opens, the logo swings in like a 3D door, the lion spins once,
+   and the menu cube / desktop links flip down into place one after another.
+   html.is-loaded is added by DotPreloader; html.ld-intro-play means the splash + blinds intro is playing,
+   so the header waits until the blinds have opened. backwards fill keeps hover effects working afterwards. */
+
+.site-header .brand { --hd: .1s; }
+.site-header .brand-mark img { --hd: .35s; }
+.site-header .m3d-btn { --hd: .45s; }
+.site-header .nav-links > *:nth-child(1) { --hd: .3s; }
+.site-header .nav-links > *:nth-child(2) { --hd: .38s; }
+.site-header .nav-links > *:nth-child(3) { --hd: .46s; }
+.site-header .nav-links > *:nth-child(4) { --hd: .54s; }
+.site-header .nav-links > *:nth-child(5) { --hd: .62s; }
+.site-header .nav-links > *:nth-child(6) { --hd: .7s; }
+.site-header .nav-links > *:nth-child(7) { --hd: .82s; }
+
+html:not(.is-loaded) .site-header .brand,
+html:not(.is-loaded) .site-header .m3d-btn,
+html:not(.is-loaded) .site-header .nav-links > * { opacity: 0; }
+
+html.is-loaded .site-header .brand {
+  transform-origin: left center;
+  animation: h3d-brand 1.1s cubic-bezier(.2, .9, .25, 1.12) var(--hd) backwards;
+}
+html.is-loaded .site-header .brand-mark img {
+  animation: h3d-logo 1.3s cubic-bezier(.25, .8, .25, 1) var(--hd) backwards;
+}
+html.is-loaded .site-header .m3d-btn {
+  animation: h3d-btn 1.1s cubic-bezier(.2, .9, .25, 1.2) var(--hd) backwards;
+}
+html.is-loaded .site-header .nav-links > * {
+  transform-origin: center top;
+  animation: h3d-link .85s cubic-bezier(.2, .9, .25, 1.15) var(--hd) backwards;
+}
+
+/* Wait for the blinds intro to open before the header plays. */
+html.ld-intro-play.is-loaded .site-header .brand,
+html.ld-intro-play.is-loaded .site-header .brand-mark img,
+html.ld-intro-play.is-loaded .site-header .m3d-btn,
+html.ld-intro-play.is-loaded .site-header .nav-links > * {
+  animation-delay: calc(var(--hd) + 1.5s);
+}
+
+@keyframes h3d-brand {
+  0% { opacity: 0; transform: perspective(700px) translateX(-40px) rotateY(-100deg) scale(.7); filter: blur(6px); }
+  60% { opacity: 1; filter: none; }
+  100% { opacity: 1; transform: perspective(700px) translateX(0) rotateY(0) scale(1); }
+}
+@keyframes h3d-logo {
+  0% { transform: perspective(500px) rotateY(-360deg) scale(.5); }
+  100% { transform: perspective(500px) rotateY(0) scale(1); }
+}
+@keyframes h3d-btn {
+  0% { opacity: 0; transform: perspective(600px) translateY(-30px) rotateX(200deg) rotateY(120deg) scale(.4); }
+  70% { opacity: 1; }
+  100% { opacity: 1; transform: perspective(600px) translateY(0) rotateX(0) rotateY(0) scale(1); }
+}
+@keyframes h3d-link {
+  0% { opacity: 0; transform: perspective(600px) translateY(-18px) rotateX(-95deg); }
+  100% { opacity: 1; transform: perspective(600px) translateY(0) rotateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html .site-header .brand,
+  html .site-header .brand-mark img,
+  html .site-header .m3d-btn,
+  html .site-header .nav-links > * { animation: none !important; opacity: 1 !important; }
+}
