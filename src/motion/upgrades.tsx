@@ -144,17 +144,39 @@ const isInstalledApp = () =>
   window.matchMedia('(display-mode: fullscreen)').matches ||
   (navigator as Navigator & { standalone?: boolean }).standalone === true;
 
+// The splash plays only when a visitor first enters the website. Coming back to the home page
+// during the same visit (from the blog, a service page or the Home link) skips it.
+const SPLASH_SEEN_KEY = 'ld-splash-seen';
+
+const splashAlreadySeen = () => {
+  try {
+    return window.sessionStorage.getItem(SPLASH_SEEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const markSplashSeen = () => {
+  try {
+    window.sessionStorage.setItem(SPLASH_SEEN_KEY, '1');
+  } catch {
+    // Storage can be blocked (private mode); the splash then simply plays as before.
+  }
+};
+
 export function DotPreloader({ logo }: { logo: string }) {
   const [isInstalled] = useState(isInstalledApp);
-  const [phase, setPhase] = useState<PreloaderPhase>(() => (!MOTION_ENABLED ? 'done' : isInstalled ? 'leave' : 'splash'));
+  const [skip] = useState(() => !MOTION_ENABLED || splashAlreadySeen());
+  const [phase, setPhase] = useState<PreloaderPhase>(() => (skip ? 'done' : isInstalled ? 'leave' : 'splash'));
   const [count, setCount] = useState(DOTS_FROM);
 
   useEffect(() => {
     const root = document.documentElement;
-    if (!MOTION_ENABLED) {
+    if (skip) {
       root.classList.add('is-loaded');
       return;
     }
+    markSplashSeen();
     if (isInstalled) {
       root.classList.add('is-loaded');
       const timer = window.setTimeout(() => setPhase('done'), INTRO_MS);
@@ -172,7 +194,7 @@ export function DotPreloader({ logo }: { logo: string }) {
       window.setTimeout(() => setPhase('done'), DONE_AT),
     ];
     return () => timers.forEach(window.clearTimeout);
-  }, [isInstalled]);
+  }, [isInstalled, skip]);
 
   if (phase === 'done') return null;
   if (phase === 'leave') return <BlindsIntro logo={logo} showLogo={!isInstalled} />;
