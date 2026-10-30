@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import { ArrowUpRight, LogOut } from 'lucide-react';
-import { adminApi, AuthError } from './api';
+import { adminApi, AuthError, SIGNED_OUT_EVENT } from './api';
 import Content from './Content';
 import Dashboard from './Dashboard';
 import Enquiries from './Enquiries';
@@ -24,6 +24,13 @@ export default function AdminApp() {
         setEmail(null);
       })
       .finally(() => setChecking(false));
+  }, []);
+
+  // Any API call that finds the session gone sends the admin back to the sign-in screen.
+  useEffect(() => {
+    const handleSignedOut = () => setEmail(null);
+    window.addEventListener(SIGNED_OUT_EVENT, handleSignedOut);
+    return () => window.removeEventListener(SIGNED_OUT_EVENT, handleSignedOut);
   }, []);
 
   const signOut = async () => {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { randomBytes } from 'node:crypto';
+import { createHmac, randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { pool, ENQUIRY_STATUSES } from './db.js';
@@ -9,11 +9,21 @@ const SESSION_DAYS = 7;
 // No fallback value on purpose: this repo is public, so a hardcoded secret would let anyone forge an admin session.
 const secret = () => process.env.SESSION_SECRET || '';
 const NO_SECRET = 'Admin access is disabled until SESSION_SECRET is set on the server.';
+// Cookies only travel over HTTPS on the live site; local dev runs on plain http.
+const SECURE_COOKIE = Boolean(process.env.VERCEL) || process.env.NODE_ENV === 'production';
 
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 // How long a video upload ticket stays valid. Long enough for a 50 MB upload on a slow phone connection.
 const VIDEO_TICKET_MINUTES = 30;
+
+// Brute-force and spam limits, stored in login_attempts so every serverless instance shares them.
+const LOGIN_LIMIT = { max: 8, minutes: 15 };
+// Mobile networks in India often share one IP between many people, so this is kept generous.
+const ENQUIRY_LIMIT = { max: 10, minutes: 60 };
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const WHATSAPP_RE = /^[0-9+\s-]*$/;
 
 function requireSecret(_req, res, next) {
   if (!secret()) return res.status(503).json({ error: NO_SECRET });
@@ -25,47 +35,82 @@ const text = (value, max) => {
   return value.trim().slice(0, max);
 };
 
-// Simple brute-force guard: 8 failed logins per IP per 15 minutes.
-const attempts = new Map();
-function tooManyAttempts(ip) {
-  const entry = attempts.get(ip);
-  if (!entry) return false;
-  if (Date.now() - entry.first > 15 * 60_000) {
-    attempts.delete(ip);
-    return false;
+// On Vercel, x-vercel-forwarded-for is set by Vercel itself and cannot be spoofed by the visitor.
+function clientIp(req) {
+  const vercelIp = req.headers['x-vercel-forwarded-for'];
+  if (process.env.VERCEL && typeof vercelIp === 'string' && vercelIp) {
+    return vercelIp.split(',')[0].trim();
   }
-  return entry.count >= 8;
-}
-function recordFailure(ip) {
-  const entry = attempts.get(ip);
-  if (!entry || Date.now() - entry.first > 15 * 60_000) {
-    attempts.set(ip, { count: 1, first: Date.now() });
-  } else {
-    entry.count += 1;
-  }
+  return req.ip || 'unknown';
 }
 
-function requireAuth(req, res, next) {
+async function isRateLimited(key, { max, minutes }) {
+  const { rows } = await pool.query(
+    `SELECT COUNT(*)::int AS count FROM login_attempts
+     WHERE ip = $1 AND created_at > now() - make_interval(mins => $2)`,
+    [key, minutes],
+  );
+  return rows[0].count >= max;
+}
+
+const recordAttempt = (key) => pool.query('INSERT INTO login_attempts (ip) VALUES ($1)', [key]);
+const clearAttempts = (key) => pool.query('DELETE FROM login_attempts WHERE ip = $1', [key]);
+
+// Keeps the table small. Failures here never block the request.
+function pruneAttempts() {
+  pool.query("DELETE FROM login_attempts WHERE created_at < now() - interval '1 day'").catch((error) => {
+    console.error('[rate-limit] prune failed', error);
+  });
+}
+
+// A short fingerprint of the password hash. Changing the password changes it, which signs out every old session.
+const passwordVersion = (passwordHash) =>
+  createHmac('sha256', secret()).update(passwordHash).digest('hex').slice(0, 16);
+
+async function requireAuth(req, res, next) {
   if (!secret()) return res.status(503).json({ error: NO_SECRET });
   const token = req.cookies?.[COOKIE_NAME];
   if (!token) return res.status(401).json({ error: 'Not signed in' });
+
+  let payload;
   try {
-    req.admin = jwt.verify(token, secret());
-    next();
+    payload = jwt.verify(token, secret());
   } catch {
-    res.status(401).json({ error: 'Session expired' });
+    return res.status(401).json({ error: 'Session expired' });
   }
+  if (typeof payload?.pv !== 'string') return res.status(401).json({ error: 'Session expired' });
+
+  const { rows } = await pool.query('SELECT id, email, password_hash FROM admin_users WHERE id = $1', [payload.sub]);
+  const admin = rows[0];
+  if (!admin || passwordVersion(admin.password_hash) !== payload.pv) {
+    return res.status(401).json({ error: 'Session expired' });
+  }
+
+  req.admin = { sub: admin.id, email: admin.email };
+  next();
 }
 
 function setSession(res, admin) {
-  const token = jwt.sign({ sub: admin.id, email: admin.email }, secret(), { expiresIn: `${SESSION_DAYS}d` });
+  const token = jwt.sign(
+    { sub: admin.id, email: admin.email, pv: passwordVersion(admin.password_hash) },
+    secret(),
+    { expiresIn: `${SESSION_DAYS}d` },
+  );
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
+    secure: SECURE_COOKIE,
     sameSite: 'lax',
     path: '/',
     maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
   });
 }
+
+// Stops spreadsheet apps from running a cell as a formula when the CSV is opened.
+const csvCell = (value) => {
+  let cell = String(value ?? '');
+  if (/^[=+\-@\t\r]/.test(cell)) cell = `'${cell}`;
+  return `"${cell.replace(/"/g, '""')}"`;
+};
 
 export const api = Router();
 
@@ -74,24 +119,41 @@ export const api = Router();
 api.post('/enquiries', async (req, res) => {
   const name = text(req.body?.name, 120);
   const details = text(req.body?.details, 4000);
+  const email = text(req.body?.email, 160);
+  const whatsapp = text(req.body?.whatsapp, 40);
   if (!name || !details) {
     return res.status(400).json({ error: 'Name and project details are required' });
   }
+  if (email && !EMAIL_RE.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address' });
+  }
+  if (!WHATSAPP_RE.test(whatsapp)) {
+    return res.status(400).json({ error: 'WhatsApp number can only contain digits, +, spaces and -' });
+  }
 
+  const limitKey = `enq:${clientIp(req)}`;
   try {
+    if (await isRateLimited(limitKey, ENQUIRY_LIMIT)) {
+      return res.status(429).json({
+        error: 'You have sent several enquiries already. Please try again in an hour, or message us on WhatsApp.',
+      });
+    }
+
     await pool.query(
       `INSERT INTO enquiries (name, business, whatsapp, email, website_type, budget, details)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
         name,
         text(req.body?.business, 120),
-        text(req.body?.whatsapp, 40),
-        text(req.body?.email, 160),
+        whatsapp,
+        email,
         text(req.body?.website_type, 80),
         text(req.body?.budget, 80),
         details,
       ],
     );
+    await recordAttempt(limitKey);
+    pruneAttempts();
     res.status(201).json({ ok: true });
   } catch (error) {
     console.error('[enquiries] insert failed', error);
@@ -129,8 +191,8 @@ api.get('/images/:id', async (req, res) => {
 /* ------------------------------------------------------------------ auth */
 
 api.post('/auth/login', requireSecret, async (req, res) => {
-  const ip = req.ip || 'unknown';
-  if (tooManyAttempts(ip)) {
+  const ip = clientIp(req);
+  if (await isRateLimited(ip, LOGIN_LIMIT)) {
     return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' });
   }
 
@@ -140,17 +202,18 @@ api.post('/auth/login', requireSecret, async (req, res) => {
   const { rows } = await pool.query('SELECT id, email, password_hash FROM admin_users WHERE email = $1', [email]);
   const admin = rows[0];
   if (!admin || !(await bcrypt.compare(password, admin.password_hash))) {
-    recordFailure(ip);
+    await recordAttempt(ip);
+    pruneAttempts();
     return res.status(401).json({ error: 'Wrong email or password' });
   }
 
-  attempts.delete(ip);
+  await clearAttempts(ip);
   setSession(res, admin);
   res.json({ email: admin.email });
 });
 
 api.post('/auth/logout', (_req, res) => {
-  res.clearCookie(COOKIE_NAME, { path: '/' });
+  res.clearCookie(COOKIE_NAME, { path: '/', httpOnly: true, secure: SECURE_COOKIE, sameSite: 'lax' });
   res.json({ ok: true });
 });
 
@@ -171,8 +234,10 @@ api.post('/auth/password', requireAuth, async (req, res) => {
     return res.status(401).json({ error: 'Current password is wrong' });
   }
 
-  await pool.query('UPDATE admin_users SET password_hash = $1 WHERE id = $2', [await bcrypt.hash(next, 10), admin.id]);
-  setSession(res, admin);
+  const newHash = await bcrypt.hash(next, 10);
+  await pool.query('UPDATE admin_users SET password_hash = $1 WHERE id = $2', [newHash, admin.id]);
+  // The new hash gives a new session fingerprint: this browser stays signed in, all others are signed out.
+  setSession(res, { ...admin, password_hash: newHash });
   res.json({ ok: true });
 });
 
@@ -243,8 +308,7 @@ api.get('/enquiries', requireAuth, async (req, res) => {
 api.get('/enquiries/export', requireAuth, async (_req, res) => {
   const { rows } = await pool.query('SELECT * FROM enquiries ORDER BY created_at DESC');
   const columns = ['id', 'created_at', 'name', 'business', 'whatsapp', 'email', 'website_type', 'budget', 'status', 'details', 'notes'];
-  const escape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
-  const csv = [columns.join(','), ...rows.map((row) => columns.map((column) => escape(row[column])).join(','))].join('\n');
+  const csv = [columns.join(','), ...rows.map((row) => columns.map((column) => csvCell(row[column])).join(','))].join('\n');
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="lion-enquiries-${new Date().toISOString().slice(0, 10)}.csv"`);

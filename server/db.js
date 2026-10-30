@@ -3,13 +3,20 @@ import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
 
+// Verify the database certificate when its CA is provided (Supabase: Project Settings > Database > SSL).
+// Without it the connection is still encrypted but the certificate is not checked, which is what
+// Supabase's pooler needs out of the box. Set DATABASE_CA to turn on full verification.
+const ssl = process.env.DATABASE_CA
+  ? { ca: process.env.DATABASE_CA.replace(/\\n/g, '\n') }
+  : { rejectUnauthorized: false };
+
 // One shared pool for the whole process — never create a pool per request.
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   // Serverless instances each hold their own pool, so keep it small there.
   max: process.env.VERCEL ? 3 : 8,
   idleTimeoutMillis: 30_000,
-  ssl: { rejectUnauthorized: false },
+  ssl,
 });
 
 export const ENQUIRY_STATUSES = ['new', 'contacted', 'discussion', 'won', 'lost'];
@@ -61,6 +68,16 @@ export async function initDatabase() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
+
+  // Login and enquiry rate limits. Stored in the database because serverless instances share no memory.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS login_attempts (
+      id         SERIAL PRIMARY KEY,
+      ip         TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+  await pool.query('CREATE INDEX IF NOT EXISTS login_attempts_ip_created_idx ON login_attempts (ip, created_at);');
 
   await pool.query('CREATE INDEX IF NOT EXISTS enquiries_created_at_idx ON enquiries (created_at DESC);');
 

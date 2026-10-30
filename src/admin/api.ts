@@ -38,16 +38,30 @@ export const STATUS_ORDER: EnquiryStatus[] = ['new', 'contacted', 'discussion', 
 
 export class AuthError extends Error {}
 
+// Fired when the server says the session is gone (expired, or signed out after a password change elsewhere).
+export const SIGNED_OUT_EVENT = 'admin:signed-out';
+
+// These answer 401 for a wrong password, which must not sign the admin out.
+const PASSWORD_CHECK_PATHS = ['/auth/login', '/auth/password'];
+
+export const errorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error && error.message ? error.message : fallback;
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
     headers: { 'Content-Type': 'application/json' },
     ...init,
   });
 
-  if (response.status === 401) throw new AuthError('Not signed in');
-
   const body = response.status === 204 ? null : await response.json().catch(() => null);
-  if (!response.ok) throw new Error((body as { error?: string })?.error || 'Something went wrong');
+  const serverError = (body as { error?: string } | null)?.error;
+
+  if (response.status === 401) {
+    if (!PASSWORD_CHECK_PATHS.includes(path)) window.dispatchEvent(new Event(SIGNED_OUT_EVENT));
+    throw new AuthError(serverError || 'Not signed in');
+  }
+
+  if (!response.ok) throw new Error(serverError || 'Something went wrong');
   return body as T;
 }
 
