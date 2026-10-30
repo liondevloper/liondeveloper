@@ -8,6 +8,9 @@ import './premium.css';
 import './intro.css';
 import './splash.css';
 
+// The menu button is now a 3D cube that opens a full-screen 3D menu (see menu3d.tsx).
+export { default as DotsMenuButton } from './menu3d';
+
 // "What I do" and "How it works" both auto-swipe on this beat, and keep going after a manual swipe.
 export const AUTO_SWIPE_MS = 3000;
 
@@ -249,21 +252,6 @@ export function useAnchorScroll() {
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
   }, []);
-}
-
-// Four coloured dots in a square (two on top, two below) instead of the usual three lines.
-export function DotsMenuButton({ open, onToggle }: { open: boolean; onToggle: () => void }) {
-  return (
-    <button
-      type="button"
-      className={`menu-toggle dots-toggle ${open ? 'is-open' : ''}`}
-      aria-label={open ? 'Close navigation' : 'Open navigation'}
-      aria-expanded={open}
-      onClick={onToggle}
-    >
-      <span className="dots-grid" aria-hidden="true"><i /><i /><i /><i /></span>
-    </button>
-  );
 }
 
 /* -------------------------------------------------------------- whatsapp */
