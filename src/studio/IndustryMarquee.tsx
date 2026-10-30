@@ -1,15 +1,41 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { stagger } from '@/motion/effects';
 import { SHOWCASE } from './showcase-data';
 
 const COLUMNS = 4;
 const INDUSTRIES = ['Salons', 'Restaurants', 'Hotels', 'Gyms', 'Clinics', 'Boutiques', 'Cafes', 'Real estate', 'Coaching classes', 'Wedding planners', 'Travel agencies', 'Jewellery shops'];
+// After a finger lifts off the photos, the wall waits this long and then starts moving again.
+const TOUCH_RESUME_MS = 1200;
 
 // Each column starts on a different design so neighbouring columns never show the same picture side by side.
 const columnItems = (column: number) => SHOWCASE.map((_, index) => SHOWCASE[(index + column * 2) % SHOWCASE.length]);
 
+// Phones keep a "hover" stuck after a tap, which froze the wall for good. So a touch pauses it only
+// while the finger is down (plus a short moment); mouse users still pause it by hovering (CSS).
+function useTouchPause() {
+  const [paused, setPaused] = useState(false);
+  const timer = useRef(0);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const onPointerDown = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') return;
+    window.clearTimeout(timer.current);
+    setPaused(true);
+  };
+  const onPointerEnd = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') return;
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setPaused(false), TOUCH_RESUME_MS);
+  };
+
+  return { paused, handlers: { onPointerDown, onPointerUp: onPointerEnd, onPointerCancel: onPointerEnd, onPointerLeave: onPointerEnd } };
+}
+
 // Aceternity-style 3D marquee: a tilted wall of website designs scrolling up and down in alternating columns.
 export default function IndustryMarquee() {
+  const { paused, handlers } = useTouchPause();
+
   return (
     <section className="ld-industries section-pad" id="industries">
       <div className="section-heading">
@@ -22,7 +48,7 @@ export default function IndustryMarquee() {
         </p>
       </div>
 
-      <div className="ld-marquee3d" aria-hidden="true">
+      <div className={`ld-marquee3d${paused ? ' is-paused' : ''}`} aria-hidden="true" {...handlers}>
         <div className="ld-marquee3d-plane">
           {Array.from({ length: COLUMNS }, (_, column) => {
             const items = columnItems(column);
