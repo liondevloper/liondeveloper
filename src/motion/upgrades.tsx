@@ -7,6 +7,8 @@ import './premium.css';
 // Loaded after premium.css so its hero entrance timing wins.
 import './intro.css';
 import './splash.css';
+// Logo and menu enter the header with a 3D animation when the website opens.
+import './header3d.css';
 
 // The menu button is now a 3D cube that opens a full-screen 3D menu (see menu3d.tsx).
 export { default as DotsMenuButton } from './menu3d';
@@ -26,6 +28,8 @@ const PROGRESS_MS = SPLASH_MS;
 // The 3D blinds intro (intro.css) opens in about 2.3s.
 const INTRO_MS = 2300;
 const DONE_AT = SPLASH_MS + INTRO_MS;
+// header3d.css delays the header entrance while this class is on, so it lands after the blinds open.
+const INTRO_PLAY_CLASS = 'ld-intro-play';
 
 const SPARKS = 16;
 const BRAND = 'LION DIGITAL SOLUTION';
@@ -180,6 +184,7 @@ export function DotPreloader({ logo }: { logo: string }) {
       return;
     }
     markSplashSeen();
+    root.classList.add(INTRO_PLAY_CLASS);
     if (isInstalled) {
       root.classList.add('is-loaded');
       const timer = window.setTimeout(() => setPhase('done'), INTRO_MS);
