@@ -26,6 +26,7 @@ function fitCardToVideo(event: SyntheticEvent<HTMLVideoElement>) {
   video.closest<HTMLElement>('.work-card')?.style.setProperty('--ar', String(video.videoWidth / video.videoHeight));
 }
 
+// The 01/02/03 number in the top-right corner of each card was removed on request.
 export default function StickyVideos({ videos }: { videos: WorkVideo[] }) {
   const listRef = useRef<HTMLDivElement>(null);
   useStickyStack(listRef, '.work-card', videos.length, playWhenVisible);
@@ -38,7 +39,6 @@ export default function StickyVideos({ videos }: { videos: WorkVideo[] }) {
             <video src={item.video} muted loop playsInline preload="metadata" onLoadedMetadata={fitCardToVideo} aria-label={`${item.title || 'Project'} video`} />
             <div className="work-card-shade" aria-hidden="true" />
             <div className="work-card-dim" aria-hidden="true" />
-            <span className="work-card-index">{String(index + 1).padStart(2, '0')}</span>
             <div className="work-card-info">
               <div>
                 {item.category && <span className="work-card-category">{item.category}</span>}
