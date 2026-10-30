@@ -1,18 +1,19 @@
-import type { SiteContent } from '@/data/site';
+import type { CareTier, Plan, SiteContent } from '@/data/site';
 
-/* Visitors in India see the rupee prices from the admin panel. Everyone else sees the US dollar prices
-   below, which are set separately (not a currency conversion) and matched to packages by name. */
+/* Visitors in India see the rupee prices from the admin panel. Everyone else sees the US dollar prices,
+   which are also set in the admin panel (Dollar prices page). They are set separately (not a currency
+   conversion). When a dollar box is left blank, the built-in dollar price below is used, matched by name. */
 
 export type Region = 'india' | 'international';
 
-// International website package prices in USD. A package missing here (e.g. "Custom Project") keeps its text.
+// Fallback package prices in USD. A package missing here (e.g. "Custom Project") keeps its text.
 export const USD_PLAN_PRICES: Record<string, number> = {
   Starter: 399,
   Business: 799,
   Professional: 1299,
 };
 
-// International Website Care Plan prices in USD. Yearly = 10 months, so the "2 months free" offer still holds.
+// Fallback Website Care Plan prices in USD. Yearly = 10 months, so the "2 months free" offer still holds.
 export const USD_CARE_PRICES: Record<string, { monthly: number; yearly: number }> = {
   Starter: { monthly: 39, yearly: 390 },
   Business: { monthly: 69, yearly: 690 },
@@ -52,6 +53,10 @@ const formatUsd = (amount: number) => `$${amount.toLocaleString('en-US')}`;
 export const formatMoney = (amount: number) =>
   IS_INTERNATIONAL ? formatUsd(amount) : `₹${amount.toLocaleString('en-IN')}`;
 
+// Dollar prices typed in the admin panel's "Dollar prices" page are saved next to the rupee prices.
+export type UsdPlan = Plan & { usdPrice?: string };
+export type UsdCareTier = CareTier & { usdPrice?: string; usdYearlyPrice?: string };
+
 const toNumber = (digits: string) => Number(digits.replace(/[^\d]/g, ''));
 
 const rupees = (price: string) => {
@@ -67,16 +72,17 @@ function usdTable(content: SiteContent) {
     if (inr && usd) table.set(inr, usd);
   };
   for (const plan of content.pricing) {
-    const usd = USD_PLAN_PRICES[plan.name];
+    const usd = rupees((plan as UsdPlan).usdPrice ?? '') ?? USD_PLAN_PRICES[plan.name];
     const inr = rupees(plan.price);
     add(plan.price, usd);
     // Half prices appear on their own in some advance-payment text.
     if (inr && usd && !table.has(Math.ceil(inr / 2))) table.set(Math.ceil(inr / 2), Math.ceil(usd / 2));
   }
   for (const tier of content.care.tiers) {
-    const usd = USD_CARE_PRICES[tier.name];
-    add(tier.price, usd?.monthly);
-    add(tier.yearlyPrice, usd?.yearly);
+    const fallback = USD_CARE_PRICES[tier.name];
+    const dollars = tier as UsdCareTier;
+    add(tier.price, rupees(dollars.usdPrice ?? '') ?? fallback?.monthly);
+    add(tier.yearlyPrice, rupees(dollars.usdYearlyPrice ?? '') ?? fallback?.yearly);
   }
   return table;
 }
