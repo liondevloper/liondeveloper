@@ -84,3 +84,7 @@ footer a:hover { color: var(--accent-text); }
 .article th, .article td { border-bottom: 1px solid var(--line); padding: 12px 10px; text-align: left; vertical-align: top; color: #3b352b; }
 .article th { color: var(--accent-text); font: 500 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .12em; }
 @media (max-width: 760px) { .top nav { display: none; } .top .btn { padding: 11px 15px; font-size: 12px; } .cta-band { padding: 30px 24px; } section { padding: 52px 0; } }
+/* Prices: rupees for visitors in India, US dollars for everyone else (set by the script in each page's head). */
+html[data-currency="usd"] .inr, html:not([data-currency="usd"]) .usd { display: none; }
+.price .card strong span { font: inherit; color: inherit; text-transform: none; letter-spacing: inherit; }
+.facts span span::before { content: none; }
