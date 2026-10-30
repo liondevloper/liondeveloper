@@ -202,7 +202,7 @@ export const defaultContent: SiteContent = {
       description: 'A polished launchpad for a focused online presence.',
       popular: false,
       perk: '',
-      features: ['1–5 pages', 'Responsive design', 'Modern UI', 'WhatsApp button', 'Contact form', 'Basic SEO', 'Mobile optimization', 'Deployment'],
+      features: ['1–5 pages', 'Responsive design', 'Modern UI', 'WhatsApp button', 'Contact form', 'Basic SEO', 'Mobile optimisation', 'Deployment'],
       revisions: '2 revision rounds',
       hosting: [
         'Custom domain registration is charged separately.',
@@ -217,7 +217,7 @@ export const defaultContent: SiteContent = {
       description: 'A premium website built to support your next stage of growth.',
       popular: true,
       perk: FREE_DOMAIN_PERK,
-      features: ['Up to 10 pages', 'Premium UI/UX', 'WhatsApp integration', 'Booking / enquiry form', 'Basic SEO', 'Performance optimization', 'Deployment', 'Basic support'],
+      features: ['Up to 10 pages', 'Premium UI/UX', 'WhatsApp integration', 'Booking / enquiry form', 'Basic SEO', 'Performance optimisation', 'Deployment', 'Basic support'],
       revisions: '3 revision rounds',
       hosting: [
         'FREE .in or .com domain and hosting for the first year.',
