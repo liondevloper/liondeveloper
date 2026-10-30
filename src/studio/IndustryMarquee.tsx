@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { stagger } from '@/motion/effects';
 import { SHOWCASE, type ShowcaseItem } from './showcase-data';
+import './zoom.css';
 
 const COLUMNS = 4;
 const INDUSTRIES = ['Salons', 'Restaurants', 'Hotels', 'Gyms', 'Clinics', 'Boutiques', 'Cafes', 'Real estate', 'Coaching classes', 'Wedding planners', 'Travel agencies', 'Jewellery shops'];
@@ -52,7 +53,8 @@ function PhotoZoom({ item, onClose }: { item: ShowcaseItem; onClose: () => void 
 
   return createPortal(
     <div className="ld-zoom" role="dialog" aria-label={`${item.title} website design`} onClick={onClose} style={{ '--zoom-ms': `${ZOOM_MS}ms` } as CSSProperties}>
-      <figure className="ld-zoom-card">
+      {/* Keyed by design so the pop-in and countdown restart when another photo is opened. */}
+      <figure className="ld-zoom-card" key={item.title}>
         <img src={item.image} alt={`${item.title} website design`} width={1400} height={1050} />
         <figcaption><b>{item.title}</b><span>{item.tag}</span></figcaption>
         <i className="ld-zoom-timer" aria-hidden="true" />
@@ -67,7 +69,7 @@ function PhotoZoom({ item, onClose }: { item: ShowcaseItem; onClose: () => void 
 export default function IndustryMarquee() {
   const { paused, handlers } = useTouchPause();
   const [zoomed, setZoomed] = useState<ShowcaseItem | null>(null);
-  const closeZoom = useRef(() => setZoomed(null)).current;
+  const closeZoom = useCallback(() => setZoomed(null), []);
 
   // One click handler for the whole wall: the tapped image carries its design index.
   const openPhoto = (event: MouseEvent<HTMLDivElement>) => {
