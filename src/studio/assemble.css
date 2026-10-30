@@ -44,6 +44,19 @@
   background: #fffaf3 radial-gradient(rgba(120,85,40,.16) 1px, transparent 1px) 0 0 / 18px 18px;
 }
 
+/* Fixed header of the mini website: logo on the left, Home / Services / Gallery / About on the right.
+   It is ready from the start, so it never flies around with the other pieces. */
+:root .site-shell .ld-asm-head {
+  position: absolute; left: 3%; right: 3%; top: 4%; height: 10%; z-index: 2;
+  display: flex; align-items: center; gap: 2cqw; padding: 0 2.4cqw;
+  background: #fff; border: 1px solid rgba(120,85,40,.14); border-radius: 1.6cqw;
+  box-shadow: 0 8px 18px -14px rgba(120,70,20,.4); color: #6a6357;
+}
+:root .site-shell .ld-asm-head b { display: inline-flex; align-items: center; gap: .6cqw; margin-right: auto; color: var(--ink); font-size: 1.8cqw; white-space: nowrap; }
+:root .site-shell .ld-asm-head b svg { width: 1.9cqw; height: 1.9cqw; color: var(--gold); }
+:root .site-shell .ld-asm-head nav { display: flex; align-items: center; gap: 2.2cqw; font-size: 1.45cqw; font-weight: 600; white-space: nowrap; }
+:root .site-shell .ld-asm-head nav span.is-on { color: var(--gold); }
+
 /* Every piece: --t is its own 0 -> 1 progress. */
 :root .site-shell .ld-asm-piece {
   --t: clamp(0, calc((var(--p) - var(--s)) / .38), 1);
@@ -66,9 +79,6 @@
 }
 
 /* Mini website layout */
-:root .site-shell .ld-asm-nav { left: 3%; right: 3%; top: 4%; height: 10%; padding: 0 2.4cqw; font-size: 1.4cqw; color: #6a6357; }
-:root .site-shell .ld-asm-nav b { display: inline-flex; align-items: center; gap: .6cqw; margin-right: auto; color: var(--ink); font-size: 1.7cqw; }
-:root .site-shell .ld-asm-nav b svg { width: 1.8cqw; height: 1.8cqw; color: var(--gold); }
 :root .site-shell .ld-asm-title { left: 4%; top: 21%; width: 44%; padding: 2.2cqw; flex-direction: column; align-items: flex-start; gap: .6cqw; }
 :root .site-shell .ld-asm-title small { font: 500 1.2cqw 'DM Mono', monospace; color: var(--cyan); text-transform: uppercase; letter-spacing: .1em; }
 :root .site-shell .ld-asm-title strong { font-size: 4.2cqw; line-height: 1; letter-spacing: -.04em; }
@@ -116,6 +126,11 @@
   :root .site-shell .ld-asm-frame { padding: 5px; border-radius: 16px; }
   :root .site-shell .ld-asm-screen { border-radius: 12px; background-size: 12px 12px; }
   :root .site-shell .ld-asm-bar b { font-size: 10px; padding: 3px 10px; }
+  /* Bigger header text so Home / Services / Gallery / About stay readable on phones. */
+  :root .site-shell .ld-asm-head { height: 11%; gap: 1.6cqw; padding: 0 2cqw; }
+  :root .site-shell .ld-asm-head b { font-size: 2.6cqw; }
+  :root .site-shell .ld-asm-head b svg { width: 2.6cqw; height: 2.6cqw; }
+  :root .site-shell .ld-asm-head nav { gap: 1.8cqw; font-size: 2.2cqw; }
   :root .site-shell .ld-asm-piece { --k: .55; }
   :root .site-shell .ld-asm-label { font-size: 10px; padding: 4px 8px; top: -8px; }
   :root .site-shell .ld-asm-dots { display: none; }
