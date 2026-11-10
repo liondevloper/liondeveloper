@@ -16,7 +16,9 @@
   <meta property="og:image" content="https://liondigitalsolution.com/logo.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://liondigitalsolution.com/logo.png" />
-  <script>document.documentElement.classList.remove('no-js');</script>
+  <!-- "gated" keeps the page behind the 3D doors until the visitor taps to open. -->
+  <script>document.documentElement.classList.replace('no-js', 'gated');</script>
+  <script defer src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Instrument+Serif:ital@0;1&amp;family=DM+Mono:wght@400;500&amp;family=Mukta+Vaani:wght@400;500;600;700&amp;family=Hind:wght@400;500;600;700&amp;family=Noto+Serif+Gujarati:wght@400;500;600&amp;family=Noto+Serif+Devanagari:wght@400;500;600&amp;display=swap" />
@@ -147,7 +149,13 @@
       background: radial-gradient(260px circle at var(--gx, 50%) var(--gy, 0%), rgba(232, 116, 42, .16), transparent 60%); }
     .card .motif { position: absolute; right: -34px; top: -34px; width: 124px; height: 124px; border-radius: 50%;
       background: repeating-conic-gradient(rgba(232, 116, 42, .2) 0 10deg, transparent 10deg 20deg); }
-    .card .num { font-family: var(--serif); font-size: 3.2rem; line-height: 1; color: var(--brand); }
+    .ico { display: grid; place-items: center; color: #fff; flex: none;
+      background: linear-gradient(145deg, #f2b51c, var(--brand) 55%, var(--maroon));
+      box-shadow: 0 14px 26px -12px rgba(143, 29, 44, .75), inset 0 2px 0 rgba(255, 255, 255, .4), inset 0 -4px 0 rgba(0, 0, 0, .14); }
+    .ico svg { stroke-width: 1.8; }
+    .card .ico { width: 66px; height: 66px; border-radius: 20px; transform: rotate(-6deg); transition: transform .4s var(--ease); }
+    .card .ico svg { width: 32px; height: 32px; }
+    .card:hover .ico { transform: rotate(0deg) scale(1.08); }
     .card h3 { font-size: 1.25rem; font-weight: 800; margin-top: 20px; }
     .card p { margin-top: 10px; color: var(--ink-2); font-size: .98rem; }
 
@@ -159,8 +167,8 @@
     .blist { display: flex; flex-direction: column; gap: 14px; }
     .bitem { display: flex; gap: 18px; align-items: flex-start; padding: 20px 22px; border-radius: 18px; background: rgba(255, 255, 255, .8); border: 1px solid var(--line);
       box-shadow: 0 20px 40px -34px rgba(143, 29, 44, .6); }
-    .bitem .dot { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 500 .9rem var(--mono);
-      background: conic-gradient(var(--maroon), var(--brand), var(--gold), var(--maroon)); }
+    .bitem .ico { width: 50px; height: 50px; border-radius: 16px; }
+    .bitem .ico svg { width: 24px; height: 24px; }
     .bitem h3 { font-size: 1.15rem; font-weight: 800; }
     .bitem p { color: var(--ink-2); font-size: .96rem; margin-top: 2px; }
 
@@ -227,13 +235,82 @@
     button.btn { font: inherit; font-weight: 700; }
     .status { margin-top: 14px; min-height: 1.4em; font-weight: 700; color: #1f9d55; }
 
+    /* Opening gate: two 3D palace doors that swing open on tap */
+    html.gated { overflow: hidden; }
+    .gated .enter { animation-play-state: paused; }
+    .no-js #gate { display: none; }
+    #gate { --m: min(82vw, 66vh); position: fixed; inset: 0; z-index: 60; perspective: 1800px; cursor: pointer; overflow: hidden; outline: none;
+      -webkit-tap-highlight-color: transparent; }
+    #gate.open { pointer-events: none; }
+    .door { position: absolute; top: 0; bottom: 0; width: 50.2%; overflow: hidden; backface-visibility: hidden;
+      transition: transform 1.7s cubic-bezier(.65, 0, .2, 1), filter 1.7s ease;
+      background:
+        repeating-linear-gradient(45deg, rgba(194, 81, 28, .07) 0 1.5px, transparent 1.5px 24px),
+        repeating-linear-gradient(-45deg, rgba(194, 81, 28, .07) 0 1.5px, transparent 1.5px 24px),
+        linear-gradient(180deg, #fffaf2, #ffe6c9);
+      box-shadow: inset 0 0 0 10px #fffaf2, inset 0 0 0 13px var(--gold), inset 0 0 0 24px #fff1dc, inset 0 0 0 25px rgba(143, 29, 44, .3); }
+    .door.l { left: 0; transform-origin: 0 50%; }
+    .door.r { right: 0; transform-origin: 100% 50%; }
+    .door .medal { position: absolute; top: 50%; width: var(--m); height: var(--m); translate: 0 -50%; filter: drop-shadow(0 20px 30px rgba(143, 29, 44, .25)); }
+    .door.l .medal { right: calc(var(--m) / -2); }
+    .door.r .medal { left: calc(var(--m) / -2); }
+    .door .edge { position: absolute; top: 0; bottom: 0; width: 5px; background: linear-gradient(#b9790f, #f6d27a 50%, #b9790f); }
+    .door.l .edge { right: 0; }
+    .door.r .edge { left: 0; }
+    #gate.open .door.l { transform: rotateY(-108deg); filter: brightness(.75); }
+    #gate.open .door.r { transform: rotateY(108deg); filter: brightness(.75); }
+    .toran { position: absolute; top: 0; left: 0; right: 0; height: 40px; z-index: 3; transition: transform 1s var(--ease), opacity .8s;
+      background:
+        radial-gradient(circle at 50% 55%, #ffb703 0 9px, #e8742a 9px 13px, transparent 14px) 0 0 / 30px 34px repeat-x,
+        linear-gradient(#2f8f5b, #2f8f5b) 0 6px / 100% 2px no-repeat; }
+    .toran-leaf { position: absolute; top: 30px; left: 0; right: 0; height: 22px; z-index: 3; transition: transform 1s var(--ease), opacity .8s;
+      background: radial-gradient(50% 100% at 50% 0, #2f8f5b 0 60%, transparent 62%) 15px 0 / 60px 22px repeat-x; }
+    #gate.open .toran, #gate.open .toran-leaf { transform: translateY(-70px); opacity: 0; }
+    .burst { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px; border-radius: 50%; z-index: 1; opacity: 0;
+      background: radial-gradient(closest-side, #fff7d6, rgba(255, 200, 90, .7) 45%, transparent); transition: transform 1.3s var(--ease), opacity 1.3s ease; }
+    #gate.open .burst { transform: scale(60); opacity: 0; animation: flash 1.3s ease; }
+    @keyframes flash { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+    .gate-center { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      padding: 20px; text-align: center; pointer-events: none; transition: opacity .5s ease, transform .8s var(--ease); }
+    #gate.open .gate-center { opacity: 0; transform: scale(1.35); }
+    .seal { position: relative; width: 136px; height: 136px; border-radius: 50%; display: grid; place-items: center; background: #fffaf2;
+      box-shadow: 0 0 0 6px var(--gold), 0 0 0 11px #fffaf2, 0 0 0 12px rgba(143, 29, 44, .35), 0 30px 60px -16px rgba(143, 29, 44, .65);
+      animation: seal 2.6s ease-in-out infinite; }
+    .seal img { width: 92px; height: 92px; object-fit: contain; }
+    .seal::after { content: ""; position: absolute; inset: -16px; border-radius: 50%; border: 2px solid rgba(217, 154, 30, .8); animation: ring 2.2s ease-out infinite; }
+    @keyframes seal { 50% { transform: translateY(-6px) scale(1.03); } }
+    @keyframes ring { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+    .gate-note { max-width: 420px; padding: 14px 22px; border-radius: 20px; background: rgba(255, 250, 242, .94); border: 1px solid rgba(194, 81, 28, .25);
+      box-shadow: 0 20px 40px -24px rgba(143, 29, 44, .6); }
+    .gate-title { font-family: var(--serif); font-size: clamp(1.35rem, 4.6vw, 1.9rem); line-height: 1.25; color: var(--ink); }
+    html[lang="hi"] .gate-title, html[lang="gu"] .gate-title { line-height: 1.5; }
+    .gate-tap { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 9px 18px; border-radius: 999px; background: var(--brand); color: #fff;
+      font-weight: 700; font-size: .95rem; box-shadow: 0 12px 24px -10px rgba(194, 81, 28, .8); animation: seal 1.6s ease-in-out infinite; }
+    .gate-tap svg { width: 18px; height: 18px; }
+
     @media (prefers-reduced-motion: reduce) {
+      .door, .gate-center, .toran, .toran-leaf { transition-duration: .3s; }
+      .seal, .seal::after, .gate-tap { animation: none; }
       .enter, .mouse span, .sign-logo { animation: none; }
       [data-reveal] { transition-duration: .01s; }
     }
   </style>
 </head>
 <body>
+  <div id="gate" role="button" tabindex="0" aria-label="Tap to open your greeting">
+    <div class="toran" aria-hidden="true"></div>
+    <div class="toran-leaf" aria-hidden="true"></div>
+    <div class="door l" aria-hidden="true"><canvas class="medal"></canvas><span class="edge"></span></div>
+    <div class="door r" aria-hidden="true"><canvas class="medal"></canvas><span class="edge"></span></div>
+    <div class="burst" aria-hidden="true"></div>
+    <div class="gate-center">
+      <div class="seal"><img src="/brand/lion-logo.png" alt="" onerror="this.onerror=null;this.src='https://hercules-cdn.com/file_LMMqaewvd4Uis6KyxFNZL6Jm'" /></div>
+      <div class="gate-note">
+        <p class="gate-title" id="gate-title">A New Year greeting for you</p>
+        <span class="gate-tap"><i data-lucide="sparkles"></i><span data-i18n="gateTap">Tap to open</span></span>
+      </div>
+    </div>
+  </div>
   <div class="atmos" aria-hidden="true"></div>
   <canvas id="scene" aria-hidden="true"></canvas>
   <div class="bar" aria-hidden="true"></div>
@@ -296,10 +373,10 @@
         <h2 class="h2" data-reveal="up" style="--d:.1s" data-i18n="tradTitle">The meaning of Bestu Varas</h2>
         <p class="lead" data-reveal="up" style="--d:.2s" data-i18n="tradLead">The day after Diwali, Gujarat welcomes the new year of the Vikram Samvat calendar with light, sweets and blessings.</p>
         <div class="grid">
-          <div data-reveal="tilt" style="--d:0s"><article class="card tilt"><div class="motif"></div><div class="num">01</div><h3 data-i18n="c1t"></h3><p data-i18n="c1p"></p></article></div>
-          <div data-reveal="tilt" style="--d:.12s"><article class="card tilt"><div class="motif"></div><div class="num">02</div><h3 data-i18n="c2t"></h3><p data-i18n="c2p"></p></article></div>
-          <div data-reveal="tilt" style="--d:.24s"><article class="card tilt"><div class="motif"></div><div class="num">03</div><h3 data-i18n="c3t"></h3><p data-i18n="c3p"></p></article></div>
-          <div data-reveal="tilt" style="--d:.36s"><article class="card tilt"><div class="motif"></div><div class="num">04</div><h3 data-i18n="c4t"></h3><p data-i18n="c4p"></p></article></div>
+          <div data-reveal="tilt" style="--d:0s"><article class="card tilt"><div class="motif"></div><span class="ico"><i data-lucide="wheat"></i></span><h3 data-i18n="c1t"></h3><p data-i18n="c1p"></p></article></div>
+          <div data-reveal="tilt" style="--d:.12s"><article class="card tilt"><div class="motif"></div><span class="ico"><i data-lucide="flower-2"></i></span><h3 data-i18n="c2t"></h3><p data-i18n="c2p"></p></article></div>
+          <div data-reveal="tilt" style="--d:.24s"><article class="card tilt"><div class="motif"></div><span class="ico"><i data-lucide="hand-heart"></i></span><h3 data-i18n="c3t"></h3><p data-i18n="c3p"></p></article></div>
+          <div data-reveal="tilt" style="--d:.36s"><article class="card tilt"><div class="motif"></div><span class="ico"><i data-lucide="book-open"></i></span><h3 data-i18n="c4t"></h3><p data-i18n="c4p"></p></article></div>
         </div>
       </div>
     </section>
@@ -313,10 +390,10 @@
             <div class="rangoli-wrap" id="rangoli-wrap"><div class="halo"></div><canvas id="rangoli" aria-hidden="true"></canvas></div>
           </div>
           <div class="blist">
-            <div class="bitem" data-reveal="right" style="--d:0s"><span class="dot">1</span><div><h3 data-i18n="b1t"></h3><p data-i18n="b1p"></p></div></div>
-            <div class="bitem" data-reveal="right" style="--d:.12s"><span class="dot">2</span><div><h3 data-i18n="b2t"></h3><p data-i18n="b2p"></p></div></div>
-            <div class="bitem" data-reveal="right" style="--d:.24s"><span class="dot">3</span><div><h3 data-i18n="b3t"></h3><p data-i18n="b3p"></p></div></div>
-            <div class="bitem" data-reveal="right" style="--d:.36s"><span class="dot">4</span><div><h3 data-i18n="b4t"></h3><p data-i18n="b4p"></p></div></div>
+            <div class="bitem" data-reveal="right" style="--d:0s"><span class="ico"><i data-lucide="heart-pulse"></i></span><div><h3 data-i18n="b1t"></h3><p data-i18n="b1p"></p></div></div>
+            <div class="bitem" data-reveal="right" style="--d:.12s"><span class="ico"><i data-lucide="gem"></i></span><div><h3 data-i18n="b2t"></h3><p data-i18n="b2p"></p></div></div>
+            <div class="bitem" data-reveal="right" style="--d:.24s"><span class="ico"><i data-lucide="smile"></i></span><div><h3 data-i18n="b3t"></h3><p data-i18n="b3p"></p></div></div>
+            <div class="bitem" data-reveal="right" style="--d:.36s"><span class="ico"><i data-lucide="trophy"></i></span><div><h3 data-i18n="b4t"></h3><p data-i18n="b4p"></p></div></div>
           </div>
         </div>
       </div>
@@ -328,32 +405,6 @@
         <h2 class="big grad" data-reveal="zoom" data-i18n="finaleBig">Saal Mubarak!</h2>
         <p class="finale-sub" data-reveal="up" style="--d:.2s" data-i18n="finaleSub">Welcome, Vikram Samvat 2083</p>
         <p class="tap" data-reveal="up" style="--d:.35s" data-i18n="tap">Tap anywhere for more fireworks</p>
-      </div>
-    </section>
-
-    <section class="section" id="share">
-      <div class="share-card" data-reveal="up">
-        <span class="label" data-i18n="shareLabel">Share the joy</span>
-        <h2 class="h2" data-i18n="shareTitle">Send this greeting with your name</h2>
-        <p class="lead" data-i18n="shareLead"></p>
-        <form id="share-form" novalidate>
-          <div class="field">
-            <label for="name-input" data-i18n="nameLabel">Your name</label>
-            <input id="name-input" name="from" type="text" maxlength="30" autocomplete="name" enterkeyhint="send" placeholder="e.g. Rahul Patel" />
-            <p class="err" id="name-err" aria-live="polite"></p>
-          </div>
-          <div class="agency-lock">
-            <img src="/brand/lion-logo.png" alt="" onerror="this.onerror=null;this.src='https://hercules-cdn.com/file_LMMqaewvd4Uis6KyxFNZL6Jm'" />
-            <span><span data-i18n="lockPre">Every greeting is sent together with</span> <strong>Lion Digital Solution</strong><span data-i18n="lockPost"></span></span>
-          </div>
-          <div class="linkbox" id="link-box" hidden><b data-i18n="linkLabel">Your link</b><span id="link-text"></span></div>
-          <div class="btns">
-            <button type="submit" class="btn btn-wa"><span data-i18n="shareWa">Share on WhatsApp</span></button>
-            <button type="button" class="btn btn-ghost" id="copy-btn"><span data-i18n="copyBtn">Copy link</span></button>
-            <button type="button" class="btn btn-ghost" id="preview-btn"><span data-i18n="previewBtn">Preview</span></button>
-          </div>
-          <p class="status" id="share-status" aria-live="polite"></p>
-        </form>
       </div>
     </section>
 
@@ -370,6 +421,32 @@
           <a class="btn btn-primary" id="wa-link" href="https://wa.me/917600747798" target="_blank" rel="noopener"><i></i><span data-i18n="waBtn">Chat on WhatsApp</span></a>
           <a class="btn btn-ghost" href="/" data-i18n="siteBtn">Visit our website</a>
         </div>
+      </div>
+    </section>
+
+    <section class="section" id="share">
+      <div class="share-card" data-reveal="up">
+        <span class="label" data-i18n="shareLabel">Share the joy</span>
+        <h2 class="h2" data-i18n="shareTitle">Send this greeting with your name</h2>
+        <p class="lead" data-i18n="shareLead"></p>
+        <form id="share-form" novalidate>
+          <div class="field">
+            <label for="name-input" data-i18n="nameLabel">Your name</label>
+            <input id="name-input" name="from" type="text" maxlength="30" autocomplete="off" enterkeyhint="send" placeholder="e.g. Rahul Patel" />
+            <p class="err" id="name-err" aria-live="polite"></p>
+          </div>
+          <div class="agency-lock">
+            <img src="/brand/lion-logo.png" alt="" onerror="this.onerror=null;this.src='https://hercules-cdn.com/file_LMMqaewvd4Uis6KyxFNZL6Jm'" />
+            <span><span data-i18n="lockPre">Every greeting is sent together with</span> <strong>Lion Digital Solution</strong><span data-i18n="lockPost"></span></span>
+          </div>
+          <div class="linkbox" id="link-box" hidden><b data-i18n="linkLabel">Your link</b><span id="link-text"></span></div>
+          <div class="btns">
+            <button type="submit" class="btn btn-wa"><span data-i18n="shareWa">Share on WhatsApp</span></button>
+            <button type="button" class="btn btn-ghost" id="copy-btn"><span data-i18n="copyBtn">Copy link</span></button>
+            <button type="button" class="btn btn-ghost" id="preview-btn"><span data-i18n="previewBtn">Preview</span></button>
+          </div>
+          <p class="status" id="share-status" aria-live="polite"></p>
+        </form>
       </div>
       <p class="copy">&copy; <span id="year">2026</span> Lion Digital Solution</p>
     </section>
@@ -412,6 +489,7 @@
         nameErr: 'Please enter your name (letters only, up to 30).',
         shareMsg: (n) => `Saal Mubarak! ${n} and Lion Digital Solution wish you a very Happy Gujarati New Year. Open your greeting:`,
         personTitle: (n) => `${n} wishes you a Happy New Year | Lion Digital Solution`,
+        gateTap: 'Tap to open', gateTitle: 'A New Year greeting for you', gatePerson: (n) => `${n} sent you a New Year greeting`,
       },
       hi: {
         docTitle: 'नूतन वर्षाभिनंदन | Lion Digital Solution',
@@ -448,6 +526,7 @@
         nameErr: 'कृपया अपना नाम लिखें (सिर्फ़ अक्षर, 30 तक)।',
         shareMsg: (n) => `साल मुबारक! ${n} और Lion Digital Solution की ओर से आपको नूतन वर्ष की हार्दिक शुभकामनाएँ। अपना संदेश खोलें:`,
         personTitle: (n) => `${n} की ओर से नूतन वर्षाभिनंदन | Lion Digital Solution`,
+        gateTap: 'खोलने के लिए टैप करें', gateTitle: 'आपके लिए नए साल का संदेश', gatePerson: (n) => `${n} ने आपको नए साल का संदेश भेजा है`,
       },
       gu: {
         docTitle: 'નૂતન વર્ષાભિનંદન | Lion Digital Solution',
@@ -484,6 +563,7 @@
         nameErr: 'કૃપા કરીને તમારું નામ લખો (ફક્ત અક્ષરો, 30 સુધી).',
         shareMsg: (n) => `સાલ મુબારક! ${n} અને Lion Digital Solution તરફથી આપને નૂતન વર્ષાભિનંદન. તમારો સંદેશ ખોલો:`,
         personTitle: (n) => `${n} તરફથી નૂતન વર્ષાભિનંદન | Lion Digital Solution`,
+        gateTap: 'ખોલવા માટે ટેપ કરો', gateTitle: 'આપના માટે નવા વર્ષનો સંદેશ', gatePerson: (n) => `${n} એ આપને નવા વર્ષનો સંદેશ મોકલ્યો છે`,
       },
     };
 
@@ -571,6 +651,7 @@
       $('#from-pre').textContent = sender ? dict.withPre : dict.fromPre;
       $('#from-post').textContent = sender ? dict.withPost : dict.fromPost;
       $('#name-input').placeholder = dict.namePh;
+      $('#gate-title').textContent = sender ? dict.gatePerson(sender) : dict.gateTitle;
       $$('[data-lang-btn]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.langBtn === next)));
       $('#wa-link').href = `https://wa.me/917600747798?text=${encodeURIComponent(dict.waText)}`;
       splitWish();
@@ -678,7 +759,7 @@
       $('#sign-name').textContent = sender;
       $('#hero-person').hidden = false;
       $('#sign-person').hidden = false;
-      $('#name-input').value = sender;
+      // The name box stays empty on purpose, so whoever opens the link can type their own name.
     }
     const nameInput = $('#name-input');
     const nameErr = $('#name-err');
@@ -728,6 +809,24 @@
 
     $('#year').textContent = String(new Date().getFullYear());
     applyLang(lang);
+    window.lucide?.createIcons();
+
+    /* ---------- Opening gate: tap to swing the doors open ---------- */
+    const gate = $('#gate');
+    $$('.medal', gate).forEach((c) => drawRangoli(700, c));
+    let opened = false;
+    function openGate() {
+      if (opened) return;
+      opened = true;
+      state.openedAt = performance.now();
+      gate.classList.add('open');
+      document.documentElement.classList.remove('gated');
+      scrollTo(0, 0);
+      setTimeout(() => gate.remove(), reduceMotion ? 400 : 1800);
+    }
+    gate.addEventListener('click', openGate);
+    gate.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGate(); } });
+    gate.focus({ preventScroll: true });
 
     /* ---------- Fireworks finale ---------- */
     function initFireworks() {
@@ -955,8 +1054,11 @@
         mouse.y += (mouse.ty - mouse.y) * 0.05;
 
         const ang = Math.sin(t * 0.12 * motion) * 0.35 + mouse.x * 0.3;
-        const radius = (isMobile ? 10.5 : 8.6) - sp * 2.4;
-        const height = 3.4 + sp * 3.6 - mouse.y * 0.5;
+        // After the doors open, the camera glides in from far away and high up.
+        const since = state.openedAt ? (performance.now() - state.openedAt) / (reduceMotion ? 300 : 2600) : 0;
+        const intro = 1 - Math.pow(1 - clamp(since, 0, 1), 3);
+        const radius = (isMobile ? 10.5 : 8.6) - sp * 2.4 + (1 - intro) * 9;
+        const height = 3.4 + sp * 3.6 - mouse.y * 0.5 + (1 - intro) * 5;
         camera.position.set(Math.sin(ang) * radius, height, Math.cos(ang) * radius);
         camera.lookAt(0, (isMobile ? 2.6 : 2.0) - sp * 2.2, 0);
 
