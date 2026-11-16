@@ -10,6 +10,12 @@ export const SERVICE_PAGES = [
   { href: '/services/booking-system-development/', label: 'Online Booking Systems' },
 ];
 
+// Home market first (Gujarat, then India), then the international pages.
+export const HOME_MARKET_PAGES = [
+  { href: '/website-development-gujarat/', label: 'Gujarat' },
+  { href: '/website-development-india/', label: 'India' },
+];
+
 export const REGION_PAGES = [
   { href: '/website-development-usa/', label: 'USA' },
   { href: '/website-development-uk/', label: 'UK' },
@@ -24,6 +30,14 @@ export default function ServiceLinks() {
         <a className="service-links-title" href="/services/">Explore all services</a>
         <ul>
           {SERVICE_PAGES.map((page) => (
+            <li key={page.href}><a href={page.href}>{page.label}</a></li>
+          ))}
+        </ul>
+      </div>
+      <div className="service-links-inner">
+        <span className="service-links-title">Our home market</span>
+        <ul>
+          {HOME_MARKET_PAGES.map((page) => (
             <li key={page.href}><a href={page.href}>{page.label}</a></li>
           ))}
         </ul>

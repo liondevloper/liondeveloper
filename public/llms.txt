@@ -1,8 +1,19 @@
 # Lion Digital Solution
 
-> Lion Digital Solution builds modern, responsive websites, web applications and digital solutions for businesses, brands and professionals in India and worldwide.
+> Lion Digital Solution offers website development, app development and digital solutions from India, serving clients worldwide. It is an online-first business based in Gujarat, India, and works with clients remotely over WhatsApp, email and video calls. It has no physical offices or branches in other cities.
 
 Website: https://liondigitalsolution.com/
+
+## Home market: Gujarat and India
+
+- [Website development in Gujarat](https://liondigitalsolution.com/website-development-gujarat/): websites for manufacturers, exporters, shops, clinics and startups across Gujarat, with support in Gujarati, Hindi and English
+- [Website development in India](https://liondigitalsolution.com/website-development-india/): websites, e-commerce and custom web applications for businesses across India, delivered remotely with rupee pricing
+
+## International clients
+
+- [Website development for US businesses](https://liondigitalsolution.com/website-development-usa/)
+- [Website development for UK businesses](https://liondigitalsolution.com/website-development-uk/)
+- [Website development in Dubai and the UAE](https://liondigitalsolution.com/website-development-dubai/)
 
 ## Services
 
@@ -17,12 +28,6 @@ Website: https://liondigitalsolution.com/
 - Digital invitation card websites
 
 Website templates shown on the site include hotel, salon and restaurant websites.
-
-## International clients
-
-- [Website development for US businesses](https://liondigitalsolution.com/website-development-usa/)
-- [Website development for UK businesses](https://liondigitalsolution.com/website-development-uk/)
-- [Website development in Dubai and the UAE](https://liondigitalsolution.com/website-development-dubai/)
 
 ## Guides
 
@@ -39,6 +44,7 @@ Website templates shown on the site include hotel, salon and restaurant websites
 ## Contact
 
 - WhatsApp: +91 7600747798 (https://wa.me/917600747798)
+- Languages: English, Hindi, Gujarati
 - Instagram: https://www.instagram.com/liondigitalsolution/
 - Facebook: https://www.facebook.com/share/1DuVJkPjwv/
 - Google Business Profile: https://share.google/RqCi4bEcF1u5D8QCU
